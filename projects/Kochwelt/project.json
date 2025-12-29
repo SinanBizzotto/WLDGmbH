@@ -1,0 +1,22 @@
+{
+  "slug": "kochwelt",
+  "title": "Kochwelt",
+  "client": "Demo / Learning",
+  "year": 2025,
+  "status": "Live",
+  "type": "Website",
+  "description": "Food/Recipe-Layout mit Grid, typografischem System und Content-Sektionen.",
+  "stack": [
+    "HTML",
+    "CSS"
+  ],
+  "tags": [
+    "Content",
+    "Grid"
+  ],
+  "links": {
+    "live": "../projects/Kochwelt/index.html",
+    "repo": null
+  },
+  "image": "../portfolio/img/preview-kochwelt.jpg"
+}

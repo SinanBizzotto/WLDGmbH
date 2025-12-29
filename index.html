@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web Lab Design | Websites, die verkaufen</title>
+    <meta name="description"
+        content="Web Lab Design entwickelt performante Frontends und komplette Web-Lösungen: Frontend, Hosting & Full-Stack Pakete." />
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header" id="top">
+        <div class="container header__inner">
+            <a class="brand" href="#top" aria-label="Web Lab Design">
+                <span class="brand__logo">WLD</span>
+                <span class="brand__text">
+                    <strong>Web Lab Design</strong>
+                    <small>Frontend. Hosting. Full-Stack.</small>
+                </span>
+            </a>
+
+            <nav class="nav" aria-label="Hauptnavigation">
+                <a href="#leistungen">Leistungen</a>
+                <a href="#pakete">Pakete</a>
+                <a href="#prozess">Prozess</a>
+                <a href="#referenzen">Referenzen</a>
+                <a href="/portfolio/">Portfolio</a>
+                <a href="#kontakt" class="btn btn--ghost">Kontakt</a>
+            </nav>
+
+            <button class="navToggle" type="button" aria-label="Menü öffnen" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO -->
+        <section class="hero">
+            <div class="container hero__grid">
+                <div class="hero__copy">
+                    <p class="badge">Webentwicklung für KMU & Startups</p>
+                    <h1>Websites, die <span class="highlight">Leads liefern</span> – nicht nur gut aussehen.</h1>
+                    <p class="lead">
+                        Wir bauen moderne, schnelle Frontends – optional inkl. Hosting und Backend.
+                        Klare Pakete, saubere Umsetzung, messbare Performance.
+                    </p>
+
+                    <div class="hero__cta">
+                        <a class="btn" href="#pakete">Pakete ansehen</a>
+                        <a class="btn btn--ghost" href="#kontakt">Projekt anfragen</a>
+                    </div>
+
+                    <div class="hero__stats" role="list" aria-label="Kernfakten">
+                        <div class="stat" role="listitem">
+                            <strong>+Performance</strong>
+                            <span>Optimiert für Core Web Vitals</span>
+                        </div>
+                        <div class="stat" role="listitem">
+                            <strong>+Conversion</strong>
+                            <span>Struktur & UX für Leads</span>
+                        </div>
+                        <div class="stat" role="listitem">
+                            <strong>+Tempo</strong>
+                            <span>Kurze Iterationszyklen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero__card" aria-label="Vorschau">
+                    <div class="mock">
+                        <div class="mock__top">
+                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <div class="mock__body">
+                            <div class="mock__line w60"></div>
+                            <div class="mock__line w90"></div>
+                            <div class="mock__line w80"></div>
+                            <div class="mock__grid">
+                                <div class="mock__tile"></div>
+                                <div class="mock__tile"></div>
+                                <div class="mock__tile"></div>
+                            </div>
+                            <div class="mock__line w70"></div>
+                        </div>
+                    </div>
+
+                    <div class="hero__cardFooter">
+                        <p><strong>Scope-klar.</strong> Paket wählen → Anforderungen definieren → Launch.</p>
+                        <p class="muted">Transparente Umsetzung statt Agentur-Nebelmaschine.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEISTUNGEN -->
+        <section class="section" id="leistungen">
+            <div class="container">
+                <div class="section__head">
+                    <h2>Leistungen</h2>
+                    <p class="muted">Frontend-Fokus, skalierbar erweiterbar – je nach Paket.</p>
+                </div>
+
+                <div class="grid grid--3">
+                    <article class="card">
+                        <h3>Frontend Engineering</h3>
+                        <p>Responsive UI, Komponenten-Architektur, SEO-Basics, Performance-Optimierung.</p>
+                        <ul class="list">
+                            <li>Modernes, wartbares UI</li>
+                            <li>Mobile-First, Accessibility</li>
+                            <li>Saubere Übergabe/Dokumentation</li>
+                        </ul>
+                    </article>
+
+                    <article class="card">
+                        <h3>Hosting & Betrieb</h3>
+                        <p>Setup, Deployment, Domain/SSL und Monitoring – wenn gewünscht.</p>
+                        <ul class="list">
+                            <li>Deployment-Pipelines</li>
+                            <li>SSL / Domain / DNS</li>
+                            <li>Uptime-Checks & Updates</li>
+                        </ul>
+                    </article>
+
+                    <article class="card">
+                        <h3>Backend Integration</h3>
+                        <p>APIs, Datenmodelle, Auth und Admin-Flows – als Add-on im Full-Stack Paket.</p>
+                        <ul class="list">
+                            <li>API-Design & Umsetzung</li>
+                            <li>Login/Permissions</li>
+                            <li>CMS/CRUD-Flows</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAKETE -->
+        <section class="section section--alt" id="pakete">
+            <div class="container">
+                <div class="section__head section__head--split">
+                    <div>
+                        <h2>Pakete</h2>
+                        <p class="muted">3 klare Optionen. Du entscheidest nach Scope und Betrieb.</p>
+                    </div>
+
+                    <div class="pricingToggle" aria-label="Preissicht umschalten">
+                        <span class="muted">Preise:</span>
+                        <button class="toggle" type="button" id="priceToggle" aria-pressed="false">
+                            <span>Einmalig</span>
+                            <span class="toggle__pill" aria-hidden="true"></span>
+                            <span>Monatlich*</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid--3">
+                    <article class="card card--pricing" data-plan="frontend">
+                        <div class="card__tag">Für Landingpages & Corporate Sites</div>
+                        <h3>Frontend</h3>
+                        <p class="price">
+                            <span class="price__value" data-once="ab 2’500 CHF" data-monthly="ab 390 CHF">ab 2’500
+                                CHF</span>
+                            <span class="price__meta muted">Delivery: UI + Pages</span>
+                        </p>
+                        <ul class="list">
+                            <li>Design-System Light (Buttons, Cards, Layout)</li>
+                            <li>Bis 5 Seiten/Sektionen</li>
+                            <li>SEO-Grundsetup + Performance</li>
+                            <li>Deployment-ready (ohne Hosting-Betrieb)</li>
+                        </ul>
+                        <button class="btn btn--full selectPlan" type="button">Dieses Paket wählen</button>
+                    </article>
+
+                    <article class="card card--pricing card--featured" data-plan="frontend_hosting">
+                        <div class="card__tag">Für Firmen, die Ruhe im Betrieb wollen</div>
+                        <h3>Frontend + Hosting</h3>
+                        <p class="price">
+                            <span class="price__value" data-once="ab 3’400 CHF" data-monthly="ab 590 CHF">ab 3’400
+                                CHF</span>
+                            <span class="price__meta muted">Delivery: UI + Betrieb</span>
+                        </p>
+                        <ul class="list">
+                            <li>Alles aus Frontend</li>
+                            <li>Domain/SSL Setup</li>
+                            <li>Deployment & Monitoring</li>
+                            <li>Wartungsfenster + Updates</li>
+                        </ul>
+                        <button class="btn btn--full selectPlan" type="button">Dieses Paket wählen</button>
+                    </article>
+
+                    <article class="card card--pricing" data-plan="fullstack">
+                        <div class="card__tag">Für Web-Apps & Automatisierung</div>
+                        <h3>Full-Stack</h3>
+                        <p class="price">
+                            <span class="price__value" data-once="ab 6’900 CHF" data-monthly="ab 990 CHF">ab 6’900
+                                CHF</span>
+                            <span class="price__meta muted">Delivery: UI + API + Daten</span>
+                        </p>
+                        <ul class="list">
+                            <li>Alles aus Frontend + Hosting</li>
+                            <li>Backend/API + Datenbank</li>
+                            <li>Auth/Accounts nach Bedarf</li>
+                            <li>Admin-Bereich / CRUD-Flows</li>
+                        </ul>
+                        <button class="btn btn--full selectPlan" type="button">Dieses Paket wählen</button>
+                    </article>
+                </div>
+
+                <p class="fine muted">
+                    *Monatlich = laufender Betrieb/Wartung; Scope wird im Kickoff fixiert. Exakte Angebote nach
+                    Requirements.
+                </p>
+            </div>
+        </section>
+
+        <!-- SMART CONFIGURATOR -->
+        <section class="section" id="konfigurator">
+            <div class="container">
+                <div class="section__head">
+                    <h2>Projekt-Konfigurator</h2>
+                    <p class="muted">In 60 Sekunden zum passenden Paket inkl. Budget-Range und realistischer Timeline.
+                    </p>
+                </div>
+
+                <div class="grid grid--2">
+                    <!-- Paket-Finder -->
+                    <article class="card">
+                        <h3>Paket-Finder</h3>
+                        <p class="muted">Sag uns, was du brauchst. Wir matchen das richtige Setup.</p>
+
+                        <form id="finderForm" class="form form--compact" novalidate>
+                            <label>
+                                Brauchst du Login / Accounts?
+                                <select name="auth" required>
+                                    <option value="no">Nein</option>
+                                    <option value="yes">Ja</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Brauchst du Datenbank / Datenverwaltung?
+                                <select name="db" required>
+                                    <option value="no">Nein</option>
+                                    <option value="yes">Ja</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Soll Hosting & Betrieb übernommen werden?
+                                <select name="hosting" required>
+                                    <option value="no">Nein</option>
+                                    <option value="yes">Ja</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Wie viele Seiten/Sektionen?
+                                <select name="pages" required>
+                                    <option value="1-3">1–3</option>
+                                    <option value="4-6">4–6</option>
+                                    <option value="7-10">7–10</option>
+                                    <option value="10+">10+</option>
+                                </select>
+                            </label>
+
+                            <button class="btn btn--full" type="submit">Empfehlung anzeigen</button>
+
+                            <div class="result" id="finderResult" aria-live="polite"></div>
+                        </form>
+                    </article>
+
+                    <!-- Preisrechner -->
+                    <article class="card">
+                        <h3>Budget-Estimator</h3>
+                        <p class="muted">Transparente Range statt Agentur-Nebel. Finale Offerte nach Kickoff.</p>
+
+                        <div class="estimator" id="estimator">
+                            <div class="estRow">
+                                <label for="estPages"><strong>Seiten/Sektionen</strong></label>
+                                <input id="estPages" type="range" min="1" max="12" value="5" />
+                                <span class="pill"><span id="estPagesVal">5</span></span>
+                            </div>
+
+                            <div class="estChecks">
+                                <label class="check">
+                                    <input type="checkbox" id="estSEO" checked />
+                                    <span>SEO-Basics</span>
+                                </label>
+                                <label class="check">
+                                    <input type="checkbox" id="estForms" checked />
+                                    <span>Formulare / Lead-Flows</span>
+                                </label>
+                                <label class="check">
+                                    <input type="checkbox" id="estMulti" />
+                                    <span>Mehrsprachig</span>
+                                </label>
+                                <label class="check">
+                                    <input type="checkbox" id="estHosting" />
+                                    <span>Hosting & Betrieb</span>
+                                </label>
+                                <label class="check">
+                                    <input type="checkbox" id="estBackend" />
+                                    <span>Backend / API / DB</span>
+                                </label>
+                            </div>
+
+                            <div class="estOut">
+                                <div>
+                                    <div class="muted">Einmalig (Range)</div>
+                                    <div class="big" id="estOnce">—</div>
+                                </div>
+                                <div>
+                                    <div class="muted">Monatlich (Betrieb)</div>
+                                    <div class="big" id="estMonthly">—</div>
+                                </div>
+                            </div>
+
+                            <div class="timelineBox">
+                                <div class="muted">Realistische Timeline</div>
+                                <div class="timelineLine" id="estTimeline">—</div>
+                            </div>
+
+                            <div class="estActions">
+                                <button class="btn btn--ghost" type="button" id="applyToContact">In Kontaktformular
+                                    übernehmen</button>
+                            </div>
+
+                            <p class="fine muted">
+                                Hinweis: Schätzung basiert auf typischen Scopes. Exakte Kalkulation nach Requirements
+                                (Kickoff).
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- PROZESS -->
+        <section class="section" id="prozess">
+            <div class="container">
+                <div class="section__head">
+                    <h2>Prozess</h2>
+                    <p class="muted">Planbar, transparent, mit sauberer Abnahme.</p>
+                </div>
+
+                <div class="timeline">
+                    <div class="step">
+                        <div class="step__num">1</div>
+                        <div>
+                            <h3>Kickoff & Scope</h3>
+                            <p>Requirements, Zielgruppe, Inhalte, Tech-Setup. Ergebnis: Scope-Dokument + Roadmap.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step__num">2</div>
+                        <div>
+                            <h3>Design & UI</h3>
+                            <p>Wireframe → UI-System → Seitenstruktur. Fokus: Klarheit, Conversion, Performance.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step__num">3</div>
+                        <div>
+                            <h3>Build & Iteration</h3>
+                            <p>Umsetzung in Sprints, Feedback-Loops, Qualitätschecks. Ergebnis: Release-Candidate.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step__num">4</div>
+                        <div>
+                            <h3>Launch & Übergabe</h3>
+                            <p>Deployment, Tracking-Basics, Dokumentation. Optional: Betrieb im Hosting-Paket.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CASE STUDIES -->
+        <section class="section" id="case-studies">
+            <div class="container">
+                <div class="section__head section__head--split">
+                    <div>
+                        <h2>Case Studies</h2>
+                        <p class="muted">Kurz, messbar, nachvollziehbar. Keine Show – Ergebnis.</p>
+                    </div>
+
+                    <div class="caseControls" aria-label="Case Study Filter">
+                        <label class="srOnly" for="caseFilter">Filter</label>
+                        <select id="caseFilter">
+                            <option value="all">Alle</option>
+                            <option value="frontend">Frontend</option>
+                            <option value="hosting">Hosting</option>
+                            <option value="fullstack">Full-Stack</option>
+                        </select>
+
+                        <button class="btn btn--ghost" type="button" id="caseToggle" aria-pressed="false">
+                            Details anzeigen
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid--3" id="caseGrid">
+                    <!-- Case 1 -->
+                    <article class="case card" data-tags="frontend performance seo" tabindex="0">
+                        <div class="case__top">
+                            <div>
+                                <h3>KMU Landingpage – Lead-Funnel</h3>
+                                <p class="muted">Scope: Frontend, SEO-Basics, Performance-Optimierung</p>
+                            </div>
+                            <span class="case__badge">Frontend</span>
+                        </div>
+
+                        <div class="case__kpis">
+                            <div class="kpi">
+                                <span class="kpi__label muted">Load (LCP)</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="3.8">3.8s</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="1.6">1.6s</span>
+                                </span>
+                            </div>
+                            <div class="kpi">
+                                <span class="kpi__label muted">Conversion</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="1.2">1.2%</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="2.3">2.3%</span>
+                                </span>
+                            </div>
+                            <div class="kpi">
+                                <span class="kpi__label muted">Bounce</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="62">62%</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="44">44%</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="case__details" hidden>
+                            <div class="case__block">
+                                <h4>Problem</h4>
+                                <p class="muted">Langsame Seite, unklarer Call-to-Action, Traffic ohne Leads.</p>
+                            </div>
+                            <div class="case__block">
+                                <h4>Entscheidung</h4>
+                                <p class="muted">UI verschlankt, Above-the-fold optimiert, Form-Flow reduziert,
+                                    Performance-Budget eingeführt.</p>
+                            </div>
+                            <div class="case__block">
+                                <h4>Umsetzung</h4>
+                                <ul class="list">
+                                    <li>Component-first Layout, mobile-first</li>
+                                    <li>Bildoptimierung + Lazy Loading</li>
+                                    <li>SEO-Grundstruktur + Meta/Schema light</li>
+                                </ul>
+                            </div>
+                            <div class="case__proof muted">
+                                Proof: Analytics / Lighthouse / Search Console (auf Anfrage).
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Case 2 -->
+                    <article class="case card" data-tags="hosting ops frontend" tabindex="0">
+                        <div class="case__top">
+                            <div>
+                                <h3>Corporate Site – Betrieb & Stabilität</h3>
+                                <p class="muted">Scope: Frontend + Hosting, Deployment, Monitoring</p>
+                            </div>
+                            <span class="case__badge case__badge--alt">Hosting</span>
+                        </div>
+
+                        <div class="case__kpis">
+                            <div class="kpi">
+                                <span class="kpi__label muted">Uptime</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="97.9">97.9%</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="99.95">99.95%</span>
+                                </span>
+                            </div>
+                            <div class="kpi">
+                                <span class="kpi__label muted">Deploys/Monat</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="1">1</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="8">8</span>
+                                </span>
+                            </div>
+                            <div class="kpi">
+                                <span class="kpi__label muted">Incidents</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="6">6</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="1">1</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="case__details" hidden>
+                            <div class="case__block">
+                                <h4>Problem</h4>
+                                <p class="muted">Manuelle Deploys, Ausfälle, keine klare Ownership im Betrieb.</p>
+                            </div>
+                            <div class="case__block">
+                                <h4>Entscheidung</h4>
+                                <p class="muted">Deployment-Pipeline + Monitoring + saubere Rollback-Strategie.</p>
+                            </div>
+                            <div class="case__block">
+                                <h4>Umsetzung</h4>
+                                <ul class="list">
+                                    <li>Automatisierte Deployments</li>
+                                    <li>Uptime-Checks + Alerting</li>
+                                    <li>SSL/Domain/DNS sauber dokumentiert</li>
+                                </ul>
+                            </div>
+                            <div class="case__proof muted">
+                                Proof: Status-Monitoring/Logs (auf Anfrage).
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Case 3 -->
+                    <article class="case card" data-tags="fullstack api auth" tabindex="0">
+                        <div class="case__top">
+                            <div>
+                                <h3>Web-App – Admin + API</h3>
+                                <p class="muted">Scope: Full-Stack, Auth, CRUD-Flows, Admin UI</p>
+                            </div>
+                            <span class="case__badge case__badge--pro">Full-Stack</span>
+                        </div>
+
+                        <div class="case__kpis">
+                            <div class="kpi">
+                                <span class="kpi__label muted">Bearbeitungszeit</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="18">18m</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="6">6m</span>
+                                </span>
+                            </div>
+                            <div class="kpi">
+                                <span class="kpi__label muted">Fehlerquote</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="9">9%</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="2">2%</span>
+                                </span>
+                            </div>
+                            <div class="kpi">
+                                <span class="kpi__label muted">Time-to-Ship</span>
+                                <span class="kpi__value">
+                                    <span class="kpi__before" data-value="6">6w</span>
+                                    <span class="kpi__arrow">→</span>
+                                    <span class="kpi__after" data-value="3">3w</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="case__details" hidden>
+                            <div class="case__block">
+                                <h4>Problem</h4>
+                                <p class="muted">Manuelle Prozesse, keine zentrale Datenquelle, hohe Fehlerquote.</p>
+                            </div>
+                            <div class="case__block">
+                                <h4>Entscheidung</h4>
+                                <p class="muted">API + Datenmodell + Admin-UI, damit Prozesse standardisiert laufen.</p>
+                            </div>
+                            <div class="case__block">
+                                <h4>Umsetzung</h4>
+                                <ul class="list">
+                                    <li>Auth/Rollenmodell</li>
+                                    <li>CRUD-Flows + Validierung</li>
+                                    <li>Audit-Logs light</li>
+                                </ul>
+                            </div>
+                            <div class="case__proof muted">
+                                Proof: Demo-Account / Screens (auf Anfrage).
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="caseFoot muted fine">
+                    Hinweis: Zahlen sind Beispiele. Ersetze sie mit echten Werten aus Analytics/Monitoring, sobald
+                    verfügbar.
+                </div>
+            </div>
+        </section>
+
+
+        <!-- REFERENZEN -->
+        <section class="section section--alt" id="referenzen">
+            <div class="container">
+                <div class="section__head">
+                    <h2>Referenzen</h2>
+                    <p class="muted">Platzhalter-Bereich: hier kommen Projekte/Case Studies rein.</p>
+                </div>
+
+                <div class="grid grid--3">
+                    <article class="card card--case">
+                        <h3>Projekt A</h3>
+                        <p class="muted">Landingpage + Lead-Form + SEO-Basics</p>
+                        <div class="chips">
+                            <span class="chip">Frontend</span>
+                            <span class="chip">Performance</span>
+                        </div>
+                    </article>
+                    <article class="card card--case">
+                        <h3>Projekt B</h3>
+                        <p class="muted">Corporate Site + Hosting + Monitoring</p>
+                        <div class="chips">
+                            <span class="chip">Hosting</span>
+                            <span class="chip">Ops</span>
+                        </div>
+                    </article>
+                    <article class="card card--case">
+                        <h3>Projekt C</h3>
+                        <p class="muted">Web-App + API + Admin-Flow</p>
+                        <div class="chips">
+                            <span class="chip">Full-Stack</span>
+                            <span class="chip">API</span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="section" id="faq">
+            <div class="container">
+                <div class="section__head">
+                    <h2>FAQ</h2>
+                    <p class="muted">Kurz und konkret, damit keine Zeit in Schleifen verschwindet.</p>
+                </div>
+
+                <div class="accordion">
+                    <details>
+                        <summary>Wie schnell seid ihr live?</summary>
+                        <p>Landingpages typischerweise 1–3 Wochen, umfangreichere Sites 3–6 Wochen. Full-Stack abhängig
+                            von Scope.</p>
+                    </details>
+                    <details>
+                        <summary>Arbeitet ihr auch nur Frontend?</summary>
+                        <p>Ja. Das ist unser Kern. Hosting und Backend sind optionale Erweiterungen in den passenden
+                            Paketen.</p>
+                    </details>
+                    <details>
+                        <summary>Was braucht ihr von mir?</summary>
+                        <p>Logo/Branding (falls vorhanden), Inhalte (Text/Bilder) und klare Ziele. Falls Inhalte fehlen,
+                            strukturieren wir das im Kickoff.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="positionierung">
+            <div class="container">
+                <div class="section__head">
+                    <h2>Wofür wir stehen – und wofür nicht</h2>
+                    <p class="muted">Klares Profil spart Zeit auf beiden Seiten.</p>
+                </div>
+
+                <div class="grid grid--3">
+                    <article class="card">
+                        <h3>Wir sagen Nein zu Scope-Chaos</h3>
+                        <p class="muted">Ohne Ziel, Prioritäten und Abnahmeprozess wird’s teuer. Wir arbeiten mit Scope
+                            und Roadmap.</p>
+                    </article>
+                    <article class="card">
+                        <h3>Wir verkaufen kein „Alles inkl.“</h3>
+                        <p class="muted">Pakete sind klar. Extras sind Extras. Ergebnis: planbar, fair, ohne
+                            Überraschungen.</p>
+                    </article>
+                    <article class="card">
+                        <h3>Wir optimieren auf Performance</h3>
+                        <p class="muted">Wenn’s langsam ist, verliert es Leads. Performance-Budget ist bei uns Standard.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- KONTAKT -->
+        <section class="section section--cta" id="kontakt">
+            <div class="container cta">
+                <div class="cta__copy">
+                    <h2>Projekt starten – strukturiert und ohne Drama</h2>
+                    <p class="muted">
+                        Schick uns die Eckdaten. Du bekommst eine saubere Einschätzung inkl. nächster Schritte.
+                    </p>
+
+                    <div class="cta__box">
+                        <div class="cta__line"><span class="muted">E-Mail</span>
+                            <strong>info@weblabdesign.ch</strong>
+                        </div>
+                        <div class="cta__line"><span class="muted">Standort</span> <strong>Schweiz / Remote</strong>
+                        </div>
+                        <div class="cta__line"><span class="muted">Antwortzeit</span> <strong>typisch innerhalb 1 bis 2
+                                Werktag</strong></div>
+                    </div>
+                </div>
+
+                <form class="form" id="contactForm" action="https://formspree.io/f/meeqqwyk" method="POST">
+                    <input type="text" name="website" tabindex="-1" autocomplete="off" class="hp">
+                    <input type="hidden" id="selectedPlan" name="selectedPlan" value="" />
+
+                    <div class="form__row">
+                        <label>
+                            Name
+                            <input required name="name" type="text" placeholder="Vorname Nachname"
+                                autocomplete="name" />
+                        </label>
+                        <label>
+                            E-Mail
+                            <input required name="email" type="email" placeholder="name@firma.ch"
+                                autocomplete="email" />
+                        </label>
+                    </div>
+
+                    <label>
+                        Firma (optional)
+                        <input name="company" type="text" placeholder="Web Lab Design GmbH"
+                            autocomplete="organization" />
+                    </label>
+
+                    <label>
+                        Paket (optional)
+                        <select name="plan" id="planSelect">
+                            <option value="">Bitte wählen…</option>
+                            <option value="frontend">Frontend</option>
+                            <option value="frontend_hosting">Frontend + Hosting</option>
+                            <option value="fullstack">Full-Stack</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Kurzbeschreibung
+                        <textarea required name="message" rows="5"
+                            placeholder="Ziel, Seiten/Features, Timing, vorhandene Inhalte…"></textarea>
+                    </label>
+
+                    <div class="form__actions">
+                        <button class="btn" type="submit">Anfrage senden</button>
+                        <p class="fine muted" id="formHint">Wir nutzen deine Daten nur zur Kontaktaufnahme. Kein Spam.
+                        </p>
+                    </div>
+
+                    <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
+                    <div class="thankyou" id="thankyou" hidden>
+                        <h3>Danke – Anfrage ist raus.</h3>
+                        <p class="muted">Wir melden uns typischerweise innerhalb von 1–2 Werktagen mit nächsten
+                            Schritten.</p>
+                    </div>
+
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <p class="muted">© <span id="year"></span> Web Lab Design. Alle Rechte vorbehalten.</p>
+            <div class="footer__links">
+                <a href="#top">Nach oben</a>
+                <a href="#faq">FAQ</a>
+                <a href="#kontakt">Kontakt</a>
+            </div>
+        </div>
+    </footer>
+
+<script type="module" src="./js/app.js"></script>
+
+</body>
+
+</html>

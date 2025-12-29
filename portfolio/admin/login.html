@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Login • Web Lab Design</title>
+
+    <!-- Gleicher Style wie Portfolio -->
+    <link rel="stylesheet" href="../../styles.css">
+    <link rel="icon" href="../../WebLabDesignLogo.jpeg" />
+</head>
+
+<body>
+    <header class="nav">
+        <div class="nav__inner">
+            <a class="brand" href="../index.html">
+                <img src="../img/WebLabDesignLogo.jpeg" alt="Web Lab Design" />
+                <div>
+                    <strong>Web Lab Design</strong>
+                    <div class="muted tiny">Admin • Portfolio Management</div>
+                </div>
+            </a>
+
+            <nav class="nav__links">
+                <a href="../index.html" class="btn btn--ghost">Zurück</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="kicker">Zugang</p>
+            <h1>Admin Login</h1>
+            <p class="muted">
+                Authentifizierung für Projektverwaltung (Create/Update/Delete).
+            </p>
+        </section>
+
+        <section class="panel" style="max-width: 520px; margin-top: 18px;">
+            <form id="loginForm" class="form">
+                <div class="form__row">
+                    <label class="label" for="user">Benutzer</label>
+                    <input id="user" class="input" autocomplete="username" value="admin" />
+                </div>
+
+                <div class="form__row">
+                    <label class="label" for="password">Passwort</label>
+                    <input id="password" class="input" type="password" autocomplete="current-password" />
+                </div>
+
+                <div class="form__actions">
+                    <button class="btn btn--primary" type="submit">Einloggen</button>
+                    <a class="btn btn--ghost" href="../index.html">Abbrechen</a>
+                </div>
+
+                <p id="loginError" class="muted" style="margin-top: 10px; display:none;"></p>
+            </form>
+        </section>
+    </main>
+
+    <script type="module" src="./admin.js"></script>
+</body>
+
+</html>

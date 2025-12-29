@@ -1,0 +1,23 @@
+{
+  "slug": "rock-mountain-band",
+  "title": "Rock Mountain Band Website",
+  "client": "Demo / Learning",
+  "year": 2025,
+  "status": "Live",
+  "type": "Website",
+  "description": "Band-Website mit klarer Struktur, responsivem Layout und Social/Media-Sektionen.",
+  "stack": [
+    "HTML",
+    "CSS",
+    "JavaScript"
+  ],
+  "tags": [
+    "Responsive",
+    "Landing Page"
+  ],
+  "links": {
+    "live": "../projects/band-website/index.html",
+    "repo": null
+  },
+  "image": "../portfolio/img/preview-band.png"
+}

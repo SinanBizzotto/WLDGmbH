@@ -1,0 +1,1267 @@
+/* ========== Base ========== */
+body {
+  overflow-x: hidden;
+  font-family: "Public Sans", Arial, sans-serif;
+}
+
+.bodyIndex {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #fff;
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ========== Header (Index) ========== */
+.headerIndex {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  position: relative;
+  z-index: 10;
+}
+
+.headerContentIndex {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  height: 100px;
+  padding-left: 120px;
+  padding-right: 120px;
+  box-sizing: border-box;
+}
+
+.logoImgLinkIndex {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoImgIndex {
+  height: 64px;
+  width: auto;
+  margin-right: 12px;
+}
+
+.logoTextIndex {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #222;
+}
+
+.navIndex {
+  position: relative;
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.navIndex ul.navListIndex {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menuLinkIndex {
+  color: #222;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 4px 0;
+  font-weight: 400;
+  position: relative;
+  display: inline-block;
+  transition: color 0.2s;
+}
+
+.menuLinkIndex.activeIndex {
+  color: #008000;
+  font-weight: bold;
+  position: relative;
+}
+
+.menuLinkIndex.activeIndex::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 4px;
+  width: 100%;
+  background: #008000;
+  display: block;
+}
+
+.menuLinkIndex:hover {
+  color: #008000;
+  font-weight: bold;
+}
+
+.menuLinkIndex:hover::after {
+  background: #008000;
+}
+
+/* ========== Main (Index) ========== */
+.mainIndex {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.containerIndex {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: max(12px, 120px);
+  padding-right: max(12px, 120px);
+}
+
+/* Croissant Section */
+.mainContentIndex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  margin: 48px 0 64px 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.croissantImageIndex {
+  height: 220px;
+  width: 340px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.textContentCroissantIndex {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 500px;
+}
+
+.croissantTitleIndex {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.rezeptButtonIndex {
+  background: #008000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: fit-content;
+  margin-top: 16px;
+}
+
+.rezeptButtonIndex:hover {
+  background: #005c00;
+}
+
+/* Eigene Rezepte */
+.ownRezeptSectionIndex {
+  width: 100%;
+  background: #efefef;
+  padding: 64px 0;
+}
+
+.headlineRezepteIndex {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.ownRezeptsIndex {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+}
+
+.ownRezeptCardIndex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 220px;
+}
+
+.ownRezeptImageIndex {
+  height: 150px;
+  width: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ownRezeptTitleIndex {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+/* Pfanne vs. Wok Section */
+.pfanneWokSectionIndex {
+  width: 100%;
+  background: #fff;
+  padding: 64px 0;
+}
+
+.pfanneWokContainerIndex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+
+.pfanneWokTextIndex {
+  max-width: 600px;
+}
+
+.pfanneWokTitleIndex {
+  text-align: left;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.pfanneWokParagraphIndex {
+  font-size: 1rem;
+  color: #222;
+}
+
+.wokImageIndex {
+  height: 150px;
+  width: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ========== Footer ========== */
+.footerIndex {
+  width: 100%;
+  background: #222;
+  color: #fff;
+  padding: 40px 0 16px 0;
+  font-size: 1rem;
+  margin-top: auto;
+}
+
+.footerContentIndex {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  box-sizing: border-box;
+  padding-left: 120px;
+  padding-right: 120px;
+}
+
+.footerLeftIndex {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.footerLogoLinkIndex {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoImgIndexFooter {
+  height: 32px;
+  width: auto;
+  margin-right: 8px;
+  filter: brightness(0) invert(1);
+}
+
+.footerLogoLinkIndex:hover .logoImgIndexFooter {
+  filter: brightness(0.7) invert(0.7) sepia(1) hue-rotate(90deg) saturate(4);
+}
+
+/* nur im Footer weiß */
+.footerLeftIndex .logoTextIndex {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.footerTextIndex {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.footerSocialIndex {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+.footerIconIndex img {
+  height: 28px;
+  width: 28px;
+  filter: brightness(0) invert(1);
+  transition: filter 0.2s;
+}
+
+.footerIconIndex img:hover {
+  filter: brightness(0.7) invert(0.7) sepia(1) hue-rotate(90deg) saturate(4);
+}
+
+/* ========== Tabellen (Rumpsteak) ========== */
+.rumpsteakTable,
+.zutatenTableRumpsteak {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.rumpsteakTable th,
+.rumpsteakTable td {
+  padding: 12px 8px;
+  border: 1px solid #eee;
+  text-align: left;
+  height: 48px;
+  vertical-align: middle;
+  background: #f5f5f5;
+}
+
+.rumpsteakTable tr:nth-child(even) td {
+  background: #fff;
+}
+
+.zutatenTableRumpsteak td {
+  padding: 12px 16px;
+  border: none;
+  height: 40px;
+  background: #f5f5f5;
+  font-size: 1rem;
+}
+
+.zutatenTableRumpsteak tr:nth-child(even) td {
+  background: #fff;
+}
+
+/* ========== Fonts ========== */
+@font-face {
+  font-family: "Public Sans";
+  src: url("./Public_Sans (1)/PublicSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("./Public_Sans (1)/PublicSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("./Public_Sans (1)/PublicSans-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("./Public_Sans (1)/PublicSans-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+/* ========== Rumpsteak/Currywurst Page Layout ========== */
+.bodyRumpsteak {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #fff;
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.headerRumpsteak {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  position: relative;
+  z-index: 10;
+}
+
+.headerContentRumpsteak {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 24px;
+}
+
+.logoImgLinkRumpsteak {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoImgRumpsteak {
+  height: 40px;
+  width: auto;
+  margin-right: 12px;
+}
+
+.navRumpsteak ul.navListRumpsteak {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menuLinkRumpsteak {
+  color: #222;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 4px 0;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.menuLinkRumpsteak.activeRumpsteak {
+  color: #008000;
+  text-decoration: underline #008000 3px;
+  text-underline-offset: 7px;
+}
+
+.menuLinkRumpsteak:hover {
+  color: #008000;
+  text-decoration: underline #008000 3px;
+  text-underline-offset: 7px;
+}
+
+.mainRumpsteak {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.containerRumpsteak {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 24px;
+}
+
+.rezeptTitleRumpsteak {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+/* Einheitliche Bildhöhe (auch für Currywurst) */
+.rezeptImageRumpsteak,
+.recipe-img,
+.recept-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto 24px auto;
+}
+
+.rezeptMetaRumpsteak {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metaItemRumpsteak {
+  background: #f5f5f5;
+  color: #444;
+  border-radius: 16px;
+  padding: 6px 16px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaItemRumpsteakWeiß {
+  background: #ffffff;
+  color: #444;
+  border-radius: 16px;
+  padding: 6px 16px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detailsImgRumpsteak {
+  height: 18px;
+  width: 18px;
+  margin-right: 6px;
+}
+
+/* Zutatenbereich – Titel, Controls, Liste */
+.zutatenSectionRumpsteak {
+  margin-bottom: 32px;
+}
+
+.zutatenTitleRumpsteak {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* Portion-Control (beide Rezepte) */
+.portion-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 20px;
+  width: 100%;
+}
+
+.portionInputRumpsteak,
+.portionInputCurrywurst {
+  width: 60px;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.portionButtonRumpsteak,
+.portionButtonCurrywurst {
+  background: #008000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.portionButtonRumpsteak:hover,
+.portionButtonCurrywurst:hover {
+  background: #005c00;
+}
+
+.portionMessageRumpsteak,
+.portionMessageCurrywurst {
+  display: block;
+  color: #d80000;
+  font-size: 0.95rem;
+  margin-top: 4px;
+  margin-left: 8px;
+}
+
+/* Zutatenlisten – einheitlicher Box-Stil */
+.zutatenListeRumpsteak,
+.zutatenListeCurrywurst {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.zutatenListeRumpsteak li,
+.zutatenListeCurrywurst li {
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  background: #f5f5f5;
+}
+
+.zutatenListeRumpsteak li:nth-child(even),
+.zutatenListeCurrywurst li:nth-child(even) {
+  background: #ffffff;
+}
+
+/* Zubereitung + Autor */
+.zubereitungSectionRumpsteak {
+  margin-bottom: 32px;
+}
+
+.zubereitungTitleRumpsteak {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+.zubereitungTextRumpsteak {
+  font-size: 1rem;
+  color: #444;
+  margin-top: 12px;
+}
+
+.autorSectionRumpsteak {
+  margin: 32px 0;
+}
+
+.autorTitleRumpsteak {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.autorInfoRumpsteak {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.autorAvatarRumpsteak {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #eee;
+  object-fit: cover;
+}
+
+.autorNameRumpsteak {
+  font-size: 1rem;
+}
+
+.footerRumpsteak {
+  width: 100%;
+  background: #222;
+  color: #fff;
+  padding: 40px 0 16px 0;
+  font-size: 1rem;
+  text-align: center;
+  margin-top: auto;
+}
+
+.footerTextRumpsteak {
+  margin: 0;
+}
+
+/* Kontaktseite */
+.kontaktMain {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kontaktContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 48px 0;
+}
+
+.kontaktForm {
+  background: #f5f5f5;
+  border-radius: 18px;
+  padding: 32px 32px 24px 32px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+  gap: 12px;
+  margin: 0 auto;
+}
+
+.kontaktForm h2 {
+  margin-bottom: 8px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.kontaktForm label {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.kontaktForm input,
+.kontaktForm textarea {
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 16px;
+  background: #fff;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.kontaktButton {
+  background: #008000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.kontaktButton:hover {
+  background: #005c00;
+}
+
+.details-img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Active underline position on wide */
+@media (min-width: 900px) {
+  .menuLinkIndex.activeIndex::after {
+    bottom: 0;
+  }
+}
+
+/* ========== Extra generische Zutatenliste (falls benötigt) ========== */
+.zutatenListe {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.zutatenItem,
+.zutatenItemWeiß {
+  background: #f5f5f5;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.zutatenItem {
+  background: #fff;
+}
+
+/* ========== Impressum ========== */
+.mailto {
+  color: #008000;
+  text-decoration: none;
+}
+
+.mailto:hover {
+  text-decoration: underline;
+}
+
+
+/* ========== Responsive ========== */
+@media (max-width: 900px) {
+  .containerIndex,
+  .footerContentIndex {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .headerContentIndex {
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    height: auto;
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 16px;
+  }
+
+  .navIndex ul.navListIndex {
+    gap: 16px;
+    font-size: 1rem;
+  }
+
+  .navIndex {
+    position: relative;
+    height: 10px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .logoImgLinkIndex {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    justify-content: center;
+  }
+
+  .logoImgIndex {
+    margin-right: 0;
+  }
+
+  .mainContentIndex,
+  .pfanneWokContainerIndex,
+  .ownRezeptsIndex {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .ownRezeptCardIndex {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .ownRezeptImageIndex,
+  .wokImageIndex,
+  .croissantImageIndex {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+  }
+
+  .textContentCroissantIndex {
+    max-width: 100%;
+  }
+
+  .footerContentIndex {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .footerLeftIndex {
+    align-items: center;
+    text-align: center;
+  }
+
+  .footerSocialIndex {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  /* Impressum Seite */
+  .impressumMain {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+  }
+
+  .impressumMain h1 {
+    margin-bottom: 20px;
+  }
+
+  .impressumMain h2 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  .impressumMain p {
+    line-height: 1.6;
+  }
+
+  .mailto {
+    color: #008000;
+    text-decoration: none;
+  }
+
+  .mailto:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 500px) {
+  html,
+  body {
+    font-size: 16px;
+  }
+
+  .containerIndex,
+  .footerContentIndex {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .headerContentIndex {
+    gap: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .footerContentIndex {
+    gap: 16px;
+  }
+
+  .kontaktForm {
+    padding: 16px 8px 12px 8px;
+    max-width: 100%;
+  }
+
+  .textContentCroissantIndex {
+    padding-left: 37px;
+    padding-right: 37px;
+  }
+
+  .rezeptLinkIndex {
+    display: flex;
+    justify-content: center;
+  }
+
+  .pfanneWokTextIndex {
+    padding-left: 37px;
+    padding-right: 37px;
+  }
+
+  .zutatenTitleRumpsteak {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 425px) {
+  html,
+  body {
+    font-size: 16px;
+    /* Mindestgröße */
+  }
+
+  .portion-control {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .containerIndex,
+  .containerRumpsteak {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .rezeptMetaRumpsteak {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .metaItemRumpsteak,
+  .metaItemRumpsteakWeiß {
+    flex: 1 1 calc(50% - 8px);
+    text-align: center;
+    font-size: 16px;
+    /* Mindestgröße */
+    box-sizing: border-box;
+  }
+
+  .portionInputRumpsteak,
+  .portionInputCurrywurst,
+  .portionButtonRumpsteak,
+  .portionButtonCurrywurst {
+    width: 46%;
+    font-size: 16px;
+    /* Mindestgröße */
+    padding: 8px;
+  }
+
+  .zutatenHeaderRumpsteak {
+    padding-top: 5px;
+    padding-bottom: 40px;
+  }
+
+  .zutatenListeRumpsteak li,
+  .zutatenListeCurrywurst li {
+    font-size: 16px;
+    /* Mindestgröße */
+    padding: 10px 12px;
+    word-break: break-word;
+  }
+
+  .menuLinkIndex {
+    font-size: 16px;
+    /* Mindestgröße für Navigation */
+  }
+
+  .navIndex ul.navListIndex {
+    font-size: 16px;
+    /* Mindestgröße für Navigation */
+  }
+}
+
+@media (max-width: 375px) {
+  html,
+  body {
+    font-size: 16px;
+    /* Mindestgröße beibehalten */
+  }
+
+  .containerIndex,
+  .footerContentIndex {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .zutatenTitleRumpsteak {
+    margin-top: -28px;
+    font-size: 16px;
+    /* Mindestgröße */
+  }
+
+  .menuLinkIndex {
+    font-size: 16px;
+    /* Mindestgröße für Navigation */
+  }
+
+  .navIndex ul.navListIndex {
+    font-size: 16px;
+    /* Mindestgröße für Navigation */
+  }
+
+  .zutatenListeRumpsteak li,
+  .zutatenListeCurrywurst li {
+    font-size: 16px;
+    /* Mindestgröße */
+    padding: 8px 10px;
+  }
+
+  .zubereitungTextRumpsteak {
+    font-size: 16px;
+    /* Mindestgröße */
+  }
+
+  .autorNameRumpsteak {
+    font-size: 16px;
+    /* Mindestgröße */
+  }
+
+  .zutatenHeaderRumpsteak {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+}
+
+@media (max-width: 320px) {
+  html,
+  body {
+    font-size: 16px;
+    /* Mindestgröße beibehalten */
+  }
+
+  .containerIndex,
+  .footerContentIndex {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .headerContentIndex {
+    gap: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .navIndex {
+    height: auto;
+    width: 100%;
+  }
+
+  .navIndex ul.navListIndex {
+    gap: 8px;
+    font-size: 14px;
+    /* Etwas kleiner für 320px */
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .menuLinkIndex {
+    font-size: 14px;
+    /* Etwas kleiner für 320px */
+    padding: 2px 4px;
+  }
+
+  .zutatenListeRumpsteak li,
+  .zutatenListeCurrywurst li {
+    font-size: 16px;
+    /* Mindestgröße */
+    padding: 6px 8px;
+  }
+
+  .metaItemRumpsteak,
+  .metaItemRumpsteakWeiß {
+    width: 100%;
+    font-size: 14px;
+    /* Etwas kleiner für 320px */
+    padding: 4px 6px;
+    text-align: center;
+  }
+
+  .portionInputCurrywurst,
+  .portionButtonCurrywurst {
+    width: 100%;
+    font-size: 16px;
+    /* Mindestgröße */
+    padding: 6px;
+  }
+
+  .zubereitungTextRumpsteak {
+    font-size: 16px;
+    /* Mindestgröße */
+    line-height: 1.3;
+  }
+
+  .autorNameRumpsteak {
+    font-size: 16px;
+    /* Mindestgröße */
+  }
+
+  .footerTextIndex {
+    font-size: 16px;
+    /* Mindestgröße */
+  }
+
+  .portionInputRumpsteak,
+  .portionInputCurrywurst,
+  .portionButtonRumpsteak,
+  .portionButtonCurrywurst {
+    width: 45%;
+    font-size: 16px;
+    /* Mindestgröße */
+    padding: 8px;
+  }
+}
+
+/* Impressum Styling */
+.impressumMain {
+  min-height: 70vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.impressumCard {
+  background: #f5f5f5;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 32px 32px 24px 32px;
+  margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
+}
+
+.impressumCard h1 {
+  color: #222;
+  font-size: 2rem;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.impressumCard h2 {
+  color: #008000;
+  font-size: 1.3rem;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.impressumSection {
+  margin-bottom: 20px;
+}
+
+.impressumSection p {
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.impressumSection strong {
+  color: #222;
+}
+
+/* Responsive für Impressum */
+@media (max-width: 900px) {
+  .impressumCard {
+    max-width: 98vw;
+    padding: 24px 12px 18px 12px;
+    border-radius: 18px;
+    margin: 32px auto;
+  }
+}
+
+@media (max-width: 500px) {
+  .impressumCard {
+    max-width: 99vw;
+    padding: 16px 6px 12px 6px;
+    border-radius: 14px;
+    margin: 16px 2px;
+  }
+
+  .impressumCard h1 {
+    font-size: 1.6rem;
+  }
+
+  .impressumCard h2 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .impressumCard {
+    max-width: 100vw;
+    padding: 8px 2px 8px 2px;
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+}
+
+@media (max-width: 320px) {
+  .impressumCard {
+    max-width: 100vw;
+    padding: 4px 1px 4px 1px;
+    border-radius: 8px;
+    margin: 4px 0;
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "sakura-ramen",
+  "title": "SAKURA RAMEN",
+  "client": "Demo / Learning",
+  "year": 2025,
+  "status": "Live",
+  "type": "Website",
+  "description": "Restaurant-Onepager mit Mobile-First Aufbau, klaren CTAs und Bildwelt.",
+  "stack": [
+    "HTML",
+    "CSS"
+  ],
+  "tags": [
+    "Responsive",
+    "One-Pager"
+  ],
+  "links": {
+    "live": "../projects/sakura-ramen-responsive/index.html",
+    "repo": null
+  },
+  "image": "../portfolio/img/preview-sakura.jpg"
+}
