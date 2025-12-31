@@ -1,23 +1,16 @@
-{
-  "slug": "rock-mountain-band",
-  "title": "Rock Mountain Band Website",
-  "client": "Demo / Learning",
-  "year": 2025,
-  "status": "Live",
-  "type": "Website",
-  "description": "Band-Website mit klarer Struktur, responsivem Layout und Social/Media-Sektionen.",
-  "stack": [
-    "HTML",
-    "CSS",
-    "JavaScript"
-  ],
-  "tags": [
-    "Responsive",
-    "Landing Page"
-  ],
-  "links": {
-    "live": "../projects/band-website/index.html",
-    "repo": null
-  },
-  "image": "../portfolio/img/preview-band.png"
-}
+[
+  {
+    "slug": "demo-project",
+    "title": "Demo Project",
+    "year": 2025,
+    "type": "Website",
+    "description": "Kurzbeschreibung",
+    "stack": ["HTML", "CSS", "JS"],
+    "tags": ["Static"],
+    "image": "./img/demo.png",
+    "links": {
+      "live": "https://example.com",
+      "repo": null
+    }
+  }
+]

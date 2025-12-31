@@ -1,23 +1,23 @@
 // assets/portfolio/js/projects.js
-export async function fetchProjects(API_BASE) {
-  const res = await fetch(`${API_BASE}/api/projects`, {
+export async function fetchProjects() {
+  const res = await fetch("./data/projects.json", {
     headers: { "Accept": "application/json" }
   });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`API error ${res.status}: ${text || res.statusText}`);
+    throw new Error(`Projects JSON error ${res.status}: ${text || res.statusText}`);
   }
 
   const items = await res.json();
 
-  // Backend -> Frontend Shape (damit dein bestehendes UI weiter funktioniert)
+  // Daten liegen jetzt bereits im Frontend-Shape vor
   return items.map((p) => ({
     ...p,
-    image: p.imageUrl || "",
+    image: p.image || "",
     links: {
-      live: p.liveUrl || null,
-      repo: p.repoUrl || null,
+      live: p.links?.live ?? null,
+      repo: p.links?.repo ?? null,
     },
   }));
 }
