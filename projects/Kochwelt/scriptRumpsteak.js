@@ -1,87 +1,128 @@
-// Zutaten-Rechner nur ausführen, wenn alle Elemente existieren
-const input = document.querySelector('.portionInputRumpsteak');
-const button = document.querySelector('.portionButtonRumpsteak');
-const zutatenList = document.querySelector('.zutatenListeRumpsteak');
+// projects/Kochwelt/scriptRumpsteak.js
 
-if (input && button && zutatenList) {
-  // Meldungs-Element einfügen, falls noch nicht vorhanden
-  let message = document.querySelector('.portionMessageRumpsteak');
-  if (!message) {
-    message = document.createElement('span');
-    message.className = 'portionMessageRumpsteak';
-    input.parentNode.appendChild(message);
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  /* =========================
+     Zutaten-Rechner (Rumpsteak)
+     ========================= */
 
-  // Originaltexte speichern
-  const originalZutaten = [];
-  zutatenList.querySelectorAll('li').forEach(li => {
-    originalZutaten.push(li.textContent);
-  });
+  const input = document.querySelector(".portionInputRumpsteak");
+  const button = document.querySelector(".portionButtonRumpsteak");
+  const zutatenList = document.querySelector(".zutatenListeRumpsteak");
 
-  function updateZutaten() {
-    const value = Number(input.value);
-
-    // Prüfen auf gültigen Bereich
-    if (value < 1 || value > 20) {
-      message.textContent = 'Bitte gib eine Zahl zwischen 1 und 20 ein!';
-      input.value = Math.min(Math.max(value, 1), 20);
-      return;
-    } else {
-      message.textContent = '';
+  if (input && button && zutatenList) {
+    // Message-Element sicher erstellen
+    let message = document.querySelector(".portionMessageRumpsteak");
+    if (!message) {
+      message = document.createElement("span");
+      message.className = "portionMessageRumpsteak";
+      input.parentNode?.appendChild(message);
     }
 
-    zutatenList.querySelectorAll('li').forEach((li, i) => {
-      const match = originalZutaten[i].match(/^(\d+)\s*(.*)$/);
-      if (match) {
-        const base = Number(match[1]);
-        const newAmount = base * value;
-        li.textContent = `${newAmount} ${match[2]}`;
-      } else {
-        li.textContent = originalZutaten[i];
+    // Originaltexte sichern
+    const originalZutaten = Array.from(zutatenList.querySelectorAll("li")).map(
+      (li) => li.textContent || ""
+    );
+
+    const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
+
+    function parseLeadingNumber(text) {
+      // Unterstützt z.B. "2 Steak", "2,5 dl", "2.5 dl" (optional)
+      // Wenn du NUR ganze Zahlen willst, sag Bescheid – dann vereinfachen wir das.
+      const t = (text || "").trim();
+      const m = t.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+      if (!m) return null;
+
+      const amount = Number(m[1].replace(",", "."));
+      if (!Number.isFinite(amount)) return null;
+
+      return { amount, rest: m[2] };
+    }
+
+    function updateZutaten() {
+      let value = Number(String(input.value).replace(",", "."));
+
+      // Ungültige Eingaben abfangen
+      if (!Number.isFinite(value)) {
+        message.textContent = "Bitte gib eine Zahl zwischen 1 und 20 ein!";
+        return;
       }
+
+      // Bereich 1..20
+      if (value < 1 || value > 20) {
+        message.textContent = "Bitte gib eine Zahl zwischen 1 und 20 ein!";
+        value = clamp(value, 1, 20);
+        input.value = String(value);
+        // weiter rechnen, nachdem wir korrigiert haben
+      } else {
+        message.textContent = "";
+      }
+
+      const lis = zutatenList.querySelectorAll("li");
+
+      lis.forEach((li, i) => {
+        const baseText = originalZutaten[i] ?? "";
+        const parsed = parseLeadingNumber(baseText);
+
+        if (!parsed) {
+          li.textContent = baseText;
+          return;
+        }
+
+        const newAmount = parsed.amount * value;
+
+        // Anzeige: wenn Ganzzahl -> ohne Nachkommastellen, sonst max 2
+        const formatted =
+          Number.isInteger(newAmount) ? String(newAmount) : newAmount.toFixed(2).replace(/\.?0+$/, "");
+
+        li.textContent = `${formatted} ${parsed.rest}`.trim();
+      });
+    }
+
+    // Standardwert 2 Portionen setzen + initial rechnen
+    input.value = "2";
+    updateZutaten();
+
+    // Nur Button-Klick rechnet (wie bei dir)
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      updateZutaten();
     });
   }
 
-  // Mengen direkt beim Laden für 2 Portionen anzeigen
-  document.addEventListener('DOMContentLoaded', () => {
-    input.value = 2;
-    updateZutaten();
-  });
+  /* =========================
+     Kontaktformular (Formspree)
+     ========================= */
 
-  // Nur beim Klick auf den Button wird gerechnet!
-  button.addEventListener('click', updateZutaten);
-}
+  const form = document.querySelector(".kontaktForm");
 
-// Kontaktformular-Code nur ausführen, wenn das Formular existiert
-document.addEventListener("DOMContentLoaded", function () {
-  // Kontaktformular-Code nur ausführen, wenn das Formular existiert
-  const form = document.querySelector('.kontaktForm');
-  
   if (form) {
-    form.addEventListener('submit', function (e) {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // Sende die Daten per AJAX an Formspree
-      fetch(form.action, {
-        method: "POST",
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      })
-        .then(response => {
-          if (response.ok) {
-            form.reset();
-            form.style.display = "none";
-            const msg = document.createElement("div");
-            msg.className = "kontaktDanke";
-            msg.innerHTML = "<h2>Danke für Ihre Nachricht!</h2><p>Wir melden uns bald bei Ihnen.</p>";
-            form.parentNode.appendChild(msg);
-          } else {
-            alert("Fehler beim Senden. Bitte versuchen Sie es später erneut.");
-          }
-        })
-        .catch(() => {
-          alert("Fehler beim Senden. Bitte versuchen Sie es später erneut.");
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" },
         });
+
+        if (!res.ok) {
+          throw new Error(`Form submit failed: ${res.status}`);
+        }
+
+        form.reset();
+        form.style.display = "none";
+
+        const msg = document.createElement("div");
+        msg.className = "kontaktDanke";
+        msg.innerHTML =
+          "<h2>Danke für Ihre Nachricht!</h2><p>Wir melden uns bald bei Ihnen.</p>";
+
+        form.parentNode?.appendChild(msg);
+      } catch (err) {
+        console.error(err);
+        alert("Fehler beim Senden. Bitte versuchen Sie es später erneut.");
+      }
     });
   }
 });

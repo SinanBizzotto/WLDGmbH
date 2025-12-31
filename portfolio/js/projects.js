@@ -11,7 +11,6 @@ export async function fetchProjects() {
 
   const items = await res.json();
 
-  // Daten liegen jetzt bereits im Frontend-Shape vor
   return items.map((p) => ({
     ...p,
     image: p.image || "",
