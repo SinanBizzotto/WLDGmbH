@@ -10,27 +10,48 @@ const root = path.resolve(__dirname, "..");
 const projectsDir = path.join(root, "projects");
 const outFile = path.join(root, "portfolio", "js", "projects.js");
 
-function readJson(p) {
+function readJson(p){
   return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 
-function exists(p) { try { fs.accessSync(p); return true; } catch { return false; } }
+function exists(p){ try { fs.accessSync(p); return true; } catch { return false; } }
 
 const folders = exists(projectsDir)
-  ? fs.readdirSync(projectsDir, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name)
+  ? fs.readdirSync(projectsDir, { withFileTypes: true }).filter(d=>d.isDirectory()).map(d=>d.name)
   : [];
 
 const projects = [];
+const usedSlugs = new Set();
+
+function normalizeRelAsset(dirName, maybeRelPath) {
+  if (!maybeRelPath) return null;
+  const s = String(maybeRelPath).trim();
+  if (!s) return null;
+  // Absolute URL or absolute path: keep as-is
+  if (/^(https?:)?\/\//i.test(s) || s.startsWith("/")) return s;
+  // Normalize "./" and ".\\" etc.
+  const cleaned = s.replace(/^\.(\/|\\)/, "");
+  // Path relative to project folder
+  return `../projects/${dirName}/${cleaned}`;
+}
 
 for (const dir of folders) {
   const metaPath = path.join(projectsDir, dir, "project.json");
   if (!exists(metaPath)) continue;
 
-  const meta = readJson(metaPath);
+  const raw = readJson(metaPath);
+  // Support both { ... } and [ { ... } ] formats
+  const meta = Array.isArray(raw) ? (raw[0] ?? {}) : (raw ?? {});
 
   // Defaults + Normalisierung
-  const slug = meta.slug || dir;
-  const image = meta.image || null;
+  let slug = meta.slug || dir;
+  // Ensure stable uniqueness across folders
+  if (usedSlugs.has(slug)) slug = `${slug}-${dir}`;
+  usedSlugs.add(slug);
+  const image = normalizeRelAsset(dir, meta.image);
+  const live = meta.links?.live
+    ? (String(meta.links.live).startsWith("http") ? meta.links.live : meta.links.live)
+    : `../projects/${dir}/index.html`;
 
   projects.push({
     slug,
@@ -43,10 +64,10 @@ for (const dir of folders) {
     stack: meta.stack || [],
     tags: meta.tags || [],
     links: {
-      live: meta.links?.live || `../projects/${dir}/index.html`,
+      live,
       repo: meta.links?.repo || null
     },
-    image: image ? image : null
+    image
   });
 }
 
