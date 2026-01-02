@@ -1,235 +1,284 @@
-// portfolio/js/app.js
-// No backend. Pure static filtering/sorting/rendering.
-import { projects } from "./projects.js";
+import { projects as rawProjects } from "./projects.js";
 
 const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-function uniq(arr) {
-  return Array.from(new Set(arr));
-}
-
-function norm(str = "") {
-  return String(str).toLowerCase().trim();
-}
+const els = {
+  grid: $("#projectGrid") || $("#projects-grid"),
+  count: $("#projectCount"),
+  search: $("#searchInput") || $("#q"),
+  sort: $("#sortSelect") || $("#sort"),
+  chips: $("#tagChips"),
+  year: $("#year"),
+  modal: $("#projectModal"),
+  mTitle: $("#mTitle"),
+  mMeta: $("#mMeta"),
+  mImg: $("#mImg"),
+  mDesc: $("#mDesc"),
+  mStack: $("#mStack"),
+  mTags: $("#mTags"),
+  mActions: $("#mActions"),
+  modalClose: $("#modalClose"),
+};
 
 function escapeHtml(str = "") {
-  return String(str).replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
-  }[m]));
+  return String(str).replace(/[&<>“”"']/g, (m) =>
+    ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+      "“": "&quot;",
+      "”": "&quot;",
+    }[m] || m)
+  );
 }
 
-function projectHaystack(p) {
-  return norm([
-    p.title,
-    p.client,
-    p.year,
-    p.status,
-    p.type,
-    (p.stack || []).join(" "),
-    (p.tags || []).join(" "),
-    p.description
-  ].join(" | "));
+function normalizeProject(p) {
+  const title = p.title ?? "";
+  const description = p.description ?? "";
+  const stack = Array.isArray(p.stack) ? p.stack : [];
+  const tags = Array.isArray(p.tags) ? p.tags : [];
+  const year = Number.isFinite(+p.year) ? +p.year : null;
+  const links = p.links ?? {};
+  return {
+    slug: p.slug ?? (title.toLowerCase().replace(/\s+/g, "-") || "project"),
+    title,
+    client: p.client ?? "",
+    year,
+    status: p.status ?? "",
+    type: p.type ?? "",
+    description,
+    stack,
+    tags,
+    image: p.image ?? "",
+    links: {
+      live: links.live ?? null,
+      repo: links.repo ?? null,
+    },
+  };
 }
 
-function compareBy(sortKey) {
-  switch (sortKey) {
+const state = {
+  q: "",
+  tag: "ALL",
+  sort: "newest",
+};
+
+const projects = (rawProjects || []).map(normalizeProject);
+
+function uniqueTags(items) {
+  const set = new Set();
+  items.forEach((p) => (p.tags || []).forEach((t) => set.add(String(t))));
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function buildTagChips() {
+  if (!els.chips) return;
+
+  const tags = uniqueTags(projects);
+  const all = ["ALL", ...tags];
+
+  els.chips.innerHTML = all
+    .map(
+      (t) =>
+        `<button class="chip ${t === state.tag ? "is-active" : ""}" data-tag="${escapeHtml(
+          t
+        )}">${escapeHtml(t === "ALL" ? "Alle" : t)}</button>`
+    )
+    .join("");
+
+  els.chips.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-tag]");
+    if (!btn) return;
+    state.tag = btn.dataset.tag;
+    $$(".chip").forEach((c) => c.classList.toggle("is-active", c === btn));
+    render();
+  });
+}
+
+function applyFilters(items) {
+  let out = [...items];
+
+  if (state.tag && state.tag !== "ALL") {
+    out = out.filter((p) => (p.tags || []).map(String).includes(state.tag));
+  }
+
+  const q = state.q.trim().toLowerCase();
+  if (q) {
+    out = out.filter((p) => {
+      const hay = [p.title, p.description, p.type, p.client, ...(p.stack || []), ...(p.tags || [])]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
+  // Sorting
+  const byTitle = (a, b) => String(a.title).localeCompare(String(b.title));
+  const byYear = (a, b) => (a.year ?? 0) - (b.year ?? 0);
+
+  switch (state.sort) {
     case "oldest":
-      return (a, b) => (a.year || 0) - (b.year || 0);
+      out.sort((a, b) => byYear(a, b) || byTitle(a, b));
+      break;
     case "title":
-      return (a, b) => String(a.title || "").localeCompare(String(b.title || ""), "de");
+      out.sort((a, b) => byTitle(a, b));
+      break;
     case "newest":
     default:
-      return (a, b) => (b.year || 0) - (a.year || 0);
+      out.sort((a, b) => -byYear(a, b) || byTitle(a, b));
+      break;
   }
+
+  return out;
 }
 
-function renderTagChips(tags, activeTag, onChange) {
-  const wrap = $("#tagChips");
-  if (!wrap) return;
+function cardHtml(p) {
+  const img = p.image
+    ? `<img loading="lazy" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" />`
+    : `<div class="thumbPlaceholder" aria-hidden="true"></div>`;
 
-  const all = ["Alle", ...tags];
-  wrap.innerHTML = "";
+  const metaBits = [p.type, p.year, p.status].filter(Boolean);
+  const meta = metaBits.length ? metaBits.join(" • ") : "";
 
-  all.forEach((t) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "chip" + (t === activeTag ? " is-active" : "");
-    btn.textContent = t;
+  const tagLine = (p.tags || []).slice(0, 4).map(escapeHtml).join(" · ");
 
-    btn.addEventListener("click", () => onChange(t));
-    wrap.appendChild(btn);
+  return `
+    <article class="card" data-slug="${escapeHtml(p.slug)}" tabindex="0" role="button" aria-label="${escapeHtml(
+      p.title
+    )}">
+      <div class="thumb">${img}</div>
+      <div class="body">
+        <div class="meta muted">${escapeHtml(meta)}</div>
+        <h3>${escapeHtml(p.title)}</h3>
+        <p class="muted clamp2">${escapeHtml(p.description || "")}</p>
+        <div class="tagline muted">${escapeHtml(tagLine)}</div>
+      </div>
+    </article>
+  `;
+}
+
+function openModal(p) {
+  if (!els.modal) return;
+
+  if (els.mTitle) els.mTitle.textContent = p.title || "";
+  if (els.mMeta) {
+    const metaBits = [p.type, p.year, p.status].filter(Boolean);
+    els.mMeta.textContent = metaBits.length ? metaBits.join(" • ") : "";
+  }
+  if (els.mDesc) els.mDesc.textContent = p.description || "";
+  if (els.mStack) els.mStack.textContent = (p.stack || []).join(", ") || "—";
+  if (els.mTags) els.mTags.textContent = (p.tags || []).join(" · ") || "—";
+
+  if (els.mImg) {
+    if (p.image) {
+      els.mImg.src = p.image;
+      els.mImg.alt = p.title || "";
+      els.mImg.style.display = "block";
+    } else {
+      els.mImg.removeAttribute("src");
+      els.mImg.alt = "";
+      els.mImg.style.display = "none";
+    }
+  }
+
+  if (els.mActions) {
+    const a = [];
+    if (p.links?.live) a.push(`<a class="btn" href="${escapeHtml(p.links.live)}" target="_blank" rel="noopener">Live</a>`);
+    if (p.links?.repo) a.push(`<a class="btn" href="${escapeHtml(p.links.repo)}" target="_blank" rel="noopener">Repo</a>`);
+    els.mActions.innerHTML = a.join("");
+  }
+
+  els.modal.showModal();
+}
+
+function render() {
+  if (!els.grid) return;
+
+  const filtered = applyFilters(projects);
+  if (els.count) els.count.textContent = String(filtered.length);
+
+  if (filtered.length === 0) {
+    els.grid.innerHTML = `<div class="card" style="grid-column:span 12; padding:18px;"><p class="muted" style="margin:0">Keine Treffer.</p></div>`;
+    return;
+  }
+
+  els.grid.innerHTML = filtered.map(cardHtml).join("");
+
+  els.grid.querySelectorAll("article[data-slug]").forEach((card) => {
+    const slug = card.getAttribute("data-slug");
+    const p = filtered.find((x) => x.slug === slug);
+    if (!p) return;
+    const open = () => openModal(p);
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
+      }
+    });
   });
 }
 
-function renderGrid(items, onOpen) {
-  const grid = $("#projectGrid");
-  const count = $("#projectCount");
+function initControls() {
+  // Defaults
+  if (els.sort) {
+    els.sort.value = state.sort;
+    els.sort.addEventListener("change", () => {
+      state.sort = els.sort.value;
+      render();
+    });
+  }
 
-  if (count) count.textContent = String(items.length);
-  if (!grid) return;
+  if (els.search) {
+    els.search.addEventListener("input", () => {
+      state.q = els.search.value || "";
+      render();
+    });
+  }
 
-  grid.innerHTML = "";
+  if (els.modal && els.modalClose) {
+    els.modalClose.addEventListener("click", () => els.modal.close());
+    els.modal.addEventListener("click", (e) => {
+      const rect = els.modal.getBoundingClientRect();
+      const inDialog =
+        rect.top <= e.clientY &&
+        e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX &&
+        e.clientX <= rect.left + rect.width;
+      if (!inDialog) els.modal.close();
+    });
+  }
 
-  items.forEach((p, idx) => {
-    const card = document.createElement("article");
-    card.className = "card";
-    card.setAttribute("data-idx", String(idx));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && els.modal?.open) els.modal.close();
+  });
+}
 
-    const img = p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="lazy" />` : "";
+function ensureYear() {
+  if (els.year) els.year.textContent = String(new Date().getFullYear());
+}
 
-    const tags = (p.tags || []).slice(0, 4).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join("");
-
-    card.innerHTML = `
-      <div class="card__media">${img}</div>
-      <div class="card__body">
-        <div class="card__top">
-          <div>
-            <h3 style="margin:0 0 6px">${escapeHtml(p.title)}</h3>
-            <div class="tiny">${escapeHtml(String(p.year || ""))} • ${escapeHtml(p.type || "")} • ${escapeHtml(p.status || "")}</div>
-          </div>
-          <span class="badge">${escapeHtml((p.stack || [])[0] || "Web")}</span>
-        </div>
-        <p class="muted" style="margin:8px 0 10px">${escapeHtml(p.description || "")}</p>
-        <div>${tags}</div>
-        <div class="card__actions">
-          ${p.links?.live ? `<a class="btn btn--ghost" href="${escapeHtml(p.links.live)}" target="_blank" rel="noopener">Live ansehen</a>` : ""}
-          <button class="btn" type="button" data-open>Details</button>
-        </div>
+function ensureEmptyStateHint() {
+  if (!projects.length && els.grid) {
+    els.grid.innerHTML = `
+      <div class="card" style="grid-column:span 12; padding:18px;">
+        <h3 style="margin-top:0">Noch keine Projekte</h3>
+        <p class="muted" style="margin:0">
+          Füge Projekte in <code>portfolio/js/projects.js</code> hinzu oder generiere sie mit
+          <code>node ./tools/generate-projects.mjs</code>.
+        </p>
       </div>
     `;
-
-    card.querySelector("[data-open]")?.addEventListener("click", () => onOpen(p));
-    grid.appendChild(card);
-  });
-}
-
-function initModal() {
-  const modal = $("#projectModal");
-  const closeBtn = $("#modalClose");
-
-  if (!modal) return { open: () => {} };
-
-  function close() {
-    modal.close();
   }
-
-  closeBtn?.addEventListener("click", close);
-  modal.addEventListener("click", (e) => {
-    // click on backdrop closes
-    const rect = modal.getBoundingClientRect();
-    const inDialog =
-      rect.top <= e.clientY &&
-      e.clientY <= rect.top + rect.height &&
-      rect.left <= e.clientX &&
-      e.clientX <= rect.left + rect.width;
-    if (!inDialog) close();
-  });
-
-  function open(p) {
-    $("#mTitle").textContent = p.title || "—";
-    $("#mMeta").textContent = [p.client, p.year, p.type, p.status].filter(Boolean).join(" • ") || "—";
-    $("#mDesc").textContent = p.description || "";
-    $("#mStack").textContent = (p.stack || []).join(", ") || "—";
-
-    const tags = (p.tags || []).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join("");
-    $("#mTags").innerHTML = tags || "—";
-
-    const img = $("#mImg");
-    if (img) {
-      img.src = p.image || "";
-      img.alt = p.title || "";
-    }
-
-    const actions = $("#mActions");
-    if (actions) {
-      actions.innerHTML = "";
-      if (p.links?.live) {
-        const a = document.createElement("a");
-        a.className = "btn";
-        a.href = p.links.live;
-        a.target = "_blank";
-        a.rel = "noopener";
-        a.textContent = "Live öffnen";
-        actions.appendChild(a);
-      }
-      if (p.links?.repo) {
-        const a = document.createElement("a");
-        a.className = "btn btn--ghost";
-        a.href = p.links.repo;
-        a.target = "_blank";
-        a.rel = "noopener";
-        a.textContent = "Repo";
-        actions.appendChild(a);
-      }
-    }
-
-    modal.showModal();
-  }
-
-  return { open, close };
 }
 
-function initNavToggle() {
-  const btn = document.querySelector("[data-nav-toggle]") || document.querySelector(".navToggle");
-  const nav = document.querySelector(".nav");
-  if (!btn || !nav) return;
-
-  btn.addEventListener("click", () => {
-    nav.classList.toggle("isOpen");
-    btn.setAttribute("aria-expanded", nav.classList.contains("isOpen") ? "true" : "false");
-  });
-}
-
-function initYear() {
-  const y = $("#year");
-  if (y) y.textContent = String(new Date().getFullYear());
-}
-
-function init() {
-  initNavToggle();
-  initYear();
-
-  const modal = initModal();
-
-  const q = $("#q");
-  const sort = $("#sort");
-
-  const allTags = uniq(projects.flatMap(p => p.tags || [])).sort((a, b) => a.localeCompare(b, "de"));
-
-  let activeTag = "Alle";
-
-  function computeAndRender() {
-    const query = norm(q?.value || "");
-    const sortKey = sort?.value || "newest";
-
-    let items = [...projects];
-
-    if (activeTag && activeTag !== "Alle") {
-      items = items.filter(p => (p.tags || []).includes(activeTag));
-    }
-
-    if (query) {
-      items = items.filter(p => projectHaystack(p).includes(query));
-    }
-
-    items.sort(compareBy(sortKey));
-
-    renderTagChips(allTags, activeTag, (t) => {
-      activeTag = t;
-      computeAndRender();
-    });
-
-    renderGrid(items, (p) => modal.open(p));
-  }
-
-  q?.addEventListener("input", computeAndRender);
-  sort?.addEventListener("change", computeAndRender);
-
-  computeAndRender();
-}
-
-document.addEventListener("DOMContentLoaded", init);
+// Boot
+ensureYear();
+buildTagChips();
+initControls();
+ensureEmptyStateHint();
+render();
