@@ -1,11 +1,4 @@
 #!/usr/bin/env node
-/**
- * Generator: liest /projects/*/project.json und schreibt /portfolio/js/projects.js
- * Ziel: Projekte einmal als JSON pflegen, Portfolio rendert automatisch.
- *
- * Usage:
- *   node ./tools/generate-projects.mjs
- */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,14 +10,14 @@ const root = path.resolve(__dirname, "..");
 const projectsDir = path.join(root, "projects");
 const outFile = path.join(root, "portfolio", "js", "projects.js");
 
-function readJson(p){
+function readJson(p) {
   return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 
-function exists(p){ try { fs.accessSync(p); return true; } catch { return false; } }
+function exists(p) { try { fs.accessSync(p); return true; } catch { return false; } }
 
 const folders = exists(projectsDir)
-  ? fs.readdirSync(projectsDir, { withFileTypes: true }).filter(d=>d.isDirectory()).map(d=>d.name)
+  ? fs.readdirSync(projectsDir, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name)
   : [];
 
 const projects = [];

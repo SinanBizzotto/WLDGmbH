@@ -1,22 +1,54 @@
-// assets/portfolio/js/projects.js
-export async function fetchProjects() {
-  const res = await fetch("./data/projects.json", {
-    headers: { "Accept": "application/json" }
-  });
+// portfolio/js/projects.js
+// Single source of truth for the Portfolio page.
+// No backend. No fetch. Pure static data.
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Projects JSON error ${res.status}: ${text || res.statusText}`);
-  }
-
-  const items = await res.json();
-
-  return items.map((p) => ({
-    ...p,
-    image: p.image || "",
+export const projects = [
+  {
+    slug: "band-website",
+    title: "Band Website",
+    client: "Demo",
+    year: 2024,
+    status: "Demo",
+    type: "Website",
+    description: "One-Pager mit Section-Layout, Social Links und sauberen Assets.",
+    stack: ["HTML", "CSS"],
+    tags: ["Static", "Landingpage"],
     links: {
-      live: p.links?.live ?? null,
-      repo: p.links?.repo ?? null,
+      live: "../projects/band-website/index.html",
+      repo: null,
     },
-  }));
-}
+    image: "./img/preview-band.png",
+  },
+  {
+    slug: "kochwelt",
+    title: "Kochwelt",
+    client: "Demo",
+    year: 2024,
+    status: "Demo",
+    type: "Website",
+    description: "Multi-Page Rezeptseite mit Assets, Navigation und interaktiven Scripts.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    tags: ["Static", "Multi-Page"],
+    links: {
+      live: "../projects/Kochwelt/index.html",
+      repo: null,
+    },
+    image: "./img/preview-kochwelt.jpg",
+  },
+  {
+    slug: "sakura-ramen-responsive",
+    title: "Sakura Ramen (Responsive)",
+    client: "Demo",
+    year: 2024,
+    status: "Demo",
+    type: "Website",
+    description: "Responsive Layout-Übung mit klarer Typo, Bildern und Mobile-First Struktur.",
+    stack: ["HTML", "CSS"],
+    tags: ["Static", "Responsive"],
+    links: {
+      live: "../projects/sakura-ramen-responsive/index.html",
+      repo: null,
+    },
+    image: "./img/preview-sakura.jpg",
+  },
+];
