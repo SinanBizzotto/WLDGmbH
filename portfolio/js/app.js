@@ -43,7 +43,7 @@ function normalizeProject(p) {
   const year = Number.isFinite(+p.year) ? +p.year : null;
   const links = p.links ?? {};
   return {
-    slug: p.slug ?? (title.toLowerCase().replace(/\s+/g, "-") || "project"),
+    slug: p.slug ?? title.toLowerCase().replace(/\s+/g, "-") || "project",
     title,
     client: p.client ?? "",
     year,
