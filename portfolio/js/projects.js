@@ -2,7 +2,7 @@
 export const projects = [
   {
     "slug": "demo-project",
-    "title": "Demo Project",
+    "title": "Kochwelt",
     "client": "",
     "year": 2025,
     "status": "Live",
@@ -17,14 +17,14 @@ export const projects = [
       "Static"
     ],
     "links": {
-      "live": "https://example.com",
+      "live": "https://weblabdesign.ch/projects/Kochwelt/index.html",
       "repo": null
     },
-    "image": "../projects/Kochwelt/img/Rumpsteak.jpg"
+    "image": "../projects/Kochwelt/Vorlage/mockup.png"
   },
   {
     "slug": "demo-project-2",
-    "title": "Demo Project",
+    "title": "Band Website",
     "client": "",
     "year": 2025,
     "status": "Live",
@@ -39,14 +39,14 @@ export const projects = [
       "Static"
     ],
     "links": {
-      "live": "https://example.com",
+      "live": "https://weblabdesign.ch/projects/band-website/index.html",
       "repo": null
     },
     "image": "../projects/band-website/img/mockup.jpg"
   },
   {
     "slug": "demo-project-3",
-    "title": "Demo Project",
+    "title": "Sakura Rahmen",
     "client": "",
     "year": 2025,
     "status": "Live",
@@ -61,9 +61,9 @@ export const projects = [
       "Static"
     ],
     "links": {
-      "live": "https://example.com",
+      "live": "https://weblabdesign.ch/projects/sakura-ramen-responsive/index.html",
       "repo": null
     },
-    "image": null
+    "image": "../projects/sakura-ramen-responsive/img/1_hero/JPG/hero_bg.jpg"
   }
 ];

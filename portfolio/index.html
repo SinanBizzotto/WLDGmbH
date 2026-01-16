@@ -7,10 +7,13 @@
   <title>Portfolio | Web Lab Design</title>
   <meta name="description" content="Portfolio von Web Lab Design – ausgewählte Websites und Frontends." />
   <link rel="stylesheet" href="../styles.css" />
-  <link rel="icon" href="./img/WebLabDesignLogo.jpeg" />
+
+  <!-- Favicon: korrekt relativ zum Portfolio-Ordner -->
+  <link rel="icon" href="../WebLabDesignLogo.jpeg" />
 
   <style>
-    /* Portfolio-spezifisch: minimal, damit das Branding konsistent bleibt */
+    /* Portfolio-spezifisch: minimal, konsistent, stabil */
+
     .portfolioHero {
       padding: 64px 0 24px;
     }
@@ -34,12 +37,12 @@
       border: 1px solid rgba(255, 255, 255, .14);
       background: rgba(255, 255, 255, .04);
       color: inherit;
-      padding: 10px 12px
+      padding: 10px 12px;
     }
 
     .controls input {
       flex: 1;
-      min-width: 260px
+      min-width: 260px;
     }
 
     .chipRow {
@@ -54,18 +57,20 @@
       background: rgba(255, 255, 255, .04);
       padding: 8px 12px;
       border-radius: 999px;
-      cursor: pointer
+      cursor: pointer;
+      user-select: none;
     }
 
     .chip.is-active {
       background: rgba(255, 255, 255, .12);
-      border-color: rgba(255, 255, 255, .22)
+      border-color: rgba(255, 255, 255, .22);
     }
 
+    /* ===== WICHTIG: Projekt-Grid sind Cards, nicht Website-Previews ===== */
     .grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
-      gap: 18px
+      gap: 18px;
     }
 
     .card {
@@ -73,43 +78,62 @@
       background: rgba(255, 255, 255, .03);
       border: 1px solid rgba(255, 255, 255, .08);
       border-radius: 18px;
-      overflow: hidden
+      overflow: hidden;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .35);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      /* verhindert Overflow */
     }
 
     @media (max-width: 980px) {
       .card {
-        grid-column: span 6
+        grid-column: span 6;
       }
     }
 
     @media (max-width: 620px) {
       .card {
-        grid-column: span 12
+        grid-column: span 12;
+      }
+
+      .portfolioHero {
+        padding: 42px 0 18px;
+      }
+
+      .controls input {
+        min-width: 0;
       }
     }
 
     .card__media {
       aspect-ratio: 16/9;
       background: rgba(255, 255, 255, .04);
-      overflow: hidden
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
     }
 
     .card__media img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block
+      display: block;
     }
 
     .card__body {
-      padding: 14px 14px 16px
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
     }
 
     .card__top {
       display: flex;
       gap: 10px;
       align-items: flex-start;
-      justify-content: space-between
+      justify-content: space-between;
     }
 
     .badge {
@@ -117,7 +141,7 @@
       padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, .14);
-      white-space: nowrap
+      white-space: nowrap;
     }
 
     .pill {
@@ -127,22 +151,33 @@
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, .12);
       background: rgba(255, 255, 255, .04);
-      margin: 0 8px 8px 0
+      margin: 0 8px 8px 0;
     }
 
     .tiny {
       font-size: 12px;
       opacity: .8;
-      margin: 8px 0 10px
+      margin: 0;
+    }
+
+    .muted {
+      opacity: .78;
     }
 
     .card__actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 12px
+      margin-top: auto;
     }
 
+    /* Pflege-Card: keine Grid-Spalte erzwingen, dafür sauber */
+    .internalCard {
+      grid-column: span 12;
+      padding: 18px;
+    }
+
+    /* Modal */
     .modal {
       border: 0;
       border-radius: 18px;
@@ -150,15 +185,15 @@
       max-width: 920px;
       width: calc(100% - 24px);
       background: #0b0f18;
-      color: #fff
+      color: #fff;
     }
 
     .modal::backdrop {
-      background: rgba(0, 0, 0, .6)
+      background: rgba(0, 0, 0, .6);
     }
 
     .modal__inner {
-      padding: 18px
+      padding: 18px;
     }
 
     .modal__top {
@@ -167,7 +202,7 @@
       justify-content: space-between;
       gap: 12px;
       padding: 14px 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, .08)
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
     }
 
     .iconBtn {
@@ -177,40 +212,43 @@
       border: 1px solid rgba(255, 255, 255, .14);
       background: rgba(255, 255, 255, .04);
       color: inherit;
-      cursor: pointer
+      cursor: pointer;
     }
 
     .modalGrid {
       display: grid;
       grid-template-columns: 1.2fr .8fr;
-      gap: 18px
+      gap: 18px;
     }
 
     @media (max-width: 860px) {
       .modalGrid {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
       }
     }
 
     .modalMedia {
       border-radius: 14px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, .08)
+      border: 1px solid rgba(255, 255, 255, .08);
+      background: rgba(255, 255, 255, .03);
     }
 
     .modalMedia img {
       width: 100%;
       height: auto;
-      display: block
+      display: block;
     }
 
-    .muted {
-      opacity: .78
+    /* Safety: keine horizontale Scroll-Orgie */
+    html,
+    body {
+      overflow-x: hidden;
     }
   </style>
 </head>
 
-<body>
+<body class="portfolioPage">
   <header class="header" id="top">
     <div class="container header__inner">
       <a class="brand" href="../#top" aria-label="Web Lab Design">
@@ -238,8 +276,10 @@
     <section class="container portfolioHero">
       <p class="kicker">Auslieferung statt Show.</p>
       <h1>Portfolio</h1>
-      <p class="lead">Hier sind alle Projekte in einem System: Suche, Tags, Sortierung, Details. Neue Projekte fügst du
-        einmal zentral hinzu.</p>
+      <p class="lead">
+        Hier sind alle Projekte in einem System: Suche, Tags, Sortierung, Details. Neue Projekte fügst du einmal zentral
+        hinzu.
+      </p>
     </section>
 
     <section class="container" aria-label="Projekte">
@@ -258,10 +298,13 @@
     </section>
 
     <section class="container" style="padding:34px 0 64px;">
-      <div class="card" style="grid-column:span 12; padding:18px;">
+      <div class="card internalCard">
         <h2 style="margin-top:0">Pflegeprozess (intern)</h2>
-        <p class="muted">Projekte werden in <code>portfolio/js/projects.js</code> gepflegt. Optional: Generator nutzen,
-          damit Projekte automatisch aus <code>/projects/*/project.json</code> eingelesen werden.</p>
+        <p class="muted">
+          Projekte werden in <code>portfolio/js/projects.js</code> gepflegt.
+          Optional: Generator nutzen, damit Projekte automatisch aus <code>/projects/*/project.json</code> eingelesen
+          werden.
+        </p>
       </div>
     </section>
 
@@ -294,7 +337,6 @@
   </dialog>
 
   <script type="module" src="./js/app.js"></script>
-
 </body>
 
 </html>
