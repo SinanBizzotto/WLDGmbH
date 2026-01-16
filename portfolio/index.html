@@ -207,10 +207,49 @@
     .muted {
       opacity: .78
     }
+
+    /* ===== Portfolio Hotfix: globale .card Regeln neutralisieren ===== */
+    .portfolioPage .card {
+      padding: 0;
+      /* killt globales padding aus ../styles.css */
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .35);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .portfolioPage .card__media {
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .portfolioPage .card__body {
+      padding: 16px;
+      /* Body bekommt definierte Innenabstände */
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .portfolioPage .card__actions {
+      margin-top: auto;
+      /* Buttons immer sauber am Card-Ende */
+    }
+
+    @media (max-width: 620px) {
+      .portfolioPage .portfolioHero {
+        padding: 42px 0 18px;
+      }
+
+      .portfolioPage .controls input {
+        min-width: 0;
+      }
+
+      /* verhindert Mobile Overflow */
+    }
   </style>
 </head>
 
-<body>
+<body class="portfolioPage">
   <header class="header" id="top">
     <div class="container header__inner">
       <a class="brand" href="../#top" aria-label="Web Lab Design">
