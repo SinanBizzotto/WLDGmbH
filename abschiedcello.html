@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR-Quiz: Cello – Bau 41</title>
+
+    <!-- QR-only: nicht indexieren -->
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+
+    <link rel="stylesheet" href="/assets/cello-quiz.css" />
+</head>
+
+<body>
+    <main class="wrap">
+        <header class="top">
+            <div class="pill">QR • Bau 41 • Logistik • Frühpension</div>
+            <h1>Cello-Quiz (Stand jetzt)</h1>
+            <p class="lead">
+                Corporate-Kompatibilität: gegeben. Chaos-Faktor: Palim Palim.
+            </p>
+        </header>
+
+        <!-- VIDEO PLACEHOLDER -->
+        <section class="card">
+            <div class="card-head">
+                <h2>🎬 Video</h2>
+                <span class="tag">Platzhalter</span>
+            </div>
+
+            <div class="video-frame" aria-label="Video Platzhalter">
+                <!-- Später ersetzen durch <video ...> oder <iframe ...> -->
+                <div class="video-placeholder">
+                    <div class="vh-title">Video kommt hier rein</div>
+                    <div class="vh-sub">
+                        Ersetze diesen Block später durch dein Video (HTML5 Video oder YouTube iFrame).
+                    </div>
+                    <code class="vh-code">
+&lt;video controls src="deinvideo.mp4"&gt;&lt;/video&gt;
+          </code>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUIZ -->
+        <section class="card">
+            <div class="card-head">
+                <h2>🧠 Quiz</h2>
+                <span class="tag" id="modeTag">Ready</span>
+            </div>
+
+            <div class="meta">
+                <div class="kpi">
+                    <div class="kpi-value" id="kpiScore">0</div>
+                    <div class="kpi-label">Punkte</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-value" id="kpiQ">–</div>
+                    <div class="kpi-label">Frage</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-value" id="kpiChaos">0%</div>
+                    <div class="kpi-label">Palim-Faktor</div>
+                </div>
+            </div>
+
+            <div id="quiz" class="quiz">
+                <!-- JS rendert hier rein -->
+            </div>
+
+            <div class="actions">
+                <button class="btn primary" id="startBtn">Quiz starten</button>
+                <button class="btn ghost" id="retryBtn" hidden>Nochmal</button>
+            </div>
+
+            <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+        </section>
+
+        <footer class="foot">
+            <small>Hinweis: Diese Seite ist bewusst nicht verlinkt. Zugriff über QR.</small>
+        </footer>
+    </main>
+
+    <canvas id="fx" class="fx" width="1" height="1"></canvas>
+    <script src="/assets/cello-quiz.js"></script>
+</body>
+
+</html>
