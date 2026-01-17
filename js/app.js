@@ -16,6 +16,55 @@ function formatCHF(n) {
   return `${s} CHF`;
 }
 
+// ---------- Mobile Nav (Hamburger) ----------
+function initMobileNav() {
+  const nav = qs(".nav");
+  const toggle = qs(".navToggle") || qs("[data-nav-toggle]");
+  if (!nav || !toggle) return;
+
+  const mq = window.matchMedia("(max-width: 980px)");
+
+  const close = () => {
+    nav.classList.remove("isOpen");
+    toggle.setAttribute("aria-expanded", "false");
+  };
+
+  const toggleNav = (e) => {
+    // hard stop: sonst schließt der document-click handler direkt wieder
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isOpen = nav.classList.toggle("isOpen");
+    toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  };
+
+  toggle.addEventListener("click", toggleNav);
+
+  // Klick auf Menüpunkt -> im Mobile wieder schließen
+  nav.querySelectorAll("a").forEach((a) => {
+    a.addEventListener("click", () => {
+      if (mq.matches) close();
+    });
+  });
+
+  // Klick außerhalb -> schließen
+  document.addEventListener("click", (e) => {
+    if (!nav.classList.contains("isOpen")) return;
+    if (nav.contains(e.target) || toggle.contains(e.target)) return;
+    close();
+  });
+
+  // ESC -> schließen
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+
+  // Beim Resize auf Desktop -> Zustand bereinigen
+  window.addEventListener("resize", () => {
+    if (!mq.matches) close();
+  });
+}
+
 // ---------- Pricing toggle (Einmalig <-> Monatlich) ----------
 function initPricingToggle() {
   const btn = qs('#priceToggle');
@@ -171,7 +220,6 @@ function initEstimator() {
     let monthly = 0;
     if (flags.hosting?.checked) monthly += 290;
     if (flags.backend?.checked) monthly += 350;
-    // minimum retainer if anything is on
     if (monthly > 0) monthly = Math.max(monthly, 390);
 
     // Timeline heuristic
@@ -184,7 +232,6 @@ function initEstimator() {
     if (monthlyOut) monthlyOut.textContent = monthly > 0 ? `ab ${formatCHF(monthly)}` : '—';
     if (timelineOut) timelineOut.textContent = `${weeks}–${weeks + 1} Wochen`;
 
-    // Determine best plan
     let plan = 'frontend';
     if (flags.backend?.checked) plan = 'fullstack';
     else if (flags.hosting?.checked) plan = 'frontend_hosting';
@@ -195,12 +242,18 @@ function initEstimator() {
   const rerun = () => calc();
   pages?.addEventListener('input', rerun);
   Object.values(flags).forEach((c) => c?.addEventListener('change', rerun));
-  const state = calc();
+  calc();
 
   applyBtn?.addEventListener('click', () => {
     const s = calc();
     if (planSelect) planSelect.value = s.plan;
-    const label = s.plan === 'fullstack' ? 'Full-Stack' : s.plan === 'frontend_hosting' ? 'Frontend + Hosting' : 'Frontend';
+
+    const label = s.plan === 'fullstack'
+      ? 'Full-Stack'
+      : s.plan === 'frontend_hosting'
+        ? 'Frontend + Hosting'
+        : 'Frontend';
+
     const msg = qs('textarea[name="message"]');
     if (msg) {
       msg.value = `Budget-Estimator:\nPlan: ${label}\nSeiten: ${s.p}\nEinmalig (Range): ${formatCHF(s.lo)} – ${formatCHF(s.hi)}\nMonatlich: ${s.monthly > 0 ? 'ab ' + formatCHF(s.monthly) : '—'}\nTimeline: ${s.weeks}–${s.weeks + 1} Wochen\n\nKurzbeschreibung:`;
@@ -220,7 +273,6 @@ function initContactForm() {
   const thankyou = qs('#thankyou');
 
   form.addEventListener('submit', async (e) => {
-    // Keep normal submit as fallback if fetch fails
     e.preventDefault();
 
     if (status) status.textContent = 'Sende…';
@@ -241,7 +293,6 @@ function initContactForm() {
     } catch (err) {
       console.error(err);
       if (status) status.textContent = 'Senden fehlgeschlagen. Bitte nochmal versuchen oder direkt per Mail kontaktieren.';
-      // Fallback to normal submit route
       try { form.submit(); } catch { /* ignore */ }
     }
   });
@@ -250,6 +301,7 @@ function initContactForm() {
 // ---------- Boot ----------
 document.addEventListener('DOMContentLoaded', () => {
   setYear();
+  initMobileNav();
   initPricingToggle();
   initPlanSelectButtons();
   initFinder();
