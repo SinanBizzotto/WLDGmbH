@@ -1,0 +1,381 @@
+.fitnessHero {
+  padding-top: 56px;
+}
+
+.fitnessHero__grid,
+.sessionGrid,
+.fitnessLayout {
+  display: grid;
+  gap: 24px;
+}
+
+.fitnessHero__grid {
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr);
+  align-items: stretch;
+}
+
+.fitnessStats,
+.summaryGrid,
+.analyticsGrid,
+.buttonGrid,
+.fieldGrid,
+.equipmentGrid,
+.exerciseList,
+.timerMeta,
+.timerControls,
+.toolbar,
+.toggleRow {
+  display: grid;
+  gap: 12px;
+}
+
+.fitnessStats,
+.summaryGrid,
+.analyticsGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.panel--sticky {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+}
+
+.panel__head {
+  margin-bottom: 18px;
+}
+
+.panel__head--split {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.panel__head h2,
+.equipmentCard__title,
+.exerciseItem__title {
+  margin: 0;
+}
+
+.sessionSummaryCard {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  box-shadow: var(--shadow);
+}
+
+.sessionSummaryCard__head,
+.equipmentCard__top,
+.exerciseItem__head,
+.exerciseItem__actions,
+.timerActionsHeader,
+.timerControls,
+.toolbar,
+.toggleRow,
+.check,
+.field,
+.stack {
+  display: flex;
+}
+
+.sessionSummaryCard__head,
+.exerciseItem__head,
+.toolbar,
+.toggleRow {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sessionSummaryCard__head,
+.field,
+.stack {
+  flex-direction: column;
+}
+
+.sessionSummaryCard__head strong {
+  font-size: 1.2rem;
+}
+
+.summaryGrid div,
+.analyticCard,
+.fitnessStats .stat,
+.timerMeta div {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255,255,255,.03);
+  padding: 14px;
+}
+
+.summaryGrid span,
+.analyticCard span,
+.timerMeta span {
+  display: block;
+  color: var(--muted);
+  font-size: .9rem;
+  margin-bottom: 6px;
+}
+
+.summaryGrid strong,
+.analyticCard strong,
+.timerMeta strong {
+  font-size: 1.15rem;
+}
+
+.fitnessLayout {
+  grid-template-columns: minmax(290px, 360px) minmax(0, 1fr);
+}
+
+.field span {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.field input,
+.field textarea,
+.searchInput,
+.selectInput {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  color: var(--text);
+  font: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.fieldGrid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fieldGrid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.fieldGrid--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.buttonGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.toolbar {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  min-width: 260px;
+}
+
+.selectInput {
+  min-width: 200px;
+}
+
+.pill,
+.phaseBadge,
+.chipBtn,
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
+}
+
+.pill,
+.phaseBadge {
+  padding: 8px 12px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.equipmentGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.equipmentCard,
+.exerciseItem {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255,255,255,.03);
+  overflow: hidden;
+}
+
+.equipmentCard__imageWrap {
+  aspect-ratio: 16 / 10;
+  background: #fff;
+  overflow: hidden;
+}
+
+.equipmentCard__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.equipmentCard__body,
+.exerciseItem {
+  padding: 16px;
+}
+
+.equipmentCard__subtitle,
+.exerciseItem__meta,
+.equipmentCard__description {
+  margin: 6px 0 0;
+}
+
+.equipmentCard__description {
+  min-height: 72px;
+}
+
+.equipmentCard__footer {
+  margin-top: 14px;
+}
+
+.exerciseList {
+  grid-template-columns: 1fr;
+}
+
+.exerciseItem__actions {
+  gap: 8px;
+}
+
+.iconBtn,
+.chipBtn {
+  padding: 10px 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.iconBtn.danger {
+  color: #ff9898;
+}
+
+.emptyState {
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  padding: 18px;
+  color: var(--muted);
+}
+
+.sessionGrid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+}
+
+.timerDisplayWrap {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 22px;
+  background: radial-gradient(circle at top, rgba(106, 228, 255, .12), transparent 45%), rgba(255,255,255,.025);
+}
+
+.timerDisplay {
+  font-size: clamp(52px, 10vw, 88px);
+  font-weight: 900;
+  line-height: 1;
+  margin: 16px 0;
+}
+
+.progressBar {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+}
+
+.progressBar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width .25s ease;
+}
+
+.timerMeta {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.timerControls {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.analyticsGrid {
+  margin-top: 8px;
+}
+
+.top-gap { margin-top: 18px; }
+.top-gap-sm { margin-top: 12px; }
+.gap-md { gap: 14px; }
+
+.check {
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.check input { accent-color: var(--accent); }
+
+.phaseBadge.isWork { color: #8df2ff; }
+.phaseBadge.isRest { color: #ffd37c; }
+.phaseBadge.isDone { color: #8dffaf; }
+
+@media (max-width: 1100px) {
+  .fitnessHero__grid,
+  .fitnessLayout,
+  .sessionGrid,
+  .equipmentGrid,
+  .fieldGrid--4,
+  .timerControls,
+  .timerMeta {
+    grid-template-columns: 1fr;
+  }
+
+  .panel--sticky {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .fieldGrid--2,
+  .fieldGrid--3,
+  .buttonGrid,
+  .fitnessStats,
+  .summaryGrid,
+  .analyticsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .timerActionsHeader,
+  .toolbar,
+  .toggleRow,
+  .exerciseItem__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchInput,
+  .selectInput {
+    min-width: auto;
+  }
+}
