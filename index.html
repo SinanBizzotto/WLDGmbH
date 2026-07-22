@@ -25,12 +25,13 @@
             </a>
 
             <nav class="nav" aria-label="Hauptnavigation">
+                <a href="#top" aria-current="page">Start</a>
+                <a href="#referenzen">Projekte</a>
                 <a href="#leistungen">Leistungen</a>
                 <a href="#prozess">Prozess</a>
                 <a href="#pakete">Pakete</a>
-                <a href="#referenzen">Referenzen</a>
                 <a href="/portfolio/">Portfolio</a>
-                <a href="#kontakt" class="btn btn--ghost">Kontakt</a>
+                <a href="#kontakt" class="btn">Projekt starten<span class="btn__arrow">↗</span></a>
             </nav>
 
             <button class="navToggle" type="button" aria-label="Menü öffnen" aria-expanded="false">
@@ -42,9 +43,9 @@
     <main>
         <!-- HERO / OVERVIEW -->
         <section class="hero">
-            <div class="container">
+            <div class="container hero__grid">
                 <div class="hero__intro" data-reveal>
-                    <p class="kicker">Webentwicklung für KMU & Startups</p>
+                    <p class="badge">Verfügbar für neue Projekte</p>
                     <h1>Wir bauen Websites,<br>die <span class="highlight">arbeiten</span>.</h1>
                     <p class="lead">
                         Kein Agentur-Nebel, keine leeren Buzzwords. Klare Pakete, saubere Umsetzung,
@@ -52,22 +53,46 @@
                     </p>
 
                     <div class="hero__cta">
-                        <a class="btn" href="#pakete">Pakete ansehen</a>
+                        <a class="btn" href="#pakete">Pakete ansehen<span class="btn__arrow">↗</span></a>
                         <a class="btn btn--ghost" href="#kontakt">Projekt anfragen</a>
                     </div>
 
                     <div class="hero__stats" role="list" aria-label="Kernfakten">
                         <div class="stat" role="listitem">
-                            <strong>&lt;2s</strong>
-                            <span>Ladezeit als Standard, nicht als Ausnahme</span>
+                            <span class="statIcon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
+                            </span>
+                            <div>
+                                <strong>3 Pakete</strong>
+                                <span>Frontend, Hosting, Full-Stack</span>
+                            </div>
                         </div>
                         <div class="stat" role="listitem">
-                            <strong>1–6 Wo.</strong>
-                            <span>Von Kickoff bis Launch, je nach Scope</span>
+                            <span class="statIcon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6M16 6l6 6-6 6"/></svg>
+                            </span>
+                            <div>
+                                <strong>Frontend & Full-Stack</strong>
+                                <span>Von UI bis Backend</span>
+                            </div>
                         </div>
                         <div class="stat" role="listitem">
-                            <strong>3 Pakete</strong>
-                            <span>Frontend, Hosting oder Full-Stack</span>
+                            <span class="statIcon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
+                            </span>
+                            <div>
+                                <strong>Schweiz / Remote</strong>
+                                <span>Lokal & verlässlich</span>
+                            </div>
+                        </div>
+                        <div class="stat" role="listitem">
+                            <span class="statIcon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg>
+                            </span>
+                            <div>
+                                <strong>Verfügbar für Projekte</strong>
+                                <span>Jetzt Zusammenarbeit starten</span>
+                            </div>
                         </div>
                     </div>
 
@@ -75,6 +100,48 @@
                         <span class="scrollCue__line" aria-hidden="true"></span>
                         Scrollen
                     </div>
+                </div>
+
+                <div class="heroMock" data-reveal data-reveal-delay="120" aria-hidden="true">
+                    <span class="floatBadge floatBadge--top">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 8-4 4 4 4M15 8l4 4-4 4"/></svg>
+                    </span>
+                    <div class="heroMock__panels">
+                        <div class="heroMock__code">
+                            <div class="codeDots">
+                                <span class="codeDot"></span><span class="codeDot"></span><span class="codeDot"></span>
+                            </div>
+                            <div class="codeLine"><span class="codeLine__num">1</span><span class="codeLine__bar" style="width:55%"></span></div>
+                            <div class="codeLine"><span class="codeLine__num">2</span><span class="codeLine__bar codeLine__bar--accent" style="width:30%"></span></div>
+                            <div class="codeLine"><span class="codeLine__num">3</span><span class="codeLine__bar" style="width:70%"></span></div>
+                            <div class="codeLine"><span class="codeLine__num">4</span><span class="codeLine__bar" style="width:45%"></span></div>
+                            <div class="codeLine"><span class="codeLine__num">5</span><span class="codeLine__bar codeLine__bar--accent" style="width:25%"></span></div>
+                            <div class="codeLine"><span class="codeLine__num">6</span><span class="codeLine__bar" style="width:60%"></span></div>
+                            <div class="codeLine"><span class="codeLine__num">7</span><span class="codeLine__bar" style="width:38%"></span></div>
+                            <div class="codeLine"><span class="codeLine__num">8</span><span class="codeLine__bar codeLine__bar--accent" style="width:52%"></span></div>
+                        </div>
+                        <div class="heroMock__preview">
+                            <div class="previewHead">
+                                <span class="previewAvatar"></span>
+                                <span class="previewLine"></span>
+                            </div>
+                            <div class="previewImage"></div>
+                            <div class="previewTiles">
+                                <span class="previewTile">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+                                </span>
+                                <span class="previewTile">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11 13 15 21 7"/><path d="M15 7h6v6"/></svg>
+                                </span>
+                                <span class="previewTile">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="floatBadge floatBadge--bottom">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 19 2c0 2.52-.6 6.7-4 10a22.35 22.35 0 0 1-3 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                    </span>
                 </div>
             </div>
         </section>
@@ -100,6 +167,147 @@
                 </div>
             </div>
         </div>
+
+        <!-- AUSGEWÄHLTE PROJEKTE -->
+        <section class="section" id="referenzen">
+            <div class="container">
+                <div class="section__head section__head--split" data-reveal>
+                    <div>
+                        <p class="kicker">Referenzen</p>
+                        <h2>Ausgewählte Projekte.</h2>
+                    </div>
+                    <a class="muted" href="/portfolio/" style="font-weight:800;">Alle Projekte ansehen<span class="btn__arrow">↗</span></a>
+                </div>
+
+                <div class="grid grid--3">
+                    <article class="projectCard" data-reveal>
+                        <div class="projectCard__media">
+                            <img src="projects/Kochwelt/Vorlage/mockup.png" alt="Kochwelt" loading="lazy" />
+                        </div>
+                        <div class="projectCard__body">
+                            <div class="projectCard__top">
+                                <h3>Kochwelt</h3>
+                                <a class="projectCard__arrow" href="https://weblabdesign.ch/projects/Kochwelt/index.html" target="_blank" rel="noopener" aria-label="Kochwelt live ansehen">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                                </a>
+                            </div>
+                            <p class="muted">Rezept- und Foodie-Website mit Rezeptdetails und responsivem Layout.</p>
+                            <div class="projectCard__tags">
+                                <span class="chip">HTML</span>
+                                <span class="chip">CSS</span>
+                                <span class="chip">JS</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="projectCard" data-reveal data-reveal-delay="120">
+                        <div class="projectCard__media">
+                            <img src="projects/band-website/img/mockup.jpg" alt="Band Website" loading="lazy" />
+                        </div>
+                        <div class="projectCard__body">
+                            <div class="projectCard__top">
+                                <h3>Band Website</h3>
+                                <a class="projectCard__arrow" href="https://weblabdesign.ch/projects/band-website/index.html" target="_blank" rel="noopener" aria-label="Band Website live ansehen">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                                </a>
+                            </div>
+                            <p class="muted">Konzert-Website mit Tour-Daten, Playlist-Einbindung und Ticket-Links.</p>
+                            <div class="projectCard__tags">
+                                <span class="chip">HTML</span>
+                                <span class="chip">CSS</span>
+                                <span class="chip">JS</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="projectCard" data-reveal data-reveal-delay="240">
+                        <div class="projectCard__media">
+                            <img src="projects/sakura-ramen-responsive/img/1_hero/JPG/hero_bg.jpg" alt="Sakura Rahmen" loading="lazy" />
+                        </div>
+                        <div class="projectCard__body">
+                            <div class="projectCard__top">
+                                <h3>Sakura Rahmen</h3>
+                                <a class="projectCard__arrow" href="https://weblabdesign.ch/projects/sakura-ramen-responsive/index.html" target="_blank" rel="noopener" aria-label="Sakura Rahmen live ansehen">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                                </a>
+                            </div>
+                            <p class="muted">Responsive Restaurant-Website mit Menü-Präsentation und Bildergalerie.</p>
+                            <div class="projectCard__tags">
+                                <span class="chip">HTML</span>
+                                <span class="chip">CSS</span>
+                                <span class="chip">JS</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- UNSER STACK -->
+        <section class="section section--alt">
+            <div class="container">
+                <div class="section__head" data-reveal>
+                    <p class="kicker">Stack</p>
+                    <h2>Unser Stack.</h2>
+                    <p class="muted">Bewusst schlank statt Framework-Overkill – schnell, wartbar, ohne unnötigen Ballast.</p>
+                </div>
+
+                <div class="stackGrid" data-reveal>
+                    <div>
+                        <div class="stackCol__head">
+                            <span class="stackCol__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                            </span>
+                            <span class="stackCol__title">Frontend</span>
+                        </div>
+                        <div class="stackCol__pills">
+                            <span class="chip">HTML5</span>
+                            <span class="chip">CSS3</span>
+                            <span class="chip">JavaScript</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stackCol__head">
+                            <span class="stackCol__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
+                            </span>
+                            <span class="stackCol__title">Backend & Daten</span>
+                        </div>
+                        <div class="stackCol__pills">
+                            <span class="chip">Node.js</span>
+                            <span class="chip">APIs</span>
+                            <span class="chip">SQL</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stackCol__head">
+                            <span class="stackCol__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3Z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                            </span>
+                            <span class="stackCol__title">UI / UX</span>
+                        </div>
+                        <div class="stackCol__pills">
+                            <span class="chip">UI/UX Design</span>
+                            <span class="chip">Figma</span>
+                            <span class="chip">Responsive Design</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stackCol__head">
+                            <span class="stackCol__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4-1.8A5 5 0 0 0 6.5 19h11Z"/></svg>
+                            </span>
+                            <span class="stackCol__title">Deployment</span>
+                        </div>
+                        <div class="stackCol__pills">
+                            <span class="chip">Cloudflare</span>
+                            <span class="chip">Git</span>
+                            <span class="chip">CI/CD</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- LEISTUNGEN -->
         <section class="section" id="leistungen">
@@ -606,25 +814,6 @@
             </div>
         </section>
 
-        <!-- REFERENZEN / PORTFOLIO TEASER -->
-        <section class="section section--alt" id="referenzen">
-            <div class="container">
-                <div class="section__head" data-reveal>
-                    <p class="kicker">Referenzen</p>
-                    <h2>Alle Projekte an einem Ort.</h2>
-                </div>
-
-                <div class="teaser" data-reveal>
-                    <div>
-                        <h3>Portfolio durchsuchen</h3>
-                        <p>Filterbar nach Tags und Tech-Stack, mit Detailansicht je Projekt – Landingpages, Corporate
-                            Sites und Web-Apps im direkten Vergleich.</p>
-                    </div>
-                    <a class="btn" href="/portfolio/">Zum Portfolio</a>
-                </div>
-            </div>
-        </section>
-
         <!-- POSITIONIERUNG -->
         <section class="section" id="positionierung">
             <div class="container">
@@ -650,6 +839,14 @@
                         <p class="muted">Wenn's langsam ist, verliert es Leads. Performance-Budget ist bei uns Standard.
                         </p>
                     </article>
+                </div>
+
+                <div class="teaser" data-reveal data-reveal-delay="360" style="margin-top:18px;">
+                    <div>
+                        <h3>Noch mehr Projekte sehen?</h3>
+                        <p>Filterbar nach Tags und Tech-Stack, mit Detailansicht je Projekt – im vollständigen Portfolio.</p>
+                    </div>
+                    <a class="btn" href="/portfolio/">Zum Portfolio<span class="btn__arrow">↗</span></a>
                 </div>
             </div>
         </section>
@@ -687,6 +884,9 @@
         <section class="section section--cta" id="kontakt">
             <div class="container cta">
                 <div class="cta__copy" data-reveal>
+                    <span class="ctaIcon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 9-18 9 4-9-4-9Z"/></svg>
+                    </span>
                     <p class="kicker">Kontakt</p>
                     <h2>Projekt starten – strukturiert und ohne Drama.</h2>
                     <p class="muted">
