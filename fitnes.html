@@ -2,330 +2,212 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fitness Planer | Web Lab Design</title>
-  <meta name="description" content="Interaktive Trainingseinheit mit Geräte-Auswahl, Übungen, Arbeits- und Pausentimer, Progress-Tracking und kompletter Session-Steuerung." />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#070708" />
+  <title>WLD Training | Dein Fitness-Planer</title>
+  <meta name="description" content="Mobiler Fitness-Planer mit Geräteauswahl, Trainingsplan, Intervalltimer und Session-Fortschritt." />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="assets/fitness.css" />
 </head>
-<body>
+<body class="fitApp">
   <div class="scrollProgress" id="scrollProgress"></div>
 
-  <header class="header" id="top">
-    <div class="container header__inner">
-      <a class="brand" href="/index.html#top" aria-label="Web Lab Design">
-        <span class="brand__logo">WLD</span>
-        <span class="brand__text">
-          <strong>Web Lab Design</strong>
-          <small>Fitness Training Suite</small>
-        </span>
+  <header class="fitTopbar" id="top">
+    <div class="fitShell fitTopbar__inner">
+      <a class="fitBrand" href="#home" aria-label="WLD Training Startseite">
+        <span class="fitBrand__mark">W</span>
+        <span><strong>WLD Training</strong><small>Dein Workout. Dein Tempo.</small></span>
       </a>
-
-      <nav class="nav" aria-label="Hauptnavigation">
-        <a href="/index.html#leistungen">Leistungen</a>
-        <a href="/index.html#pakete">Pakete</a>
-        <a href="/portfolio/">Portfolio</a>
-        <a href="#planner">Planer</a>
-        <a href="#library">Übungen</a>
-        <a href="#session">Session</a>
-      </nav>
-
-      <button class="navToggle" type="button" aria-label="Menü öffnen" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
+      <a class="fitTopbar__exit" href="/index.html" aria-label="Fitness-App verlassen">
+        <span>Website</span>
+        <span aria-hidden="true">↗</span>
+      </a>
     </div>
   </header>
 
   <main>
-    <section class="fitnessHero section" data-reveal>
-      <div class="container fitnessHero__grid">
-        <div>
-          <p class="kicker">Komplett funktionale Trainingseinheit</p>
-          <h1>Fitness-Sektion mit <span class="highlight">Planer, Timer, Pausenlogik</span> und Gerätebibliothek</h1>
-          <p class="lead">
-            Dein Kollege kann jede Übung individuell anpassen: Dauer, Pause, Sätze, Zielmuskel,
-            Reihenfolge, Notizen und komplette Session-Länge. Kein Fitness-Gefasel, sondern ein sauberer Workflow.
-          </p>
-          <div class="fitnessHero__cta">
-            <a class="btn" href="#planner">Training konfigurieren</a>
-            <button class="btn btn--ghost" type="button" id="loadDemoPlan">Demo-Plan laden</button>
+    <section class="fitHome" id="home">
+      <div class="fitShell">
+        <div class="fitHome__eyebrow"><span></span> Bereit für dein Training?</div>
+        <div class="fitHome__heading">
+          <div>
+            <p class="fitHome__date" id="fitToday">DEIN WORKOUT</p>
+            <h1>Heute zählt<br><em>jede Wiederholung.</em></h1>
           </div>
-          <div class="fitnessStats">
-            <div class="stat"><strong>10 Geräte</strong><span>Aus deiner aktuellen Auswahl</span></div>
-            <div class="stat"><strong>Timer-Engine</strong><span>Arbeit, Pause, Set-Wechsel</span></div>
-            <div class="stat"><strong>Local Save</strong><span>Plan bleibt im Browser erhalten</span></div>
-          </div>
+          <div class="fitHome__pulse" aria-hidden="true"><span>GO</span></div>
         </div>
 
-        <aside class="sessionSummaryCard">
-          <div class="sessionSummaryCard__head">
-            <span class="pill">Session Snapshot</span>
-            <strong id="summarySessionName">Kein Plan geladen</strong>
+        <article class="workoutCard">
+          <div class="workoutCard__top">
+            <div>
+              <span class="fitLabel">Aktueller Plan</span>
+              <h2 id="summarySessionName">Noch kein Plan</h2>
+            </div>
+            <span class="workoutCard__status">LOKAL GESPEICHERT</span>
           </div>
-          <div class="summaryGrid">
-            <div><span>Übungen</span><strong id="summaryExerciseCount">0</strong></div>
-            <div><span>Gesamtdauer</span><strong id="summaryTotalTime">0 Min.</strong></div>
-            <div><span>Arbeitszeit</span><strong id="summaryWorkTime">0 Min.</strong></div>
-            <div><span>Pausenzeit</span><strong id="summaryRestTime">0 Min.</strong></div>
+          <div class="workoutCard__stats">
+            <div><strong id="summaryExerciseCount">0</strong><span>Übungen</span></div>
+            <div><strong id="summaryTotalTime">0 Min.</strong><span>Dauer</span></div>
+            <div><strong id="summaryWorkTime">0 Min.</strong><span>Aktiv</span></div>
+            <div><strong id="summaryRestTime">0 Min.</strong><span>Pause</span></div>
           </div>
-          <div class="sessionSummaryCard__footer muted">
-            Die Session berechnet live die Gesamtzeit auf Basis aller Übungen, Sätze und Pausen.
+          <div class="workoutCard__actions">
+            <a class="fitButton fitButton--primary" href="#session">Training öffnen <span>→</span></a>
+            <button class="fitButton fitButton--quiet" type="button" id="loadDemoPlan">Demo laden</button>
           </div>
-        </aside>
+        </article>
+
+        <div class="fitSteps" aria-label="So funktioniert es">
+          <a href="#planner"><span>01</span><strong>Geräte wählen</strong><small>Deine Stationen</small></a>
+          <a href="#library"><span>02</span><strong>Plan prüfen</strong><small>Zeit & Sätze</small></a>
+          <a href="#session"><span>03</span><strong>Loslegen</strong><small>Timer starten</small></a>
+        </div>
       </div>
     </section>
 
-    <section class="section" id="planner" data-reveal>
-      <div class="container fitnessLayout">
-        <div class="panel panel--sticky">
-          <div class="panel__head">
-            <h2>Trainings-Setup</h2>
-            <p class="muted">Globale Session-Parameter und Schnellaktionen.</p>
-          </div>
+    <section class="fitSection" id="planner">
+      <div class="fitShell">
+        <div class="fitSection__head">
+          <div><span class="fitSection__index">01</span><p class="fitLabel">Workout zusammenstellen</p><h2>Geräte wählen</h2></div>
+          <span class="fitSection__hint">Antippen zum Hinzufügen</span>
+        </div>
 
-          <form id="sessionForm" class="stack gap-md">
-            <label class="field">
-              <span>Session-Name</span>
-              <input type="text" id="sessionName" placeholder="z. B. Oberkörper Fokus" maxlength="60" />
-            </label>
-
+        <details class="fitDisclosure setupCard">
+          <summary>
+            <span class="setupCard__icon">⚙</span>
+            <span><strong>Training einstellen</strong><small>Name, Zeiten, Warm-up und Signaltöne</small></span>
+            <span class="fitDisclosure__chevron">⌄</span>
+          </summary>
+          <form id="sessionForm" class="setupForm">
+            <label class="field field--wide"><span>Session-Name</span><input type="text" id="sessionName" placeholder="z. B. Ganzkörper Express" maxlength="60" /></label>
             <div class="fieldGrid fieldGrid--2">
-              <label class="field">
-                <span>Standard Arbeitszeit (Sek.)</span>
-                <input type="number" id="defaultWork" min="10" max="600" step="5" value="45" />
-              </label>
-              <label class="field">
-                <span>Standard Pause (Sek.)</span>
-                <input type="number" id="defaultRest" min="5" max="600" step="5" value="30" />
-              </label>
+              <label class="field"><span>Arbeitszeit</span><div class="inputUnit"><input type="number" id="defaultWork" min="10" max="600" step="5" value="45" /><small>Sek.</small></div></label>
+              <label class="field"><span>Pause</span><div class="inputUnit"><input type="number" id="defaultRest" min="5" max="600" step="5" value="30" /><small>Sek.</small></div></label>
+              <label class="field"><span>Sätze</span><input type="number" id="defaultSets" min="1" max="20" value="3" /></label>
+              <label class="field"><span>Warm-up</span><div class="inputUnit"><input type="number" id="warmupMinutes" min="0" max="60" value="5" /><small>Min.</small></div></label>
             </div>
-
-            <div class="fieldGrid fieldGrid--2">
-              <label class="field">
-                <span>Standard Sätze</span>
-                <input type="number" id="defaultSets" min="1" max="20" value="3" />
-              </label>
-              <label class="field">
-                <span>Warm-up (Min.)</span>
-                <input type="number" id="warmupMinutes" min="0" max="60" value="5" />
-              </label>
-            </div>
-
-            <label class="field">
-              <span>Session-Notizen</span>
-              <textarea id="sessionNotes" rows="4" placeholder="Ziele, Tempo, Intensität, Hinweise ..."></textarea>
-            </label>
-
+            <label class="field field--wide"><span>Notizen</span><textarea id="sessionNotes" rows="3" placeholder="Ziel, Intensität oder Hinweise"></textarea></label>
             <div class="toggleRow">
-              <label class="check"><input type="checkbox" id="autostartRest" checked /> <span>Pause automatisch starten</span></label>
-              <label class="check"><input type="checkbox" id="soundEnabled" checked /> <span>Signalton aktiv</span></label>
+              <label class="fitToggle"><input type="checkbox" id="autostartRest" checked /><span></span><strong>Pause automatisch</strong></label>
+              <label class="fitToggle"><input type="checkbox" id="soundEnabled" checked /><span></span><strong>Signalton</strong></label>
             </div>
-
             <div class="buttonGrid">
-              <button type="button" class="btn" id="savePlanBtn">Plan speichern</button>
-              <button type="button" class="btn btn--ghost" id="resetPlanBtn">Plan zurücksetzen</button>
+              <button type="button" class="fitButton fitButton--primary" id="savePlanBtn">Plan speichern</button>
+              <button type="button" class="fitButton fitButton--quiet" id="resetPlanBtn">Zurücksetzen</button>
             </div>
           </form>
-        </div>
+        </details>
 
-        <div class="panel panel--main">
-          <div class="panel__head panel__head--split">
-            <div>
-              <h2>Gerätebibliothek</h2>
-              <p class="muted">Geräte anklicken und direkt als Übung in den Plan übernehmen.</p>
-            </div>
-            <div class="toolbar">
-              <input type="search" id="equipmentSearch" class="searchInput" placeholder="Gerät, Muskel oder Übung suchen" />
-              <select id="muscleFilter" class="selectInput">
-                <option value="all">Alle Muskelgruppen</option>
-                <option value="Cardio">Cardio</option>
-                <option value="Beine">Beine</option>
-                <option value="Rücken">Rücken</option>
-                <option value="Core">Core</option>
-                <option value="Ganzkörper">Ganzkörper</option>
-              </select>
-            </div>
-          </div>
-
-          <div id="equipmentGrid" class="equipmentGrid"></div>
+        <div class="equipmentTools">
+          <label class="fitSearch"><span aria-hidden="true">⌕</span><input type="search" id="equipmentSearch" placeholder="Gerät oder Muskel suchen" /></label>
+          <select id="muscleFilter" class="fitSelect" aria-label="Nach Muskelgruppe filtern">
+            <option value="all">Alle Muskeln</option><option value="Cardio">Cardio</option><option value="Beine">Beine</option><option value="Rücken">Rücken</option><option value="Core">Core</option><option value="Ganzkörper">Ganzkörper</option>
+          </select>
         </div>
+        <div id="equipmentGrid" class="equipmentGrid"></div>
       </div>
     </section>
 
-    <section class="section section--alt" id="library" data-reveal>
-      <div class="container">
-        <div class="panel">
-          <div class="panel__head panel__head--split">
-            <div>
-              <h2>Trainingsplan</h2>
-              <p class="muted">Reihenfolge ändern, Zeiten feinjustieren, Notizen ergänzen.</p>
-            </div>
-            <button type="button" class="btn btn--ghost" id="clearExercisesBtn">Alle Übungen löschen</button>
-          </div>
-          <div id="exerciseList" class="exerciseList emptyState">
-            Noch keine Übung im Plan. Wähle oben ein Gerät aus. Die Maschine macht nichts, wenn man sie nicht füttert.
-          </div>
+    <section class="fitSection fitSection--plan" id="library">
+      <div class="fitShell">
+        <div class="fitSection__head">
+          <div><span class="fitSection__index">02</span><p class="fitLabel">Deine Reihenfolge</p><h2>Trainingsplan</h2></div>
+          <button type="button" class="fitTextButton" id="clearExercisesBtn">Alle löschen</button>
         </div>
+        <div class="planSummary">
+          <div><span id="planCountBadge">0</span><p><strong>Übungen geplant</strong><small>Reihenfolge per Pfeil ändern</small></p></div>
+          <a href="#session">Zum Timer <span>→</span></a>
+        </div>
+        <div id="exerciseList" class="exerciseList emptyState">Noch keine Übung im Plan. Wähle zuerst ein Gerät aus.</div>
       </div>
     </section>
 
-    <section class="section" id="session" data-reveal>
-      <div class="container sessionGrid">
-        <div class="panel sessionRunner">
-          <div class="panel__head panel__head--split">
-            <div>
-              <h2>Live Timer</h2>
-              <p class="muted">Arbeitsphase, Pause, Satzwechsel und Fortschritt in Echtzeit.</p>
-            </div>
-            <div class="timerActionsHeader">
-              <button class="btn" type="button" id="startSessionBtn">Session starten</button>
-              <button class="btn btn--ghost" type="button" id="pauseSessionBtn">Pause</button>
-              <button class="btn btn--ghost" type="button" id="skipPhaseBtn">Phase skippen</button>
-              <button class="btn btn--ghost" type="button" id="focusModeBtn">Fokus-Modus</button>
-            </div>
-          </div>
+    <section class="fitSection fitSection--timer" id="session">
+      <div class="fitShell">
+        <div class="fitSection__head fitSection__head--light">
+          <div><span class="fitSection__index">03</span><p class="fitLabel">Workout-Modus</p><h2>Training starten</h2></div>
+          <button class="fitIconButton" type="button" id="focusModeBtn" aria-label="Timer im Vollbild öffnen">⛶</button>
+        </div>
 
-          <div class="sessionProgress">
-            <div class="sessionProgress__bar"><span id="sessionProgressFill"></span></div>
-            <div class="sessionProgress__label" id="sessionProgressLabel">Noch keine Session gestartet</div>
-          </div>
-
+        <article class="timerCard">
+          <div class="timerCard__status"><span class="phaseBadge" id="phaseBadge">BEREIT</span><span id="sessionProgressLabel">Noch keine Session gestartet</span></div>
+          <div class="sessionProgress"><div class="sessionProgress__bar"><span id="sessionProgressFill"></span></div></div>
           <div class="timerDisplayWrap">
-            <div class="phaseBadge" id="phaseBadge">Bereit</div>
             <div class="timerDisplay" id="timerDisplay">00:00</div>
             <div class="progressBar"><span id="progressBarFill"></span></div>
+            <strong class="timerExercise" id="currentExerciseName">Wähle deinen Plan</strong>
             <div class="timerMeta">
-              <div><span>Aktuelle Übung</span><strong id="currentExerciseName">—</strong></div>
               <div><span>Satz</span><strong id="currentSet">—</strong></div>
-              <div><span>Nächste Phase</span><strong id="nextPhase">—</strong></div>
+              <div><span>Danach</span><strong id="nextPhase">—</strong></div>
             </div>
           </div>
-
+          <div class="timerPrimaryActions">
+            <button class="fitButton fitButton--start" type="button" id="startSessionBtn"><span>▶</span> Session starten</button>
+            <button class="fitButton fitButton--quiet" type="button" id="pauseSessionBtn">Pause</button>
+            <button class="fitButton fitButton--quiet" type="button" id="skipPhaseBtn">Weiter →</button>
+          </div>
           <div class="timerControls">
-            <button type="button" class="chipBtn" data-adjust="-10">-10 Sek.</button>
-            <button type="button" class="chipBtn" data-adjust="10">+10 Sek.</button>
-            <button type="button" class="chipBtn" id="restartPhaseBtn">Phase neu starten</button>
-            <button type="button" class="chipBtn" id="finishSessionBtn">Session beenden</button>
+            <button type="button" class="chipBtn" data-adjust="-10">− 10 Sek.</button>
+            <button type="button" class="chipBtn" data-adjust="10">+ 10 Sek.</button>
+            <button type="button" class="chipBtn" id="restartPhaseBtn">↻ Neustart</button>
+            <button type="button" class="chipBtn chipBtn--danger" id="finishSessionBtn">Beenden</button>
           </div>
+        </article>
+
+        <div class="analyticsGrid">
+          <div class="analyticCard"><span>Fortschritt</span><strong id="analyticsProgress">0%</strong></div>
+          <div class="analyticCard"><span>Erledigt</span><strong id="analyticsDone">0</strong></div>
+          <div class="analyticCard"><span>Offen</span><strong id="analyticsRemaining">0</strong></div>
+          <div class="analyticCard"><span>Fertig um</span><strong id="analyticsEndTime">—</strong></div>
         </div>
 
-        <div class="panel">
-          <div class="panel__head">
-            <h2>Session Analyse</h2>
-            <p class="muted">Live Kennzahlen und Export für deinen Kollegen.</p>
+        <details class="fitDisclosure dataCard">
+          <summary><span class="setupCard__icon">↕</span><span><strong>Plan übertragen</strong><small>JSON exportieren oder importieren</small></span><span class="fitDisclosure__chevron">⌄</span></summary>
+          <div class="dataCard__body">
+            <button type="button" class="fitButton fitButton--primary fitButton--full" id="exportPlanBtn">Plan exportieren</button>
+            <label class="field"><span>JSON importieren</span><textarea id="importJson" rows="6" placeholder="Exportierten Plan hier einfügen"></textarea></label>
+            <button type="button" class="fitButton fitButton--quiet fitButton--full" id="importPlanBtn">Plan importieren</button>
           </div>
-          <div class="analyticsGrid">
-            <div class="analyticCard"><span>Fortschritt</span><strong id="analyticsProgress">0%</strong></div>
-            <div class="analyticCard"><span>Erledigte Übungen</span><strong id="analyticsDone">0</strong></div>
-            <div class="analyticCard"><span>Offene Übungen</span><strong id="analyticsRemaining">0</strong></div>
-            <div class="analyticCard"><span>Geschätztes Ende</span><strong id="analyticsEndTime">—</strong></div>
-          </div>
-
-          <div class="stack gap-md top-gap">
-            <button type="button" class="btn btn--full" id="exportPlanBtn">Plan als JSON exportieren</button>
-            <label class="field">
-              <span>JSON importieren</span>
-              <textarea id="importJson" rows="8" placeholder='Hier kann ein exportierter Plan eingefügt werden'></textarea>
-            </label>
-            <button type="button" class="btn btn--ghost btn--full" id="importPlanBtn">Plan importieren</button>
-          </div>
-        </div>
+        </details>
       </div>
     </section>
   </main>
 
+  <nav class="fitBottomNav" aria-label="Fitness Navigation">
+    <a href="#home" class="is-active"><span aria-hidden="true">⌂</span><small>Start</small></a>
+    <a href="#planner"><span aria-hidden="true">＋</span><small>Geräte</small></a>
+    <a href="#library"><span class="fitBottomNav__count" id="bottomPlanCount">0</span><small>Plan</small></a>
+    <a href="#session"><span aria-hidden="true">▶</span><small>Timer</small></a>
+  </nav>
+
   <div class="focusOverlay" id="focusOverlay" hidden>
-    <button type="button" class="focusOverlay__close" id="focusCloseBtn" aria-label="Fokus-Modus schliessen">✕</button>
-    <div class="focusOverlay__phase" id="focusPhase">Bereit</div>
-    <div class="focusOverlay__timer" id="focusTimer">00:00</div>
-    <div class="focusOverlay__progress"><span id="focusProgressFill"></span></div>
-    <div class="focusOverlay__exercise" id="focusExercise">—</div>
-    <div class="focusOverlay__meta">
-      <span id="focusSet">Satz —</span>
-      <span class="focusOverlay__dot">•</span>
-      <span id="focusNext">Nächste Phase —</span>
-    </div>
-    <div class="focusOverlay__controls">
-      <button type="button" class="btn btn--ghost" id="focusPauseBtn">Pause</button>
-      <button type="button" class="btn btn--ghost" id="focusSkipBtn">Skip</button>
-    </div>
+    <button type="button" class="focusOverlay__close" id="focusCloseBtn" aria-label="Fokus-Modus schließen">✕</button>
+    <div class="focusOverlay__phase" id="focusPhase">Bereit</div><div class="focusOverlay__timer" id="focusTimer">00:00</div>
+    <div class="focusOverlay__progress"><span id="focusProgressFill"></span></div><div class="focusOverlay__exercise" id="focusExercise">—</div>
+    <div class="focusOverlay__meta"><span id="focusSet">Satz —</span><span class="focusOverlay__dot">•</span><span id="focusNext">Nächste Phase —</span></div>
+    <div class="focusOverlay__controls"><button type="button" class="fitButton fitButton--quiet" id="focusPauseBtn">Pause</button><button type="button" class="fitButton fitButton--primary" id="focusSkipBtn">Weiter</button></div>
   </div>
 
   <template id="equipmentCardTemplate">
     <article class="equipmentCard">
       <div class="equipmentCard__imageWrap"><img class="equipmentCard__image" alt="" loading="lazy" /></div>
-      <div class="equipmentCard__body">
-        <div class="equipmentCard__top">
-          <div>
-            <h3 class="equipmentCard__title"></h3>
-            <p class="equipmentCard__subtitle muted"></p>
-          </div>
-          <span class="pill equipmentCard__pill"></span>
-        </div>
-        <p class="equipmentCard__description"></p>
-        <div class="equipmentCard__footer">
-          <button type="button" class="btn btn--ghost equipmentCard__add">Als Übung hinzufügen</button>
-        </div>
-      </div>
+      <div class="equipmentCard__body"><div class="equipmentCard__top"><span class="pill equipmentCard__pill"></span><h3 class="equipmentCard__title"></h3><p class="equipmentCard__subtitle"></p></div><p class="equipmentCard__description"></p><button type="button" class="equipmentCard__add"><span>Hinzufügen</span><b aria-hidden="true">＋</b></button></div>
     </article>
   </template>
 
   <template id="exerciseItemTemplate">
     <article class="exerciseItem">
-      <div class="exerciseItem__head">
-        <div>
-          <strong class="exerciseItem__title"></strong>
-          <p class="muted exerciseItem__meta"></p>
-        </div>
-        <div class="exerciseItem__actions">
-          <button type="button" class="iconBtn" data-action="up">↑</button>
-          <button type="button" class="iconBtn" data-action="down">↓</button>
-          <button type="button" class="iconBtn danger" data-action="delete">✕</button>
-        </div>
-      </div>
-
-      <div class="fieldGrid fieldGrid--4 top-gap-sm">
-        <label class="field">
-          <span>Übungsname</span>
-          <input type="text" data-field="name" />
-        </label>
-        <label class="field">
-          <span>Arbeitszeit</span>
-          <input type="number" min="5" max="1200" step="5" data-field="work" />
-        </label>
-        <label class="field">
-          <span>Pause</span>
-          <input type="number" min="0" max="1200" step="5" data-field="rest" />
-        </label>
-        <label class="field">
-          <span>Sätze</span>
-          <input type="number" min="1" max="20" data-field="sets" />
-        </label>
-      </div>
-
-      <div class="fieldGrid fieldGrid--3 top-gap-sm">
-        <label class="field">
-          <span>Zielmuskel</span>
-          <input type="text" data-field="muscle" />
-        </label>
-        <label class="field">
-          <span>Intensität / Gewicht</span>
-          <input type="text" data-field="intensity" placeholder="z. B. 40 kg / moderat" />
-        </label>
-        <label class="field">
-          <span>Kalorien grob</span>
-          <input type="number" min="0" max="5000" data-field="calories" />
-        </label>
-      </div>
-
-      <label class="field top-gap-sm">
-        <span>Notizen</span>
-        <textarea rows="3" data-field="notes" placeholder="Tempo, Range of Motion, Technik-Hinweise ..."></textarea>
-      </label>
+      <div class="exerciseItem__head"><span class="exerciseItem__drag" aria-hidden="true">⠿</span><div><strong class="exerciseItem__title"></strong><p class="exerciseItem__meta"></p></div><div class="exerciseItem__actions"><button type="button" class="iconBtn" data-action="up" aria-label="Nach oben">↑</button><button type="button" class="iconBtn" data-action="down" aria-label="Nach unten">↓</button><button type="button" class="iconBtn danger" data-action="delete" aria-label="Löschen">✕</button></div></div>
+      <details class="exerciseItem__details"><summary>Übung anpassen <span>⌄</span></summary><div class="exerciseItem__fields">
+        <label class="field field--wide"><span>Übungsname</span><input type="text" data-field="name" /></label>
+        <div class="fieldGrid fieldGrid--3"><label class="field"><span>Arbeit (Sek.)</span><input type="number" min="5" max="1200" step="5" data-field="work" /></label><label class="field"><span>Pause (Sek.)</span><input type="number" min="0" max="1200" step="5" data-field="rest" /></label><label class="field"><span>Sätze</span><input type="number" min="1" max="20" data-field="sets" /></label></div>
+        <div class="fieldGrid fieldGrid--2"><label class="field"><span>Zielmuskel</span><input type="text" data-field="muscle" /></label><label class="field"><span>Gewicht / Intensität</span><input type="text" data-field="intensity" placeholder="z. B. 40 kg" /></label></div>
+        <label class="field"><span>Kalorien grob</span><input type="number" min="0" max="5000" data-field="calories" /></label>
+        <label class="field field--wide"><span>Notizen</span><textarea rows="2" data-field="notes" placeholder="Technik oder Tempo"></textarea></label>
+      </div></details>
     </article>
   </template>
 
-  <script src="js/app.js"></script>
-  <script src="assets/fitness.js"></script>
+  <script src="js/app.js"></script><script src="assets/fitness.js"></script>
 </body>
 </html>

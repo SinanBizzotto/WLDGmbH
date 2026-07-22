@@ -4,6 +4,8 @@
 - `/index.html` = Hauptseite (weblabdesign.ch)
 - `/portfolio/` = Portfolio-Seite (weblabdesign.ch/portfolio/)
 - `/projects/` = Live-Demos (weblabdesign.ch/projects/...)
+- `/fitness/` = gebaute WLD-Fitness-PWA
+- `/fitness-app/` = React-/TypeScript-Quellcode der Fitness-App
 
 ## Projekte pflegen (2 Optionen)
 
@@ -28,3 +30,4 @@ Output:
 Dieses Bundle ist statisch. Du kannst es 1:1 auf dein Hosting legen.
 Wichtig:
 - `/portfolio/` und `/projects/` müssen als Ordner verfügbar sein (nicht nur Single-Page Rewrite).
+- Für WLD Fitness muss die Regel aus `/_redirects` aktiv sein, damit Unterrouten auf `/fitness/index.html` fallen.

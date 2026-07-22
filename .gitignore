@@ -7,9 +7,13 @@
 # Env / secrets
 .env
 .env.*
+!.env.example
+!fitness-app/.env.example
 
 # Node
 node_modules/
+*.tsbuildinfo
+fitness-app/dist/
 
 # Showcase-only sub-projects: only the portfolio card data (project.json +
 # screenshot) is needed here. Full source lives in their own repos/deploys.

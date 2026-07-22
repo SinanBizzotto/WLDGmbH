@@ -199,7 +199,10 @@
     focusSet: document.getElementById('focusSet'),
     focusNext: document.getElementById('focusNext'),
     focusPauseBtn: document.getElementById('focusPauseBtn'),
-    focusSkipBtn: document.getElementById('focusSkipBtn')
+    focusSkipBtn: document.getElementById('focusSkipBtn'),
+    planCountBadge: document.getElementById('planCountBadge'),
+    bottomPlanCount: document.getElementById('bottomPlanCount'),
+    fitToday: document.getElementById('fitToday')
   };
 
   const equipmentTemplate = document.getElementById('equipmentCardTemplate');
@@ -390,6 +393,8 @@
     els.summaryTotalTime.textContent = formatMinutes(totals.total || 0);
     els.summaryWorkTime.textContent = formatMinutes(totals.work || 0);
     els.summaryRestTime.textContent = formatMinutes(totals.rest || 0);
+    els.planCountBadge.textContent = String(state.exercises.length);
+    els.bottomPlanCount.textContent = String(state.exercises.length);
 
     const done = state.runner.finishedExerciseIds.length;
     const remaining = Math.max(0, state.exercises.length - done);
@@ -426,16 +431,21 @@
         persist();
         renderExercises();
         updateSummary();
+        navigator.vibrate?.(18);
 
         const btn = e.currentTarget;
-        const original = btn.textContent;
-        btn.textContent = 'Hinzugefügt ✓';
+        const label = btn.querySelector('span');
+        const icon = btn.querySelector('b');
+        label.textContent = 'Hinzugefügt';
+        icon.textContent = '✓';
         btn.classList.add('is-added');
         clearTimeout(btn._resetTimer);
         btn._resetTimer = setTimeout(() => {
-          btn.textContent = original;
+          label.textContent = 'Hinzufügen';
+          icon.textContent = '＋';
           btn.classList.remove('is-added');
         }, 1100);
+        showToast(`${item.defaultExercise} hinzugefügt`);
       });
       els.equipmentGrid.appendChild(node);
     });
@@ -444,7 +454,7 @@
   function renderExercises() {
     if (!state.exercises.length) {
       els.exerciseList.className = 'exerciseList emptyState';
-      els.exerciseList.textContent = 'Noch keine Übung im Plan. Wähle oben ein Gerät aus. Die Maschine macht nichts, wenn man sie nicht füttert.';
+      els.exerciseList.textContent = 'Noch keine Übung im Plan. Wähle zuerst ein Gerät aus.';
       return;
     }
 
@@ -454,8 +464,13 @@
     state.exercises.forEach((exercise, index) => {
       const node = exerciseTemplate.content.firstElementChild.cloneNode(true);
       node.dataset.uid = exercise.uid;
-      node.querySelector('.exerciseItem__title').textContent = exercise.name;
-      node.querySelector('.exerciseItem__meta').textContent = `${exercise.muscle} • ${exercise.sets} Sätze • ${exercise.work}s Arbeit / ${exercise.rest}s Pause`;
+      const title = node.querySelector('.exerciseItem__title');
+      const meta = node.querySelector('.exerciseItem__meta');
+      const refreshCardText = () => {
+        title.textContent = exercise.name;
+        meta.textContent = `${exercise.muscle} • ${exercise.sets} Sätze • ${exercise.work}s / ${exercise.rest}s Pause`;
+      };
+      refreshCardText();
 
       node.querySelectorAll('[data-field]').forEach(input => {
         const field = input.dataset.field;
@@ -463,7 +478,7 @@
         input.addEventListener('input', (e) => {
           const value = ['work', 'rest', 'sets', 'calories'].includes(field) ? Number(e.target.value || 0) : e.target.value;
           exercise[field] = value;
-          renderExercises();
+          refreshCardText();
           updateSummary();
           persist();
         });
@@ -561,6 +576,8 @@
     els.phaseBadge.className = 'phaseBadge isDone';
     els.nextPhase.textContent = '—';
     els.progressBarFill.style.width = '100%';
+    els.pauseSessionBtn.textContent = 'Pause';
+    els.focusPauseBtn.textContent = 'Pause';
     els.focusPhase.textContent = 'Session beendet';
     els.focusPhase.className = 'focusOverlay__phase isDone';
     updateSessionProgress();
@@ -701,6 +718,8 @@
     state.runner.currentSet = 1;
     state.runner.finishedExerciseIds = [];
     lastHighlightedIndex = -1;
+    els.pauseSessionBtn.textContent = 'Pause';
+    els.focusPauseBtn.textContent = 'Pause';
 
     requestWakeLock();
 
@@ -778,6 +797,7 @@
       persist();
       renderExercises();
       updateSummary();
+      showToast('Demo-Plan mit 5 Übungen geladen');
     });
 
     els.startSessionBtn.addEventListener('click', startSession);
@@ -870,6 +890,11 @@
   }
 
   function init() {
+    if (els.fitToday) {
+      els.fitToday.textContent = new Intl.DateTimeFormat('de-CH', {
+        weekday: 'long', day: '2-digit', month: 'long'
+      }).format(new Date()).toUpperCase();
+    }
     loadPersisted();
     syncForm();
     renderEquipment();
@@ -877,6 +902,22 @@
     updateSummary();
     resetRunnerUi();
     bindControls();
+
+    const navLinks = [...document.querySelectorAll('.fitBottomNav a')];
+    const sections = navLinks
+      .map(link => document.querySelector(link.getAttribute('href')))
+      .filter(Boolean);
+    if ('IntersectionObserver' in window) {
+      const navObserver = new IntersectionObserver((entries) => {
+        const visible = entries.filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        navLinks.forEach(link => {
+          link.classList.toggle('is-active', link.getAttribute('href') === `#${visible.target.id}`);
+        });
+      }, { rootMargin: '-25% 0px -60% 0px', threshold: [0, .1, .5] });
+      sections.forEach(section => navObserver.observe(section));
+    }
   }
 
   init();
