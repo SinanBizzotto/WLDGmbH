@@ -8,10 +8,12 @@
     <meta name="description"
         content="Web Lab Design entwickelt performante Frontends und komplette Web-Lösungen: Frontend, Hosting & Full-Stack Pakete." />
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="abschiedcello.html">
+    <link rel="icon" href="WebLabDesignLogo.jpeg">
 </head>
 
 <body>
+    <div class="scrollProgress" id="scrollProgress"></div>
+
     <header class="header" id="top">
         <div class="container header__inner">
             <a class="brand" href="#top" aria-label="Web Lab Design">
@@ -24,11 +26,10 @@
 
             <nav class="nav" aria-label="Hauptnavigation">
                 <a href="#leistungen">Leistungen</a>
-                <a href="#pakete">Pakete</a>
                 <a href="#prozess">Prozess</a>
+                <a href="#pakete">Pakete</a>
                 <a href="#referenzen">Referenzen</a>
                 <a href="/portfolio/">Portfolio</a>
-                <a href="/fitnes.html">Fitness</a>
                 <a href="#kontakt" class="btn btn--ghost">Kontakt</a>
             </nav>
 
@@ -39,15 +40,15 @@
     </header>
 
     <main>
-        <!-- HERO -->
+        <!-- HERO / OVERVIEW -->
         <section class="hero">
-            <div class="container hero__grid">
-                <div class="hero__copy">
-                    <p class="badge">Webentwicklung für KMU & Startups</p>
-                    <h1>Websites, die <span class="highlight">Leads liefern</span> – nicht nur gut aussehen!</h1>
+            <div class="container">
+                <div class="hero__intro" data-reveal>
+                    <p class="kicker">Webentwicklung für KMU & Startups</p>
+                    <h1>Wir bauen Websites,<br>die <span class="highlight">arbeiten</span>.</h1>
                     <p class="lead">
-                        Wir bauen moderne, schnelle Frontends – optional inkl. Hosting und Backend.
-                        Klare Pakete, saubere Umsetzung, messbare Performance.
+                        Kein Agentur-Nebel, keine leeren Buzzwords. Klare Pakete, saubere Umsetzung,
+                        messbare Performance – von der ersten Zeile Code bis zum laufenden Betrieb.
                     </p>
 
                     <div class="hero__cta">
@@ -57,56 +58,60 @@
 
                     <div class="hero__stats" role="list" aria-label="Kernfakten">
                         <div class="stat" role="listitem">
-                            <strong>+Performance</strong>
-                            <span>Optimiert für Core Web Vitals</span>
+                            <strong>&lt;2s</strong>
+                            <span>Ladezeit als Standard, nicht als Ausnahme</span>
                         </div>
                         <div class="stat" role="listitem">
-                            <strong>+Conversion</strong>
-                            <span>Struktur & UX für Leads</span>
+                            <strong>1–6 Wo.</strong>
+                            <span>Von Kickoff bis Launch, je nach Scope</span>
                         </div>
                         <div class="stat" role="listitem">
-                            <strong>+Tempo</strong>
-                            <span>Kurze Iterationszyklen</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="hero__card" aria-label="Vorschau">
-                    <div class="mock">
-                        <div class="mock__top">
-                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                        </div>
-                        <div class="mock__body">
-                            <div class="mock__line w60"></div>
-                            <div class="mock__line w90"></div>
-                            <div class="mock__line w80"></div>
-                            <div class="mock__grid">
-                                <div class="mock__tile"></div>
-                                <div class="mock__tile"></div>
-                                <div class="mock__tile"></div>
-                            </div>
-                            <div class="mock__line w70"></div>
+                            <strong>3 Pakete</strong>
+                            <span>Frontend, Hosting oder Full-Stack</span>
                         </div>
                     </div>
 
-                    <div class="hero__cardFooter">
-                        <p><strong>Scope-klar.</strong> Paket wählen → Anforderungen definieren → Launch.</p>
-                        <p class="muted">Transparente Umsetzung statt Agentur-Nebelmaschine.</p>
+                    <div class="scrollCue">
+                        <span class="scrollCue__line" aria-hidden="true"></span>
+                        Scrollen
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- MARQUEE -->
+        <div class="marquee" aria-hidden="true">
+            <div class="marquee__track">
+                <div class="marquee__item">
+                    <strong>Frontend Engineering</strong><span class="marquee__dot">✦</span>
+                    <strong>Performance-Budget</strong><span class="marquee__dot">✦</span>
+                    <strong>Hosting & Betrieb</strong><span class="marquee__dot">✦</span>
+                    <strong>API & Backend</strong><span class="marquee__dot">✦</span>
+                    <strong>SEO-Grundlagen</strong><span class="marquee__dot">✦</span>
+                    <strong>Design-Systeme</strong><span class="marquee__dot">✦</span>
+                </div>
+                <div class="marquee__item">
+                    <strong>Frontend Engineering</strong><span class="marquee__dot">✦</span>
+                    <strong>Performance-Budget</strong><span class="marquee__dot">✦</span>
+                    <strong>Hosting & Betrieb</strong><span class="marquee__dot">✦</span>
+                    <strong>API & Backend</strong><span class="marquee__dot">✦</span>
+                    <strong>SEO-Grundlagen</strong><span class="marquee__dot">✦</span>
+                    <strong>Design-Systeme</strong><span class="marquee__dot">✦</span>
+                </div>
+            </div>
+        </div>
+
         <!-- LEISTUNGEN -->
         <section class="section" id="leistungen">
             <div class="container">
-                <div class="section__head">
-                    <h2>Leistungen</h2>
-                    <p class="muted">Frontend-Fokus, skalierbar erweiterbar – je nach Paket.</p>
+                <div class="section__head" data-reveal>
+                    <p class="kicker">Leistungen</p>
+                    <h2>Ein Kern. Zwei optionale Erweiterungen.</h2>
+                    <p class="muted">Frontend ist unsere Basis – Hosting und Backend kommen dazu, wenn du sie brauchst.</p>
                 </div>
 
                 <div class="grid grid--3">
-                    <article class="card">
+                    <article class="card" data-reveal>
                         <h3>Frontend Engineering</h3>
                         <p>Responsive UI, Komponenten-Architektur, SEO-Basics, Performance-Optimierung.</p>
                         <ul class="list">
@@ -116,7 +121,7 @@
                         </ul>
                     </article>
 
-                    <article class="card">
+                    <article class="card" data-reveal data-reveal-delay="120">
                         <h3>Hosting & Betrieb</h3>
                         <p>Setup, Deployment, Domain/SSL und Monitoring – wenn gewünscht.</p>
                         <ul class="list">
@@ -126,7 +131,7 @@
                         </ul>
                     </article>
 
-                    <article class="card">
+                    <article class="card" data-reveal data-reveal-delay="240">
                         <h3>Backend Integration</h3>
                         <p>APIs, Datenmodelle, Auth und Admin-Flows – als Add-on im Full-Stack Paket.</p>
                         <ul class="list">
@@ -139,13 +144,56 @@
             </div>
         </section>
 
-        <!-- PAKETE -->
-        <section class="section section--alt" id="pakete">
+        <!-- PROZESS -->
+        <section class="section section--alt" id="prozess">
             <div class="container">
-                <div class="section__head section__head--split">
+                <div class="section__head" data-reveal>
+                    <p class="kicker">Prozess</p>
+                    <h2>Vier Schritte, keine Überraschungen.</h2>
+                    <p class="muted">Planbar, transparent, mit sauberer Abnahme bei jedem Schritt.</p>
+                </div>
+
+                <div class="timeline">
+                    <div class="step" data-reveal>
+                        <div class="step__num">1</div>
+                        <div>
+                            <h3>Kickoff & Scope</h3>
+                            <p>Requirements, Zielgruppe, Inhalte, Tech-Setup. Ergebnis: Scope-Dokument + Roadmap.</p>
+                        </div>
+                    </div>
+                    <div class="step" data-reveal data-reveal-delay="100">
+                        <div class="step__num">2</div>
+                        <div>
+                            <h3>Design & UI</h3>
+                            <p>Wireframe → UI-System → Seitenstruktur. Fokus: Klarheit, Conversion, Performance.</p>
+                        </div>
+                    </div>
+                    <div class="step" data-reveal data-reveal-delay="200">
+                        <div class="step__num">3</div>
+                        <div>
+                            <h3>Build & Iteration</h3>
+                            <p>Umsetzung in Sprints, Feedback-Loops, Qualitätschecks. Ergebnis: Release-Candidate.</p>
+                        </div>
+                    </div>
+                    <div class="step" data-reveal data-reveal-delay="300">
+                        <div class="step__num">4</div>
+                        <div>
+                            <h3>Launch & Übergabe</h3>
+                            <p>Deployment, Tracking-Basics, Dokumentation. Optional: Betrieb im Hosting-Paket.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAKETE -->
+        <section class="section" id="pakete">
+            <div class="container">
+                <div class="section__head section__head--split" data-reveal>
                     <div>
-                        <h2>Pakete</h2>
-                        <p class="muted">3 klare Optionen. Du entscheidest nach Scope und Betrieb.</p>
+                        <p class="kicker">Pakete</p>
+                        <h2>Drei klare Optionen.</h2>
+                        <p class="muted">Du entscheidest nach Scope und Betrieb – keine versteckten Extras.</p>
                     </div>
 
                     <div class="pricingToggle" aria-label="Preissicht umschalten">
@@ -159,7 +207,7 @@
                 </div>
 
                 <div class="grid grid--3">
-                    <article class="card card--pricing" data-plan="frontend">
+                    <article class="card card--pricing" data-plan="frontend" data-reveal>
                         <div class="card__tag">Für Landingpages & Corporate Sites</div>
                         <h3>Frontend</h3>
                         <p class="price">
@@ -176,7 +224,8 @@
                         <button class="btn btn--full selectPlan" type="button">Dieses Paket wählen</button>
                     </article>
 
-                    <article class="card card--pricing card--featured" data-plan="frontend_hosting">
+                    <article class="card card--pricing card--featured" data-plan="frontend_hosting" data-reveal
+                        data-reveal-delay="120">
                         <div class="card__tag">Für Firmen, die Ruhe im Betrieb wollen</div>
                         <h3>Frontend + Hosting</h3>
                         <p class="price">
@@ -193,7 +242,7 @@
                         <button class="btn btn--full selectPlan" type="button">Dieses Paket wählen</button>
                     </article>
 
-                    <article class="card card--pricing" data-plan="fullstack">
+                    <article class="card card--pricing" data-plan="fullstack" data-reveal data-reveal-delay="240">
                         <div class="card__tag">Für Web-Apps & Automatisierung</div>
                         <h3>Full-Stack</h3>
                         <p class="price">
@@ -219,17 +268,17 @@
         </section>
 
         <!-- SMART CONFIGURATOR -->
-        <section class="section" id="konfigurator">
+        <section class="section section--alt" id="konfigurator">
             <div class="container">
-                <div class="section__head">
-                    <h2>Projekt-Konfigurator</h2>
-                    <p class="muted">In 60 Sekunden zum passenden Paket inkl. Budget-Range und realistischer Timeline.
-                    </p>
+                <div class="section__head" data-reveal>
+                    <p class="kicker">Konfigurator</p>
+                    <h2>60 Sekunden bis zum passenden Paket.</h2>
+                    <p class="muted">Inklusive Budget-Range und realistischer Timeline.</p>
                 </div>
 
                 <div class="grid grid--2">
                     <!-- Paket-Finder -->
-                    <article class="card">
+                    <article class="card" data-reveal>
                         <h3>Paket-Finder</h3>
                         <p class="muted">Sag uns, was du brauchst. Wir matchen das richtige Setup.</p>
 
@@ -275,7 +324,7 @@
                     </article>
 
                     <!-- Preisrechner -->
-                    <article class="card">
+                    <article class="card" data-reveal data-reveal-delay="120">
                         <h3>Budget-Estimator</h3>
                         <p class="muted">Transparente Range statt Agentur-Nebel. Finale Offerte nach Kickoff.</p>
 
@@ -340,55 +389,14 @@
             </div>
         </section>
 
-
-        <!-- PROZESS -->
-        <section class="section" id="prozess">
-            <div class="container">
-                <div class="section__head">
-                    <h2>Prozess</h2>
-                    <p class="muted">Planbar, transparent, mit sauberer Abnahme.</p>
-                </div>
-
-                <div class="timeline">
-                    <div class="step">
-                        <div class="step__num">1</div>
-                        <div>
-                            <h3>Kickoff & Scope</h3>
-                            <p>Requirements, Zielgruppe, Inhalte, Tech-Setup. Ergebnis: Scope-Dokument + Roadmap.</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step__num">2</div>
-                        <div>
-                            <h3>Design & UI</h3>
-                            <p>Wireframe → UI-System → Seitenstruktur. Fokus: Klarheit, Conversion, Performance.</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step__num">3</div>
-                        <div>
-                            <h3>Build & Iteration</h3>
-                            <p>Umsetzung in Sprints, Feedback-Loops, Qualitätschecks. Ergebnis: Release-Candidate.</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step__num">4</div>
-                        <div>
-                            <h3>Launch & Übergabe</h3>
-                            <p>Deployment, Tracking-Basics, Dokumentation. Optional: Betrieb im Hosting-Paket.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- CASE STUDIES -->
         <section class="section" id="case-studies">
             <div class="container">
-                <div class="section__head section__head--split">
+                <div class="section__head section__head--split" data-reveal>
                     <div>
-                        <h2>Case Studies</h2>
-                        <p class="muted">Kurz, messbar, nachvollziehbar. Keine Show – Ergebnis.</p>
+                        <p class="kicker">Case Studies</p>
+                        <h2>Kurz, messbar, nachvollziehbar.</h2>
+                        <p class="muted">Keine Show – Ergebnis.</p>
                     </div>
 
                     <div class="caseControls" aria-label="Case Study Filter">
@@ -408,7 +416,7 @@
 
                 <div class="grid grid--3" id="caseGrid">
                     <!-- Case 1 -->
-                    <article class="case card" data-tags="frontend performance seo" tabindex="0">
+                    <article class="case card" data-tags="frontend performance seo" tabindex="0" data-reveal>
                         <div class="case__top">
                             <div>
                                 <h3>KMU Landingpage – Lead-Funnel</h3>
@@ -469,7 +477,8 @@
                     </article>
 
                     <!-- Case 2 -->
-                    <article class="case card" data-tags="hosting ops frontend" tabindex="0">
+                    <article class="case card" data-tags="hosting ops frontend" tabindex="0" data-reveal
+                        data-reveal-delay="120">
                         <div class="case__top">
                             <div>
                                 <h3>Corporate Site – Betrieb & Stabilität</h3>
@@ -529,7 +538,8 @@
                     </article>
 
                     <!-- Case 3 -->
-                    <article class="case card" data-tags="fullstack api auth" tabindex="0">
+                    <article class="case card" data-tags="fullstack api auth" tabindex="0" data-reveal
+                        data-reveal-delay="240">
                         <div class="case__top">
                             <div>
                                 <h3>Web-App – Admin + API</h3>
@@ -596,53 +606,64 @@
             </div>
         </section>
 
-
-        <!-- REFERENZEN -->
+        <!-- REFERENZEN / PORTFOLIO TEASER -->
         <section class="section section--alt" id="referenzen">
             <div class="container">
-                <div class="section__head">
-                    <h2>Referenzen</h2>
-                    <p class="muted">Platzhalter-Bereich: hier kommen Projekte/Case Studies rein.</p>
+                <div class="section__head" data-reveal>
+                    <p class="kicker">Referenzen</p>
+                    <h2>Alle Projekte an einem Ort.</h2>
+                </div>
+
+                <div class="teaser" data-reveal>
+                    <div>
+                        <h3>Portfolio durchsuchen</h3>
+                        <p>Filterbar nach Tags und Tech-Stack, mit Detailansicht je Projekt – Landingpages, Corporate
+                            Sites und Web-Apps im direkten Vergleich.</p>
+                    </div>
+                    <a class="btn" href="/portfolio/">Zum Portfolio</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- POSITIONIERUNG -->
+        <section class="section" id="positionierung">
+            <div class="container">
+                <div class="section__head" data-reveal>
+                    <p class="kicker">Positionierung</p>
+                    <h2>Wofür wir stehen – und wofür nicht.</h2>
+                    <p class="muted">Klares Profil spart Zeit auf beiden Seiten.</p>
                 </div>
 
                 <div class="grid grid--3">
-                    <article class="card card--case">
-                        <h3>Projekt A</h3>
-                        <p class="muted">Landingpage + Lead-Form + SEO-Basics</p>
-                        <div class="chips">
-                            <span class="chip">Frontend</span>
-                            <span class="chip">Performance</span>
-                        </div>
+                    <article class="card" data-reveal>
+                        <h3>Wir sagen Nein zu Scope-Chaos</h3>
+                        <p class="muted">Ohne Ziel, Prioritäten und Abnahmeprozess wird's teuer. Wir arbeiten mit Scope
+                            und Roadmap.</p>
                     </article>
-                    <article class="card card--case">
-                        <h3>Projekt B</h3>
-                        <p class="muted">Corporate Site + Hosting + Monitoring</p>
-                        <div class="chips">
-                            <span class="chip">Hosting</span>
-                            <span class="chip">Ops</span>
-                        </div>
+                    <article class="card" data-reveal data-reveal-delay="120">
+                        <h3>Wir verkaufen kein „Alles inkl."</h3>
+                        <p class="muted">Pakete sind klar. Extras sind Extras. Ergebnis: planbar, fair, ohne
+                            Überraschungen.</p>
                     </article>
-                    <article class="card card--case">
-                        <h3>Projekt C</h3>
-                        <p class="muted">Web-App + API + Admin-Flow</p>
-                        <div class="chips">
-                            <span class="chip">Full-Stack</span>
-                            <span class="chip">API</span>
-                        </div>
+                    <article class="card" data-reveal data-reveal-delay="240">
+                        <h3>Wir optimieren auf Performance</h3>
+                        <p class="muted">Wenn's langsam ist, verliert es Leads. Performance-Budget ist bei uns Standard.
+                        </p>
                     </article>
                 </div>
             </div>
         </section>
 
         <!-- FAQ -->
-        <section class="section" id="faq">
+        <section class="section section--alt" id="faq">
             <div class="container">
-                <div class="section__head">
-                    <h2>FAQ</h2>
-                    <p class="muted">Kurz und konkret, damit keine Zeit in Schleifen verschwindet.</p>
+                <div class="section__head" data-reveal>
+                    <p class="kicker">FAQ</p>
+                    <h2>Kurz und konkret.</h2>
+                    <p class="muted">Damit keine Zeit in Schleifen verschwindet.</p>
                 </div>
 
-                <div class="accordion">
+                <div class="accordion" data-reveal>
                     <details>
                         <summary>Wie schnell seid ihr live?</summary>
                         <p>Landingpages typischerweise 1–3 Wochen, umfangreichere Sites 3–6 Wochen. Full-Stack abhängig
@@ -662,39 +683,12 @@
             </div>
         </section>
 
-        <section class="section" id="positionierung">
-            <div class="container">
-                <div class="section__head">
-                    <h2>Wofür wir stehen – und wofür nicht</h2>
-                    <p class="muted">Klares Profil spart Zeit auf beiden Seiten.</p>
-                </div>
-
-                <div class="grid grid--3">
-                    <article class="card">
-                        <h3>Wir sagen Nein zu Scope-Chaos</h3>
-                        <p class="muted">Ohne Ziel, Prioritäten und Abnahmeprozess wird’s teuer. Wir arbeiten mit Scope
-                            und Roadmap.</p>
-                    </article>
-                    <article class="card">
-                        <h3>Wir verkaufen kein „Alles inkl.“</h3>
-                        <p class="muted">Pakete sind klar. Extras sind Extras. Ergebnis: planbar, fair, ohne
-                            Überraschungen.</p>
-                    </article>
-                    <article class="card">
-                        <h3>Wir optimieren auf Performance</h3>
-                        <p class="muted">Wenn’s langsam ist, verliert es Leads. Performance-Budget ist bei uns Standard.
-                        </p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-
         <!-- KONTAKT -->
         <section class="section section--cta" id="kontakt">
             <div class="container cta">
-                <div class="cta__copy">
-                    <h2>Projekt starten – strukturiert und ohne Drama</h2>
+                <div class="cta__copy" data-reveal>
+                    <p class="kicker">Kontakt</p>
+                    <h2>Projekt starten – strukturiert und ohne Drama.</h2>
                     <p class="muted">
                         Schick uns die Eckdaten. Du bekommst eine saubere Einschätzung inkl. nächster Schritte.
                     </p>
@@ -710,7 +704,8 @@
                     </div>
                 </div>
 
-                <form class="form" id="contactForm" action="https://formspree.io/f/meeqqwyk" method="POST">
+                <form class="form" id="contactForm" action="https://formspree.io/f/meeqqwyk" method="POST"
+                    data-reveal data-reveal-delay="120">
                     <input type="text" name="website" tabindex="-1" autocomplete="off" class="hp">
                     <input type="hidden" id="selectedPlan" name="selectedPlan" value="" />
 

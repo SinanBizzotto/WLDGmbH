@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="assets/fitness.css" />
 </head>
 <body>
+  <div class="scrollProgress" id="scrollProgress"></div>
+
   <header class="header" id="top">
     <div class="container header__inner">
       <a class="brand" href="/index.html#top" aria-label="Web Lab Design">
@@ -35,10 +37,10 @@
   </header>
 
   <main>
-    <section class="fitnessHero section">
+    <section class="fitnessHero section" data-reveal>
       <div class="container fitnessHero__grid">
         <div>
-          <p class="badge">Komplett funktionale Trainingseinheit</p>
+          <p class="kicker">Komplett funktionale Trainingseinheit</p>
           <h1>Fitness-Sektion mit <span class="highlight">Planer, Timer, Pausenlogik</span> und Gerätebibliothek</h1>
           <p class="lead">
             Dein Kollege kann jede Übung individuell anpassen: Dauer, Pause, Sätze, Zielmuskel,
@@ -73,7 +75,7 @@
       </div>
     </section>
 
-    <section class="section" id="planner">
+    <section class="section" id="planner" data-reveal>
       <div class="container fitnessLayout">
         <div class="panel panel--sticky">
           <div class="panel__head">
@@ -150,7 +152,7 @@
       </div>
     </section>
 
-    <section class="section section--alt" id="library">
+    <section class="section section--alt" id="library" data-reveal>
       <div class="container">
         <div class="panel">
           <div class="panel__head panel__head--split">
@@ -167,7 +169,7 @@
       </div>
     </section>
 
-    <section class="section" id="session">
+    <section class="section" id="session" data-reveal>
       <div class="container sessionGrid">
         <div class="panel sessionRunner">
           <div class="panel__head panel__head--split">

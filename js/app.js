@@ -264,6 +264,108 @@ function initEstimator() {
   });
 }
 
+// ---------- Scroll progress bar ----------
+function initScrollProgress() {
+  const bar = qs('#scrollProgress');
+  if (!bar) return;
+
+  let ticking = false;
+  const update = () => {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const pct = height > 0 ? (scrollTop / height) * 100 : 0;
+    bar.style.width = `${pct}%`;
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  update();
+}
+
+// ---------- Reveal-on-scroll ----------
+// Content is visible by default (see styles.css); only once we know
+// IntersectionObserver works do we opt into the hide-then-reveal animation,
+// so a JS failure never leaves the page permanently blank.
+function initScrollReveal() {
+  const els = qsa('[data-reveal]');
+  if (!els.length || !('IntersectionObserver' in window)) return;
+
+  document.documentElement.classList.add('js-reveal');
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) {
+    els.forEach((el) => el.classList.add('is-visible'));
+    return;
+  }
+
+  els.forEach((el) => {
+    const delay = el.getAttribute('data-reveal-delay');
+    if (delay) el.style.transitionDelay = `${delay}ms`;
+  });
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  els.forEach((el) => obs.observe(el));
+}
+
+// ---------- KPI count-up (Case Studies) ----------
+function initCountUp() {
+  const els = qsa('.kpi__after[data-value]');
+  if (!els.length) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const animate = (el) => {
+    const raw = el.getAttribute('data-value');
+    const target = parseFloat(raw);
+    const suffix = el.textContent.replace(/^-?[\d.,]+/, '');
+    const decimals = (raw.split('.')[1] || '').length;
+
+    if (reduceMotion || Number.isNaN(target)) {
+      el.textContent = `${raw}${suffix}`;
+      return;
+    }
+
+    const duration = 900;
+    const start = performance.now();
+
+    const frame = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = `${(target * eased).toFixed(decimals)}${suffix}`;
+      if (p < 1) requestAnimationFrame(frame);
+      else el.textContent = `${raw}${suffix}`;
+    };
+    requestAnimationFrame(frame);
+  };
+
+  const seen = new WeakSet();
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && !seen.has(entry.target)) {
+        seen.add(entry.target);
+        animate(entry.target);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.4 });
+
+  els.forEach((el) => obs.observe(el));
+}
+
 // ---------- Contact form (Formspree) UX ----------
 function initContactForm() {
   const form = qs('#contactForm');
@@ -307,4 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFinder();
   initEstimator();
   initContactForm();
+  initScrollProgress();
+  initScrollReveal();
+  initCountUp();
 });
