@@ -49,8 +49,12 @@ for (const dir of folders) {
   if (usedSlugs.has(slug)) slug = `${slug}-${dir}`;
   usedSlugs.add(slug);
   const image = normalizeRelAsset(dir, meta.image);
-  const live = meta.links?.live
-    ? (String(meta.links.live).startsWith("http") ? meta.links.live : meta.links.live)
+  // A project.json that explicitly sets links.live to null/"" means "no live link"
+  // (e.g. a private project) — only default to the folder's own index.html when
+  // the live key is omitted entirely.
+  const hasLiveKey = meta.links && Object.prototype.hasOwnProperty.call(meta.links, "live");
+  const live = hasLiveKey
+    ? (meta.links.live || null)
     : `../projects/${dir}/index.html`;
 
   projects.push({

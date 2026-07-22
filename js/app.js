@@ -137,11 +137,11 @@ function initFinder() {
     const weeks = Math.max(2, Math.round(baseWeeks * pageFactor));
 
     // Rough budget heuristic
-    const onceBase = plan === 'fullstack' ? 6900 : plan === 'frontend_hosting' ? 3400 : 2500;
+    const onceBase = plan === 'fullstack' ? 8900 : plan === 'frontend_hosting' ? 4200 : 3200;
     const onceHi = Math.round(onceBase * (1.25 + (pageFactor - 1) * 0.35));
     const onceLo = Math.round(onceBase * (0.95 + (pageFactor - 1) * 0.2));
 
-    const monthlyBase = plan === 'fullstack' ? 990 : plan === 'frontend_hosting' ? 590 : 390;
+    const monthlyBase = plan === 'fullstack' ? 1190 : plan === 'frontend_hosting' ? 650 : 420;
 
     return { plan, pages, weeks, onceLo, onceHi, monthlyBase };
   }
@@ -206,11 +206,11 @@ function initEstimator() {
     if (pagesVal) pagesVal.textContent = String(p);
 
     // Base model (simple, predictable)
-    let base = 1500 + p * 450;
-    if (flags.seo?.checked) base += 350;
-    if (flags.forms?.checked) base += 450;
-    if (flags.multi?.checked) base += 900;
-    if (flags.backend?.checked) base += 3200;
+    let base = 1900 + p * 570;
+    if (flags.seo?.checked) base += 450;
+    if (flags.forms?.checked) base += 550;
+    if (flags.multi?.checked) base += 1150;
+    if (flags.backend?.checked) base += 4100;
 
     // Range
     const lo = Math.round(base * 0.9);
@@ -218,9 +218,9 @@ function initEstimator() {
 
     // Monthly operating (only if hosting/back-end)
     let monthly = 0;
-    if (flags.hosting?.checked) monthly += 290;
-    if (flags.backend?.checked) monthly += 350;
-    if (monthly > 0) monthly = Math.max(monthly, 390);
+    if (flags.hosting?.checked) monthly += 370;
+    if (flags.backend?.checked) monthly += 450;
+    if (monthly > 0) monthly = Math.max(monthly, 420);
 
     // Timeline heuristic
     let weeks = 2 + Math.ceil(p / 3);

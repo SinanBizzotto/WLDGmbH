@@ -1,16 +1,16 @@
-[
-  {
-    "slug": "demo-project",
-    "title": "Demo Project",
-    "year": 2025,
-    "type": "Website",
-    "description": "Kurzbeschreibung",
-    "stack": ["HTML", "CSS", "JS"],
-    "tags": ["Static"],
-    "image": "./img/demo.png",
-    "links": {
-      "live": "https://example.com",
-      "repo": null
-    }
-  }
-]
+{
+  "slug": "rock-mountain-band",
+  "title": "Rock Mountain Band Website",
+  "client": "",
+  "year": 2025,
+  "status": "Live",
+  "type": "Website",
+  "description": "Konzert-Website für die Band Rock Mountain mit Show-Ankündigungen, Festival-Listing und Ticket-Call-to-Action.",
+  "stack": ["HTML", "CSS", "JavaScript"],
+  "tags": ["Static", "Frontend"],
+  "links": {
+    "live": "https://weblabdesign.ch/projects/band-website/index.html",
+    "repo": null
+  },
+  "image": "img/mockup.jpg"
+}

@@ -1,16 +1,16 @@
-[
-  {
-    "slug": "demo-project",
-    "title": "Demo Project",
-    "year": 2025,
-    "type": "Website",
-    "description": "Kurzbeschreibung",
-    "stack": ["HTML", "CSS", "JS"],
-    "tags": ["Static"],
-    "image": "./img/demo.png",
-    "links": {
-      "live": "https://example.com",
-      "repo": null
-    }
-  }
-]
+{
+  "slug": "sakura-ramen",
+  "title": "Sakura Ramen",
+  "client": "",
+  "year": 2025,
+  "status": "Live",
+  "type": "Website",
+  "description": "Responsive Restaurant-Website für ein Ramen-Lokal mit Bestellanleitung, Speisekarte und Standortfinder.",
+  "stack": ["HTML", "CSS", "JavaScript"],
+  "tags": ["Static", "Frontend", "Responsive"],
+  "links": {
+    "live": "https://weblabdesign.ch/projects/sakura-ramen-responsive/index.html",
+    "repo": null
+  },
+  "image": "img/1_hero/JPG/hero_bg.jpg"
+}

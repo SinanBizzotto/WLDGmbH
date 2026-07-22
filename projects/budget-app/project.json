@@ -1,0 +1,16 @@
+{
+  "slug": "budget-control-center",
+  "title": "Budget Control Center",
+  "client": "",
+  "year": 2026,
+  "status": "Privat",
+  "type": "Web-App",
+  "description": "Privates All-in-One Finanzsystem für Konten, Budgets, Sparziele, Schulden und Transaktionen mit Live-Auswertungen und CSV-Export.",
+  "stack": ["React", "TypeScript", "Tailwind CSS", "Recharts"],
+  "tags": ["Full-Stack", "Privat"],
+  "links": {
+    "live": null,
+    "repo": null
+  },
+  "image": "screenshot.png"
+}

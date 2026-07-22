@@ -1,0 +1,16 @@
+{
+  "slug": "airsoft-squad-basel",
+  "title": "Airsoft Squad Basel 04",
+  "client": "AS BS 04",
+  "year": 2026,
+  "status": "Live",
+  "type": "Web-App",
+  "description": "Team-Website für ein taktisches Airsoft-Team mit Event-Registrierung, Mitgliederbereich, Bewerbungs-Funnel und Admin-Dashboard.",
+  "stack": ["React", "Vite", "Supabase"],
+  "tags": ["Full-Stack", "Auth", "Vercel"],
+  "links": {
+    "live": "https://airsoftsquadbasel.ch",
+    "repo": "https://github.com/SinanBizzotto/Airsoft"
+  },
+  "image": "screenshot.png"
+}
