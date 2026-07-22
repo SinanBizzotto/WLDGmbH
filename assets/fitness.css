@@ -39,6 +39,8 @@
 .panel {
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: 24px;
   box-shadow: var(--shadow);
   padding: 20px;
@@ -46,8 +48,10 @@
 
 .panel--sticky {
   position: sticky;
-  top: 88px;
+  top: 94px;
   align-self: start;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
 }
 
 .panel__head {
@@ -73,7 +77,9 @@
   border-radius: 24px;
   padding: 20px;
   background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow), 0 0 40px rgba(239, 68, 68, .08);
 }
 
 .sessionSummaryCard__head,
@@ -208,7 +214,7 @@
 }
 
 .equipmentGrid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .equipmentCard,
@@ -217,18 +223,51 @@
   border-radius: 22px;
   background: rgba(255,255,255,.03);
   overflow: hidden;
+  transition: border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+
+.equipmentCard:hover {
+  border-color: rgba(239, 68, 68, .35);
+  transform: translateY(-3px);
+  box-shadow: var(--glow);
+}
+
+.exerciseItem.is-current {
+  border-color: var(--accent);
+  background: rgba(239, 68, 68, .07);
+  box-shadow: var(--glow);
+}
+
+.exerciseItem.is-done {
+  opacity: .55;
 }
 
 .equipmentCard__imageWrap {
   aspect-ratio: 16 / 10;
-  background: #fff;
+  background: #0a0a0d;
   overflow: hidden;
+  position: relative;
+}
+
+.equipmentCard__imageWrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(239, 68, 68, .18), rgba(10, 10, 13, .55) 70%);
+  mix-blend-mode: multiply;
 }
 
 .equipmentCard__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: saturate(.85) contrast(1.05);
+}
+
+.equipmentCard__add.is-added {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
 }
 
 .equipmentCard__body,
@@ -288,10 +327,40 @@
 }
 
 .timerDisplay {
+  font-family: var(--mono);
   font-size: clamp(52px, 10vw, 88px);
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
   margin: 16px 0;
+  text-shadow: 0 0 30px rgba(239, 68, 68, .25);
+}
+
+.sessionProgress {
+  margin-top: 16px;
+}
+
+.sessionProgress__bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+}
+
+.sessionProgress__bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  box-shadow: 0 0 10px rgba(239, 68, 68, .5);
+  transition: width .3s ease;
+}
+
+.sessionProgress__label {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--muted);
 }
 
 .progressBar {
@@ -336,9 +405,9 @@
 
 .check input { accent-color: var(--accent); }
 
-.phaseBadge.isWork { color: #8df2ff; }
-.phaseBadge.isRest { color: #ffd37c; }
-.phaseBadge.isDone { color: #8dffaf; }
+.phaseBadge.isWork { color: var(--accent); border-color: rgba(239, 68, 68, .4); box-shadow: 0 0 14px rgba(239, 68, 68, .25); }
+.phaseBadge.isRest { color: #ffb84d; border-color: rgba(255, 184, 77, .35); }
+.phaseBadge.isDone { color: #6ee79a; border-color: rgba(110, 231, 154, .35); }
 
 @media (max-width: 1100px) {
   .fitnessHero__grid,
@@ -353,6 +422,8 @@
 
   .panel--sticky {
     position: static;
+    max-height: none;
+    overflow-y: visible;
   }
 }
 
@@ -378,4 +449,162 @@
   .selectInput {
     min-width: auto;
   }
+}
+
+/* ---------- Toast ---------- */
+.fitToast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translate(-50%, 16px);
+  z-index: 400;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(10, 10, 13, .92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: var(--shadow), 0 0 24px rgba(239, 68, 68, .25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s var(--ease), transform .25s var(--ease);
+}
+
+.fitToast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------- Confirm dialog ---------- */
+.fitConfirm {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 0;
+  max-width: 420px;
+  width: calc(100% - 32px);
+  background: #0a0a0d;
+  color: var(--text);
+  box-shadow: var(--shadow), 0 0 60px rgba(239, 68, 68, .15);
+}
+
+.fitConfirm::backdrop {
+  background: rgba(0, 0, 0, .6);
+  backdrop-filter: blur(4px);
+}
+
+.fitConfirm__body {
+  padding: 24px;
+}
+
+.fitConfirm__msg {
+  margin: 0 0 20px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.fitConfirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------- Focus mode ---------- */
+.focusOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(239, 68, 68, .1), transparent 55%),
+    var(--bg);
+  text-align: center;
+}
+
+/* A class-based `display` always wins over the UA [hidden] rule by
+   specificity, so the hidden attribute must be re-asserted explicitly. */
+.focusOverlay[hidden] {
+  display: none;
+}
+
+.focusOverlay__close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.focusOverlay__phase {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.focusOverlay__phase.isWork { color: var(--accent); }
+.focusOverlay__phase.isRest { color: #ffb84d; }
+.focusOverlay__phase.isDone { color: #6ee79a; }
+
+.focusOverlay__timer {
+  font-family: var(--mono);
+  font-size: clamp(80px, 22vw, 200px);
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0 60px rgba(239, 68, 68, .3);
+}
+
+.focusOverlay__progress {
+  width: min(480px, 90%);
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+}
+
+.focusOverlay__progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  box-shadow: 0 0 14px rgba(239, 68, 68, .5);
+  transition: width .25s ease;
+}
+
+.focusOverlay__exercise {
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 800;
+}
+
+.focusOverlay__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.focusOverlay__dot {
+  color: var(--accent);
+}
+
+.focusOverlay__controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
 }

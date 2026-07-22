@@ -181,7 +181,13 @@
               <button class="btn" type="button" id="startSessionBtn">Session starten</button>
               <button class="btn btn--ghost" type="button" id="pauseSessionBtn">Pause</button>
               <button class="btn btn--ghost" type="button" id="skipPhaseBtn">Phase skippen</button>
+              <button class="btn btn--ghost" type="button" id="focusModeBtn">Fokus-Modus</button>
             </div>
+          </div>
+
+          <div class="sessionProgress">
+            <div class="sessionProgress__bar"><span id="sessionProgressFill"></span></div>
+            <div class="sessionProgress__label" id="sessionProgressLabel">Noch keine Session gestartet</div>
           </div>
 
           <div class="timerDisplayWrap">
@@ -227,6 +233,23 @@
       </div>
     </section>
   </main>
+
+  <div class="focusOverlay" id="focusOverlay" hidden>
+    <button type="button" class="focusOverlay__close" id="focusCloseBtn" aria-label="Fokus-Modus schliessen">✕</button>
+    <div class="focusOverlay__phase" id="focusPhase">Bereit</div>
+    <div class="focusOverlay__timer" id="focusTimer">00:00</div>
+    <div class="focusOverlay__progress"><span id="focusProgressFill"></span></div>
+    <div class="focusOverlay__exercise" id="focusExercise">—</div>
+    <div class="focusOverlay__meta">
+      <span id="focusSet">Satz —</span>
+      <span class="focusOverlay__dot">•</span>
+      <span id="focusNext">Nächste Phase —</span>
+    </div>
+    <div class="focusOverlay__controls">
+      <button type="button" class="btn btn--ghost" id="focusPauseBtn">Pause</button>
+      <button type="button" class="btn btn--ghost" id="focusSkipBtn">Skip</button>
+    </div>
+  </div>
 
   <template id="equipmentCardTemplate">
     <article class="equipmentCard">

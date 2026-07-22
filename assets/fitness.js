@@ -186,7 +186,20 @@
     analyticsEndTime: document.getElementById('analyticsEndTime'),
     exportPlanBtn: document.getElementById('exportPlanBtn'),
     importJson: document.getElementById('importJson'),
-    importPlanBtn: document.getElementById('importPlanBtn')
+    importPlanBtn: document.getElementById('importPlanBtn'),
+    sessionProgressFill: document.getElementById('sessionProgressFill'),
+    sessionProgressLabel: document.getElementById('sessionProgressLabel'),
+    focusModeBtn: document.getElementById('focusModeBtn'),
+    focusOverlay: document.getElementById('focusOverlay'),
+    focusCloseBtn: document.getElementById('focusCloseBtn'),
+    focusPhase: document.getElementById('focusPhase'),
+    focusTimer: document.getElementById('focusTimer'),
+    focusProgressFill: document.getElementById('focusProgressFill'),
+    focusExercise: document.getElementById('focusExercise'),
+    focusSet: document.getElementById('focusSet'),
+    focusNext: document.getElementById('focusNext'),
+    focusPauseBtn: document.getElementById('focusPauseBtn'),
+    focusSkipBtn: document.getElementById('focusSkipBtn')
   };
 
   const equipmentTemplate = document.getElementById('equipmentCardTemplate');
@@ -230,6 +243,85 @@
       // silent fail, the browser circus sometimes blocks audio until interaction
     }
   }
+
+  // ---------- Toast + confirm (replace jarring native alert/confirm) ----------
+  let toastTimer = null;
+  function showToast(message) {
+    let toast = document.querySelector('.fitToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'fitToast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2800);
+  }
+
+  function confirmDialog(message) {
+    return new Promise((resolve) => {
+      let dialog = document.querySelector('.fitConfirm');
+      if (!dialog) {
+        dialog = document.createElement('dialog');
+        dialog.className = 'fitConfirm';
+        dialog.innerHTML = `
+          <div class="fitConfirm__body">
+            <p class="fitConfirm__msg"></p>
+            <div class="fitConfirm__actions">
+              <button type="button" class="btn btn--ghost" data-action="cancel">Abbrechen</button>
+              <button type="button" class="btn" data-action="confirm">Bestätigen</button>
+            </div>
+          </div>`;
+        document.body.appendChild(dialog);
+      }
+      dialog.querySelector('.fitConfirm__msg').textContent = message;
+
+      const onClick = (e) => {
+        const action = e.target.closest('[data-action]')?.dataset.action;
+        if (!action) return;
+        cleanup();
+        dialog.close();
+        resolve(action === 'confirm');
+      };
+      const onCancel = () => {
+        cleanup();
+        resolve(false);
+      };
+      function cleanup() {
+        dialog.removeEventListener('click', onClick);
+        dialog.removeEventListener('cancel', onCancel);
+      }
+      dialog.addEventListener('click', onClick);
+      dialog.addEventListener('cancel', onCancel);
+      dialog.showModal();
+    });
+  }
+
+  // ---------- Wake Lock (screen stays on during an active session) ----------
+  let wakeLock = null;
+  async function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (err) {
+      // not supported / denied — non-critical, session still works without it
+    }
+  }
+  function releaseWakeLock() {
+    if (wakeLock) {
+      wakeLock.release().catch(() => {});
+      wakeLock = null;
+    }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && state.runner.active && !state.runner.paused && !wakeLock) {
+      requestWakeLock();
+    }
+  });
 
   function cloneExerciseFromEquipment(item) {
     return {
@@ -329,11 +421,21 @@
       node.querySelector('.equipmentCard__subtitle').textContent = item.defaultExercise;
       node.querySelector('.equipmentCard__pill').textContent = item.muscle;
       node.querySelector('.equipmentCard__description').textContent = item.description;
-      node.querySelector('.equipmentCard__add').addEventListener('click', () => {
+      node.querySelector('.equipmentCard__add').addEventListener('click', (e) => {
         state.exercises.push(cloneExerciseFromEquipment(item));
         persist();
         renderExercises();
         updateSummary();
+
+        const btn = e.currentTarget;
+        const original = btn.textContent;
+        btn.textContent = 'Hinzugefügt ✓';
+        btn.classList.add('is-added');
+        clearTimeout(btn._resetTimer);
+        btn._resetTimer = setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('is-added');
+        }, 1100);
       });
       els.equipmentGrid.appendChild(node);
     });
@@ -387,6 +489,40 @@
 
       els.exerciseList.appendChild(node);
     });
+
+    updateExerciseHighlight(false);
+  }
+
+  function updateExerciseHighlight(scrollToCurrent) {
+    const currentExercise = state.exercises[state.runner.currentExerciseIndex];
+    els.exerciseList.querySelectorAll('.exerciseItem').forEach((node) => {
+      const isCurrent = state.runner.active && currentExercise && node.dataset.uid === currentExercise.uid;
+      const isDone = state.runner.finishedExerciseIds.includes(node.dataset.uid);
+      node.classList.toggle('is-current', !!isCurrent);
+      node.classList.toggle('is-done', isDone);
+      if (isCurrent && scrollToCurrent) {
+        node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }
+
+  function updateSessionProgress() {
+    const total = state.exercises.length;
+    const done = state.runner.finishedExerciseIds.length;
+    const currentIndex = Math.min(state.runner.currentExerciseIndex, Math.max(0, total - 1));
+    const pct = total ? Math.round((done / total) * 100) : 0;
+
+    els.sessionProgressFill.style.width = `${pct}%`;
+
+    if (!total) {
+      els.sessionProgressLabel.textContent = 'Noch keine Übung im Plan';
+    } else if (!state.runner.active) {
+      els.sessionProgressLabel.textContent = `${total} Übung${total === 1 ? '' : 'en'} bereit`;
+    } else if (state.runner.phase === 'done') {
+      els.sessionProgressLabel.textContent = `Session beendet – ${total} von ${total} Übungen`;
+    } else {
+      els.sessionProgressLabel.textContent = `Übung ${currentIndex + 1} von ${total}`;
+    }
   }
 
   function resetRunnerUi() {
@@ -397,6 +533,15 @@
     els.currentSet.textContent = '—';
     els.nextPhase.textContent = '—';
     els.progressBarFill.style.width = '0%';
+    els.focusTimer.textContent = '00:00';
+    els.focusPhase.textContent = 'Bereit';
+    els.focusPhase.className = 'focusOverlay__phase';
+    els.focusExercise.textContent = '—';
+    els.focusSet.textContent = 'Satz —';
+    els.focusNext.textContent = 'Nächste Phase —';
+    els.focusProgressFill.style.width = '0%';
+    updateSessionProgress();
+    updateExerciseHighlight(false);
   }
 
   function stopInterval() {
@@ -408,6 +553,7 @@
 
   function finishSession() {
     stopInterval();
+    releaseWakeLock();
     state.runner.active = false;
     state.runner.paused = false;
     state.runner.phase = 'done';
@@ -415,6 +561,10 @@
     els.phaseBadge.className = 'phaseBadge isDone';
     els.nextPhase.textContent = '—';
     els.progressBarFill.style.width = '100%';
+    els.focusPhase.textContent = 'Session beendet';
+    els.focusPhase.className = 'focusOverlay__phase isDone';
+    updateSessionProgress();
+    updateExerciseHighlight(false);
     beep();
   }
 
@@ -492,6 +642,8 @@
     updateRunnerUi();
   }
 
+  let lastHighlightedIndex = -1;
+
   function updateRunnerUi() {
     const exercise = state.exercises[state.runner.currentExerciseIndex];
     const phaseMap = {
@@ -520,11 +672,25 @@
       ? ((state.runner.phaseDuration - state.runner.timeLeft) / state.runner.phaseDuration) * 100
       : 0;
     els.progressBarFill.style.width = `${Math.max(0, Math.min(100, progress))}%`;
+
+    // Focus-Modus (grossflächige Anzeige) synchron halten
+    els.focusPhase.textContent = label.replace('Fertig', 'Session beendet');
+    els.focusPhase.className = `focusOverlay__phase ${className.replace('phaseBadge', '').trim()}`.trim();
+    els.focusTimer.textContent = els.timerDisplay.textContent;
+    els.focusExercise.textContent = exercise ? exercise.name : '—';
+    els.focusSet.textContent = exercise ? `Satz ${state.runner.currentSet} / ${exercise.sets}` : 'Satz —';
+    els.focusNext.textContent = `Nächste Phase: ${next}`;
+    els.focusProgressFill.style.width = els.progressBarFill.style.width;
+
+    const exerciseChanged = state.runner.currentExerciseIndex !== lastHighlightedIndex;
+    lastHighlightedIndex = state.runner.currentExerciseIndex;
+    updateExerciseHighlight(exerciseChanged);
+    updateSessionProgress();
   }
 
   function startSession() {
     if (!state.exercises.length) {
-      alert('Du brauchst mindestens eine Übung im Plan. Sonst starrt dich der Timer nur beleidigt an.');
+      showToast('Du brauchst mindestens eine Übung im Plan.');
       return;
     }
 
@@ -534,6 +700,9 @@
     state.runner.currentExerciseIndex = 0;
     state.runner.currentSet = 1;
     state.runner.finishedExerciseIds = [];
+    lastHighlightedIndex = -1;
+
+    requestWakeLock();
 
     const warmupSeconds = (Number(state.warmupMinutes) || 0) * 60;
     if (warmupSeconds > 0) {
@@ -573,11 +742,12 @@
 
     els.savePlanBtn.addEventListener('click', () => {
       persist();
-      alert('Plan gespeichert. Lokal im Browser, ohne Datenbank-Zirkus.');
+      showToast('Plan gespeichert ✓');
     });
 
-    els.resetPlanBtn.addEventListener('click', () => {
-      if (!confirm('Wirklich alles zurücksetzen?')) return;
+    els.resetPlanBtn.addEventListener('click', async () => {
+      const ok = await confirmDialog('Wirklich alles zurücksetzen? Das kann nicht rückgängig gemacht werden.');
+      if (!ok) return;
       localStorage.removeItem(STORAGE_KEY);
       location.reload();
     });
@@ -612,16 +782,23 @@
 
     els.startSessionBtn.addEventListener('click', startSession);
 
-    els.pauseSessionBtn.addEventListener('click', () => {
+    const togglePause = () => {
       if (!state.runner.active) return;
       state.runner.paused = !state.runner.paused;
-      els.pauseSessionBtn.textContent = state.runner.paused ? 'Fortsetzen' : 'Pause';
-    });
+      const label = state.runner.paused ? 'Fortsetzen' : 'Pause';
+      els.pauseSessionBtn.textContent = label;
+      els.focusPauseBtn.textContent = label;
+      if (!state.runner.paused) requestWakeLock();
+    };
+    els.pauseSessionBtn.addEventListener('click', togglePause);
+    els.focusPauseBtn.addEventListener('click', togglePause);
 
-    els.skipPhaseBtn.addEventListener('click', () => {
+    const skipPhase = () => {
       if (!state.runner.active) return;
       moveToNextPhase();
-    });
+    };
+    els.skipPhaseBtn.addEventListener('click', skipPhase);
+    els.focusSkipBtn.addEventListener('click', skipPhase);
 
     els.restartPhaseBtn.addEventListener('click', () => {
       if (!state.runner.active) return;
@@ -630,6 +807,15 @@
     });
 
     els.finishSessionBtn.addEventListener('click', finishSession);
+
+    els.focusModeBtn.addEventListener('click', () => {
+      els.focusOverlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+    });
+    els.focusCloseBtn.addEventListener('click', () => {
+      els.focusOverlay.hidden = true;
+      document.body.style.overflow = '';
+    });
 
     document.querySelectorAll('[data-adjust]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -678,7 +864,7 @@
         renderExercises();
         updateSummary();
       } catch (err) {
-        alert('JSON ist ungültig. Da hat der Datenkobold zugeschlagen.');
+        showToast('JSON ist ungültig. Bitte Format prüfen.');
       }
     });
   }

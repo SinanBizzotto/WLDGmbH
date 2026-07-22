@@ -309,6 +309,9 @@ function initScrollReveal() {
     if (delay) el.style.transitionDelay = `${delay}ms`;
   });
 
+  // threshold: 0 (not e.g. 0.15) is deliberate — a fixed ratio can never be
+  // satisfied for elements taller than the viewport (common on mobile, where
+  // panels stack vertically), which would leave them permanently invisible.
   const obs = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -316,7 +319,7 @@ function initScrollReveal() {
         obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
 
   els.forEach((el) => obs.observe(el));
 }
