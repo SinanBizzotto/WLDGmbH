@@ -1254,6 +1254,47 @@ img.brand__logo {
     border-color: rgba(239, 68, 68, .4);
     background: linear-gradient(180deg, rgba(239, 68, 68, .07), rgba(220, 38, 38, .05));
     box-shadow: 0 0 40px rgba(239, 68, 68, .12);
+    position: relative;
+    overflow: hidden;
+}
+
+.card--featured::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, .16), transparent);
+    transform: skewX(-20deg);
+    pointer-events: none;
+}
+
+/* animation-timeline: view() computes bogus/stuck geometry when applied
+   directly to an absolutely-positioned pseudo-element in Chrome — anchor
+   a named view-timeline on the real (in-flow) card instead, and have the
+   pseudo reference it by name (same pattern as the hero scene). */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .card--featured {
+            view-timeline-name: --pricingScene;
+            view-timeline-axis: block;
+        }
+
+        .card--featured::after {
+            animation-name: pricingSweep;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: --pricingScene;
+            animation-range: entry 10% cover 55%;
+        }
+    }
+}
+
+@keyframes pricingSweep {
+    from { left: -60%; }
+    to { left: 130%; }
 }
 
 /* ---------- Configurator ---------- */
