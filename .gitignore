@@ -21,10 +21,6 @@ projects/Airsoft/*
 !projects/Airsoft/project.json
 !projects/Airsoft/screenshot.png
 
-projects/budget-app/*
-!projects/budget-app/project.json
-!projects/budget-app/screenshot.png
-
 projects/relaxplore/*
 !projects/relaxplore/project.json
 !projects/relaxplore/public/

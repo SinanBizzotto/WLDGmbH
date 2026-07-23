@@ -51,9 +51,9 @@ export const projects = [
     "title": "Budget Control Center",
     "client": "",
     "year": 2026,
-    "status": "Privat",
+    "status": "Live",
     "type": "Web-App",
-    "description": "Privates All-in-One Finanzsystem für Konten, Budgets, Sparziele, Schulden und Transaktionen mit Live-Auswertungen und CSV-Export.",
+    "description": "All-in-One Finanzsystem für Konten, Budgets, Sparziele, Schulden und Transaktionen mit Live-Auswertungen und CSV-Export.",
     "stack": [
       "React",
       "TypeScript",
@@ -61,11 +61,10 @@ export const projects = [
       "Recharts"
     ],
     "tags": [
-      "Full-Stack",
-      "Privat"
+      "Full-Stack"
     ],
     "links": {
-      "live": null,
+      "live": "https://weblabdesign.ch/projects/budget-app/dist/index.html",
       "repo": null
     },
     "image": "../projects/budget-app/screenshot.png"
