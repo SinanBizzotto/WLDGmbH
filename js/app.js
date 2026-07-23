@@ -24,9 +24,16 @@ function initMobileNav() {
 
   const mq = window.matchMedia("(max-width: 980px)");
 
+  const scrim = document.createElement("div");
+  scrim.className = "navScrim";
+  scrim.setAttribute("aria-hidden", "true");
+  document.body.appendChild(scrim);
+
   const close = () => {
     nav.classList.remove("isOpen");
     toggle.setAttribute("aria-expanded", "false");
+    scrim.classList.remove("is-visible");
+    document.documentElement.style.overflow = "";
   };
 
   const toggleNav = (e) => {
@@ -36,7 +43,11 @@ function initMobileNav() {
 
     const isOpen = nav.classList.toggle("isOpen");
     toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    scrim.classList.toggle("is-visible", isOpen);
+    document.documentElement.style.overflow = isOpen ? "hidden" : "";
   };
+
+  scrim.addEventListener("click", close);
 
   toggle.addEventListener("click", toggleNav);
 
@@ -403,6 +414,52 @@ function initContactForm() {
   });
 }
 
+// ---------- Hero mockup: mouse-parallax tilt ----------
+function initHeroTilt() {
+  const wrap = qs('.heroMock');
+  const panels = qs('.heroMock__panels');
+  if (!wrap || !panels) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  if (reduceMotion || coarsePointer) return;
+
+  const maxTilt = 8;
+
+  wrap.addEventListener('pointermove', (e) => {
+    const rect = wrap.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    const tiltY = (px - 0.5) * (maxTilt * 2);
+    const tiltX = (0.5 - py) * (maxTilt * 2);
+    panels.style.setProperty('--tiltX', `${tiltX}deg`);
+    panels.style.setProperty('--tiltY', `${tiltY}deg`);
+  });
+
+  wrap.addEventListener('pointerleave', () => {
+    panels.style.setProperty('--tiltX', '0deg');
+    panels.style.setProperty('--tiltY', '0deg');
+  });
+}
+
+// ---------- Cards: cursor-tracking glow ----------
+function initCardGlow() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  const selector = '.card, .projectCard';
+
+  document.addEventListener('pointermove', (e) => {
+    const el = e.target.closest?.(selector);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    el.style.setProperty('--glareX', `${x}%`);
+    el.style.setProperty('--glareY', `${y}%`);
+  }, { passive: true });
+}
+
 // ---------- Boot ----------
 document.addEventListener('DOMContentLoaded', () => {
   setYear();
@@ -415,4 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollProgress();
   initScrollReveal();
   initCountUp();
+  initHeroTilt();
+  initCardGlow();
 });
