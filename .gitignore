@@ -24,3 +24,9 @@ projects/Airsoft/*
 projects/budget-app/*
 !projects/budget-app/project.json
 !projects/budget-app/screenshot.png
+
+projects/relaxplore/*
+!projects/relaxplore/project.json
+!projects/relaxplore/public/
+projects/relaxplore/public/*
+!projects/relaxplore/public/RelaxPlore_Logo.jpg

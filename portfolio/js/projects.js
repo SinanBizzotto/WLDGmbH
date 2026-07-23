@@ -94,6 +94,31 @@ export const projects = [
     "image": "../projects/Kochwelt/Vorlage/mockup.png"
   },
   {
+    "slug": "relaxplore",
+    "title": "Relaxplore",
+    "client": "",
+    "year": 2026,
+    "status": "Live",
+    "type": "Web-App",
+    "description": "Mobile Reise-Web-App mit Kartenexplorer, Reiseplanung, Navigation, Budget, Tagebuch und KI-Reiseassistent. Inklusive Konten, Cloud-Sync und Installation als PWA.",
+    "stack": [
+      "React",
+      "TypeScript",
+      "Vite",
+      "Neon Postgres"
+    ],
+    "tags": [
+      "Full-Stack",
+      "PWA",
+      "Auth"
+    ],
+    "links": {
+      "live": "https://relaxplore.com",
+      "repo": null
+    },
+    "image": "../projects/relaxplore/public/RelaxPlore_Logo.jpg"
+  },
+  {
     "slug": "sakura-ramen",
     "title": "Sakura Ramen",
     "client": "",
