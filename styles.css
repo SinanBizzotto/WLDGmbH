@@ -1385,6 +1385,37 @@ img.brand__logo {
     background: var(--line);
 }
 
+.timeline::after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: linear-gradient(var(--accent), var(--accent2));
+    box-shadow: 0 0 8px rgba(239, 68, 68, .6);
+    transform: scaleY(0);
+    transform-origin: top;
+}
+
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .timeline::after {
+            animation-name: timelineFill;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: view();
+            animation-range: entry 15% cover 75%;
+        }
+    }
+}
+
+@keyframes timelineFill {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
 .timeline .step:last-child {
     padding-bottom: 0;
 }
