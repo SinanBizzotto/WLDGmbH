@@ -1,11 +1,17 @@
 import { useMemo, useState } from "react";
-import { Plus, Search, X } from "lucide-react";
+import {
+  Heart,
+  Plus,
+  Search,
+  SlidersHorizontal,
+} from "lucide-react";
 import { useFitness } from "../data/FitnessContext";
-import { useToast } from "../components/ui";
+import { EmptyState, useToast } from "../components/ui";
+import { ExerciseCard } from "../components/exercises/ExerciseCard";
+import { ExerciseEditor } from "../components/exercises/ExerciseEditor";
 import type { EquipmentType, Exercise, MuscleGroup } from "../types";
 
-const muscles: ("Alle" | MuscleGroup)[] = [
-  "Alle",
+const muscleOptions: MuscleGroup[] = [
   "Brust",
   "Rücken",
   "Beine",
@@ -14,8 +20,8 @@ const muscles: ("Alle" | MuscleGroup)[] = [
   "Bauch",
   "Ganzkörper",
 ];
-const equipment: ("Alle" | EquipmentType)[] = [
-  "Alle",
+const muscles: ("Alle" | MuscleGroup)[] = ["Alle", ...muscleOptions];
+const equipmentOptions: EquipmentType[] = [
   "Körpergewicht",
   "Langhantel",
   "Kurzhantel",
@@ -23,45 +29,125 @@ const equipment: ("Alle" | EquipmentType)[] = [
   "Kabelzug",
   "Cardio",
 ];
+const equipment: ("Alle" | EquipmentType)[] = ["Alle", ...equipmentOptions];
+type SortOrder = "name" | "muscle" | "favorites";
+
 export default function Exercises() {
-  const { store, saveExercise } = useFitness();
+  const {
+    store,
+    saveExercise,
+    toggleFavoriteExercise,
+    duplicateExercise,
+  } = useFitness();
   const toast = useToast();
   const [query, setQuery] = useState("");
   const [muscle, setMuscle] = useState<(typeof muscles)[number]>("Alle");
   const [device, setDevice] = useState<(typeof equipment)[number]>("Alle");
-  const [create, setCreate] = useState(false);
-  const filtered = useMemo(
-    () =>
-      store.exercises.filter(
-        (e) =>
-          (muscle === "Alle" || e.muscleGroup === muscle) &&
-          (device === "Alle" || e.equipment === device) &&
-          `${e.name} ${e.description}`
-            .toLowerCase()
-            .includes(query.toLowerCase()),
-      ),
-    [store.exercises, muscle, device, query],
-  );
-  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [sort, setSort] = useState<SortOrder>("name");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Exercise | null>(null);
+
+  const filtered = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return store.exercises
+      .filter(
+        (exercise) =>
+          (muscle === "Alle" || exercise.muscleGroup === muscle) &&
+          (device === "Alle" || exercise.equipment === device) &&
+          (!favoritesOnly || exercise.isFavorite) &&
+          (!search ||
+            `${exercise.name} ${exercise.description} ${exercise.muscleGroup} ${exercise.equipment}`
+              .toLowerCase()
+              .includes(search)),
+      )
+      .sort((a, b) => {
+        if (sort === "favorites") {
+          return (
+            Number(Boolean(b.isFavorite)) - Number(Boolean(a.isFavorite)) ||
+            a.name.localeCompare(b.name, "de")
+          );
+        }
+        if (sort === "muscle") {
+          return (
+            a.muscleGroup.localeCompare(b.muscleGroup, "de") ||
+            a.name.localeCompare(b.name, "de")
+          );
+        }
+        return a.name.localeCompare(b.name, "de");
+      });
+  }, [store.exercises, muscle, device, favoritesOnly, query, sort]);
+
+  const openCreate = () => {
+    setEditing(null);
+    setFormOpen(true);
+  };
+
+  const openEdit = (exercise: Exercise) => {
+    setEditing(exercise);
+    setFormOpen(true);
+  };
+
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
     const exercise: Exercise = {
-      id: crypto.randomUUID(),
-      userId: store.profile.id,
-      name: String(data.get("name")),
+      id: editing?.id ?? crypto.randomUUID(),
+      userId: editing?.userId ?? store.profile.id,
+      name: String(data.get("name")).trim(),
       muscleGroup: String(data.get("muscle")) as MuscleGroup,
       equipment: String(data.get("equipment")) as EquipmentType,
-      exerciseType: "Kraft",
-      description: String(data.get("description")),
+      exerciseType: String(data.get("exerciseType")) as Exercise["exerciseType"],
+      description: String(data.get("description")).trim(),
       instructions: String(data.get("instructions"))
         .split("\n")
+        .map((instruction) => instruction.trim())
         .filter(Boolean),
-      isPublic: false,
+      image: editing?.image,
+      isPublic: editing?.isPublic ?? false,
+      isFavorite: editing?.isFavorite ?? false,
+      isCustomized: editing?.isCustomized,
     };
-    await saveExercise(exercise);
-    setCreate(false);
-    toast("Eigene Übung erstellt");
+    try {
+      await saveExercise(exercise);
+      setFormOpen(false);
+      setEditing(null);
+      toast(editing ? "Übung aktualisiert" : "Eigene Übung erstellt");
+    } catch {
+      toast("Übung konnte nicht gespeichert werden", "error");
+    }
   };
+
+  const toggleFavorite = async (exercise: Exercise) => {
+    try {
+      await toggleFavoriteExercise(exercise.id);
+      toast(
+        exercise.isFavorite
+          ? "Aus Favoriten entfernt"
+          : "Zu Favoriten hinzugefügt",
+      );
+    } catch {
+      toast("Favorit konnte nicht gespeichert werden", "error");
+    }
+  };
+
+  const duplicate = async (exercise: Exercise) => {
+    try {
+      const copy = await duplicateExercise(exercise);
+      toast("Persönliche Kopie erstellt");
+      openEdit(copy);
+    } catch {
+      toast("Übung konnte nicht kopiert werden", "error");
+    }
+  };
+
+  const favoriteCount = store.exercises.filter(
+    (exercise) => exercise.isFavorite,
+  ).length;
+  const customCount = store.exercises.filter(
+    (exercise) => !exercise.isPublic || exercise.isCustomized,
+  ).length;
+
   return (
     <div className="stack-page">
       <div className="page-title">
@@ -69,110 +155,131 @@ export default function Exercises() {
           <p>ÜBUNGSBIBLIOTHEK</p>
           <h2>Übungen entdecken</h2>
         </div>
-        <button
-          className="button button--primary"
-          onClick={() => setCreate(true)}
-        >
+        <button className="button button--primary" onClick={openCreate}>
           <Plus /> Eigene Übung
         </button>
       </div>
+
+      <div className="exercise-overview" aria-label="Bibliothek-Übersicht">
+        <div>
+          <strong>{store.exercises.length}</strong>
+          <span>Übungen</span>
+        </div>
+        <div>
+          <strong>{favoriteCount}</strong>
+          <span>Favoriten</span>
+        </div>
+        <div>
+          <strong>{customCount}</strong>
+          <span>Personalisiert</span>
+        </div>
+      </div>
+
       <div className="exercise-filters">
-        <label>
+        <label className="exercise-search">
           <Search />
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Übung suchen"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Name, Muskel oder Gerät suchen"
           />
         </label>
         <select
+          aria-label="Muskelgruppe filtern"
           value={muscle}
-          onChange={(e) => setMuscle(e.target.value as typeof muscle)}
+          onChange={(event) =>
+            setMuscle(event.target.value as typeof muscle)
+          }
         >
-          {muscles.map((x) => (
-            <option key={x}>{x}</option>
+          {muscles.map((item) => (
+            <option key={item}>{item}</option>
           ))}
         </select>
         <select
+          aria-label="Geräteart filtern"
           value={device}
-          onChange={(e) => setDevice(e.target.value as typeof device)}
+          onChange={(event) =>
+            setDevice(event.target.value as typeof device)
+          }
         >
-          {equipment.map((x) => (
-            <option key={x}>{x}</option>
+          {equipment.map((item) => (
+            <option key={item}>{item}</option>
           ))}
         </select>
+        <select
+          aria-label="Übungen sortieren"
+          value={sort}
+          onChange={(event) => setSort(event.target.value as SortOrder)}
+        >
+          <option value="name">A–Z sortieren</option>
+          <option value="muscle">Nach Muskelgruppe</option>
+          <option value="favorites">Favoriten zuerst</option>
+        </select>
+        <button
+          className={`favorite-filter ${favoritesOnly ? "is-active" : ""}`}
+          type="button"
+          aria-pressed={favoritesOnly}
+          onClick={() => setFavoritesOnly((current) => !current)}
+        >
+          <Heart fill={favoritesOnly ? "currentColor" : "none"} />
+          Nur Favoriten
+        </button>
       </div>
-      <div className="exercise-grid">
-        {filtered.map((ex) => (
-          <article className="card exercise-card" key={ex.id}>
-            {ex.image ? (
-              <img src={ex.image} alt={ex.name} />
-            ) : (
-              <div className="exercise-card__placeholder">WLD</div>
-            )}
-            <div>
-              <span>
-                {ex.muscleGroup} · {ex.equipment}
-              </span>
-              <h3>{ex.name}</h3>
-              <p>{ex.description}</p>
-              <details>
-                <summary>Ausführungshinweise</summary>
-                <ol>
-                  {ex.instructions.map((x, i) => (
-                    <li key={i}>{x}</li>
-                  ))}
-                </ol>
-              </details>
-              {!ex.isPublic && <b className="custom-badge">Eigene Übung</b>}
-            </div>
-          </article>
-        ))}
+
+      <div className="exercise-result-row">
+        <span>
+          <SlidersHorizontal /> {filtered.length} Ergebnisse
+        </span>
+        {(query ||
+          muscle !== "Alle" ||
+          device !== "Alle" ||
+          favoritesOnly) && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setMuscle("Alle");
+              setDevice("Alle");
+              setFavoritesOnly(false);
+            }}
+          >
+            Filter zurücksetzen
+          </button>
+        )}
       </div>
-      {create && (
-        <div className="modal">
-          <form className="dialog form-dialog" onSubmit={submit}>
-            <button
-              type="button"
-              className="dialog-close"
-              onClick={() => setCreate(false)}
-            >
-              <X />
-            </button>
-            <h2>Eigene Übung</h2>
-            <label>
-              <span>Name</span>
-              <input name="name" required minLength={2} />
-            </label>
-            <div className="form-grid">
-              <label>
-                <span>Muskelgruppe</span>
-                <select name="muscle">
-                  {muscles.slice(1).map((x) => (
-                    <option key={x}>{x}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>Geräteart</span>
-                <select name="equipment">
-                  {equipment.slice(1).map((x) => (
-                    <option key={x}>{x}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <label>
-              <span>Beschreibung</span>
-              <textarea name="description" required />
-            </label>
-            <label>
-              <span>Ausführungshinweise (eine Zeile je Schritt)</span>
-              <textarea name="instructions" required />
-            </label>
-            <button className="button button--primary">Übung speichern</button>
-          </form>
+
+      {filtered.length ? (
+        <div className="exercise-grid">
+          {filtered.map((exercise) => (
+            <ExerciseCard
+              key={exercise.id}
+              exercise={exercise}
+              onEdit={() => openEdit(exercise)}
+              onDuplicate={() => void duplicate(exercise)}
+              onToggleFavorite={() => void toggleFavorite(exercise)}
+            />
+          ))}
         </div>
+      ) : (
+        <EmptyState
+          title="Keine Übungen gefunden"
+          text="Passe deine Suche oder Filter an, oder erstelle eine eigene Übung."
+          action={
+            <button className="button button--primary" onClick={openCreate}>
+              <Plus /> Eigene Übung
+            </button>
+          }
+        />
+      )}
+
+      {formOpen && (
+        <ExerciseEditor
+          exercise={editing}
+          muscles={muscleOptions}
+          equipment={equipmentOptions}
+          onSubmit={submit}
+          onClose={() => setFormOpen(false)}
+        />
       )}
     </div>
   );

@@ -47,6 +47,19 @@ export interface Database {
           user_id: string | null;
         }
       >;
+      exercise_preferences: Table<{
+        user_id: string;
+        exercise_id: string;
+        custom_name: string | null;
+        custom_muscle_group: string | null;
+        custom_equipment_type: string | null;
+        custom_exercise_type: string | null;
+        custom_description: string | null;
+        custom_instructions: string[] | null;
+        is_favorite: boolean;
+        created_at: string;
+        updated_at: string;
+      }>;
       workout_plans: Table<
         Owned & {
           name: string;

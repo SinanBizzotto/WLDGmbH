@@ -6,7 +6,7 @@ Eigenständige React-/TypeScript-PWA innerhalb der bestehenden Web-Lab-Design-We
 
 1. `npm install`
 2. `.env.example` als `.env.local` kopieren und Supabase-Werte einsetzen.
-3. Migration `supabase/migrations/202607220001_wld_fitness.sql` im Supabase SQL Editor oder mit der Supabase CLI ausführen.
+3. Alle Dateien in `supabase/migrations/` in aufsteigender Reihenfolge im Supabase SQL Editor oder mit der Supabase CLI ausführen. `202607230002_exercise_library_upgrade.sql` ergänzt persönliche Übungsnamen, Favoriten und die erweiterte Bibliothek.
 4. `npm run dev`
 
 Ohne Supabase läuft nur im Vite-Entwicklungsmodus ein klar getrennter LocalStorage-Demo-Fallback. Im Production Build wird dieser Fallback niemals automatisch aktiviert.

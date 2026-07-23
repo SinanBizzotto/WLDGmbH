@@ -11,7 +11,10 @@ describe("WLD Fitness demo fallback", () => {
       defaultExercises.filter((exercise) =>
         exercise.image?.startsWith("/assets/fitness/"),
       ).length,
-    ).toBeGreaterThanOrEqual(10);
+    ).toBeGreaterThanOrEqual(40);
+    expect(
+      new Set(defaultExercises.map((exercise) => exercise.muscleGroup)).size,
+    ).toBe(7);
   });
   it("labels the duplicated dumbbell-rack photo correctly", () => {
     const rack = defaultExercises.find(

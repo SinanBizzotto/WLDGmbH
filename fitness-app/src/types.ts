@@ -30,6 +30,18 @@ export interface Exercise {
   instructions: string[];
   image?: string;
   isPublic: boolean;
+  isFavorite?: boolean;
+  isCustomized?: boolean;
+}
+export interface ExercisePreference {
+  exerciseId: string;
+  customName?: string;
+  muscleGroup?: MuscleGroup;
+  equipment?: EquipmentType;
+  exerciseType?: Exercise["exerciseType"];
+  description?: string;
+  instructions?: string[];
+  isFavorite: boolean;
 }
 export interface PlanExercise {
   id: string;

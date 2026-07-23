@@ -15,6 +15,7 @@ import { LoadingSkeleton, PageError } from "../components/ui";
 import type {
   BodyMeasurement,
   Exercise,
+  ExercisePreference,
   FitnessStore,
   Meal,
   NutritionGoal,
@@ -27,6 +28,8 @@ interface FitnessActions {
   savePlan: (plan: WorkoutPlan) => Promise<void>;
   deletePlan: (id: string) => Promise<void>;
   saveExercise: (exercise: Exercise) => Promise<void>;
+  toggleFavoriteExercise: (id: string) => Promise<void>;
+  duplicateExercise: (exercise: Exercise) => Promise<Exercise>;
   saveSession: (session: WorkoutSession) => Promise<void>;
   saveMeasurement: (measurement: BodyMeasurement) => Promise<void>;
   saveMeal: (meal: Meal) => Promise<void>;
@@ -50,12 +53,83 @@ const emptyStore = (id: string): FitnessStore => ({
   meals: [],
 });
 const storageKey = (id: string) => `wld-fitness-v1:${id}`;
+const preferenceStorageKey = (id: string) =>
+  `wld-fitness-exercise-preferences-v1:${id}`;
+
+const readLocalPreferences = (userId: string): ExercisePreference[] => {
+  try {
+    return JSON.parse(
+      localStorage.getItem(preferenceStorageKey(userId)) ?? "[]",
+    ) as ExercisePreference[];
+  } catch {
+    return [];
+  }
+};
+
+const writeLocalPreference = (
+  userId: string,
+  preference: ExercisePreference,
+) => {
+  const current = readLocalPreferences(userId);
+  localStorage.setItem(
+    preferenceStorageKey(userId),
+    JSON.stringify([
+      ...current.filter((item) => item.exerciseId !== preference.exerciseId),
+      preference,
+    ]),
+  );
+};
+
+const applyExercisePreference = (
+  exercise: Exercise,
+  preference?: ExercisePreference,
+): Exercise => {
+  if (!preference) return exercise;
+  const customized = Boolean(
+    preference.customName ||
+      preference.muscleGroup ||
+      preference.equipment ||
+      preference.exerciseType ||
+      preference.description ||
+      preference.instructions,
+  );
+  return {
+    ...exercise,
+    name: preference.customName ?? exercise.name,
+    muscleGroup: preference.muscleGroup ?? exercise.muscleGroup,
+    equipment: preference.equipment ?? exercise.equipment,
+    exerciseType: preference.exerciseType ?? exercise.exerciseType,
+    description: preference.description ?? exercise.description,
+    instructions: preference.instructions ?? exercise.instructions,
+    isFavorite: preference.isFavorite,
+    isCustomized: customized,
+  };
+};
+
+const mergeDemoExercises = (saved: FitnessStore): FitnessStore => {
+  const savedById = new Map(
+    saved.exercises.map((exercise) => [exercise.id, exercise]),
+  );
+  return {
+    ...saved,
+    exercises: [
+      ...defaultExercises.map(
+        (exercise) => savedById.get(exercise.id) ?? exercise,
+      ),
+      ...saved.exercises.filter(
+        (exercise) =>
+          !defaultExercises.some((item) => item.id === exercise.id),
+      ),
+    ],
+  };
+};
 
 async function loadRemoteStore(userId: string): Promise<FitnessStore> {
   if (!supabase) return emptyStore(userId);
   const [
     profile,
     exercises,
+    preferences,
     plans,
     sessions,
     measurements,
@@ -68,6 +142,10 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
       .from("exercises")
       .select("*")
       .or(`user_id.eq.${userId},is_public.eq.true`),
+    supabase
+      .from("exercise_preferences")
+      .select("*")
+      .eq("user_id", userId),
     supabase
       .from("workout_plans")
       .select("*,workout_plan_exercises(*)")
@@ -100,6 +178,31 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
   ]);
   const base = emptyStore(userId);
   const p = profile.data;
+  const preferenceMap = new Map<string, ExercisePreference>();
+  for (const preference of preferences.data ?? []) {
+    preferenceMap.set(preference.exercise_id, {
+      exerciseId: preference.exercise_id,
+      customName: preference.custom_name ?? undefined,
+      muscleGroup:
+        (preference.custom_muscle_group as ExercisePreference["muscleGroup"]) ??
+        undefined,
+      equipment:
+        (preference.custom_equipment_type as ExercisePreference["equipment"]) ??
+        undefined,
+      exerciseType:
+        (preference.custom_exercise_type as ExercisePreference["exerciseType"]) ??
+        undefined,
+      description: preference.custom_description ?? undefined,
+      instructions: preference.custom_instructions ?? undefined,
+      isFavorite: preference.is_favorite,
+    });
+  }
+  for (const preference of readLocalPreferences(userId)) {
+    preferenceMap.set(preference.exerciseId, {
+      ...preferenceMap.get(preference.exerciseId),
+      ...preference,
+    });
+  }
   return {
     ...base,
     profile: p
@@ -119,7 +222,7 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
       (e) => {
         const isMislabeledDumbbellRack =
           e.id === "10000000-0000-4000-8000-000000000004";
-        return {
+        return applyExercisePreference({
           id: e.id,
           userId: e.user_id ?? undefined,
           name: isMislabeledDumbbellRack ? "Kurzhantel-Rack" : e.name,
@@ -143,7 +246,7 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
             : (e.instructions ?? []),
           image: e.image_url ?? undefined,
           isPublic: e.is_public,
-        } as Exercise;
+        } as Exercise, preferenceMap.get(e.id));
       },
     ),
     plans: (plans.data ?? []).map((pn) => ({
@@ -242,7 +345,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       if (demoMode) {
         const raw = localStorage.getItem(storageKey(userId));
         return raw
-          ? (JSON.parse(raw) as FitnessStore)
+          ? mergeDemoExercises(JSON.parse(raw) as FitnessStore)
           : createDemoStore(userId);
       }
       return loadRemoteStore(userId);
@@ -307,15 +410,43 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           await supabase.from("workout_plans").delete().eq("id", id);
       },
       saveExercise: async (exercise) => {
-        update((s) => ({
-          ...s,
-          exercises: [
-            ...s.exercises.filter((e) => e.id !== exercise.id),
-            exercise,
-          ],
-        }));
-        if (supabase && !demoMode)
-          await supabase.from("exercises").upsert({
+        if (exercise.isPublic) {
+          const preference: ExercisePreference = {
+            exerciseId: exercise.id,
+            customName: exercise.name,
+            muscleGroup: exercise.muscleGroup,
+            equipment: exercise.equipment,
+            exerciseType: exercise.exerciseType,
+            description: exercise.description,
+            instructions: exercise.instructions,
+            isFavorite: Boolean(exercise.isFavorite),
+          };
+          writeLocalPreference(userId, preference);
+          if (supabase && !demoMode) {
+            await supabase.from("exercise_preferences").upsert({
+              user_id: userId,
+              exercise_id: exercise.id,
+              custom_name: preference.customName,
+              custom_muscle_group: preference.muscleGroup,
+              custom_equipment_type: preference.equipment,
+              custom_exercise_type: preference.exerciseType,
+              custom_description: preference.description,
+              custom_instructions: preference.instructions,
+              is_favorite: preference.isFavorite,
+            });
+          }
+          update((s) => ({
+            ...s,
+            exercises: s.exercises.map((item) =>
+              item.id === exercise.id
+                ? { ...exercise, isCustomized: true }
+                : item,
+            ),
+          }));
+          return;
+        }
+        if (supabase && !demoMode) {
+          const { error } = await supabase.from("exercises").upsert({
             id: exercise.id,
             user_id: userId,
             name: exercise.name,
@@ -324,8 +455,90 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             exercise_type: exercise.exerciseType,
             description: exercise.description,
             instructions: exercise.instructions,
+            image_url: exercise.image,
             is_public: false,
           });
+          if (error) throw error;
+        }
+        update((s) => ({
+          ...s,
+          exercises: [
+            ...s.exercises.filter((e) => e.id !== exercise.id),
+            exercise,
+          ],
+        }));
+      },
+      toggleFavoriteExercise: async (id) => {
+        const exercise = store.exercises.find((item) => item.id === id);
+        if (!exercise) return;
+        const nextFavorite = !exercise.isFavorite;
+        const previousPreferences = readLocalPreferences(userId);
+        const existing =
+          previousPreferences.find((item) => item.exerciseId === id) ??
+          ({
+            exerciseId: id,
+            customName: exercise.isCustomized ? exercise.name : undefined,
+            muscleGroup: exercise.isCustomized
+              ? exercise.muscleGroup
+              : undefined,
+            equipment: exercise.isCustomized ? exercise.equipment : undefined,
+            exerciseType: exercise.isCustomized
+              ? exercise.exerciseType
+              : undefined,
+            description: exercise.isCustomized
+              ? exercise.description
+              : undefined,
+            instructions: exercise.isCustomized
+              ? exercise.instructions
+              : undefined,
+            isFavorite: false,
+          } satisfies ExercisePreference);
+        const preference = { ...existing, isFavorite: nextFavorite };
+        writeLocalPreference(userId, preference);
+        update((s) => ({
+          ...s,
+          exercises: s.exercises.map((item) =>
+            item.id === id ? { ...item, isFavorite: nextFavorite } : item,
+          ),
+        }));
+        if (supabase && !demoMode) {
+          await supabase.from("exercise_preferences").upsert({
+            user_id: userId,
+            exercise_id: id,
+            is_favorite: nextFavorite,
+          });
+        }
+      },
+      duplicateExercise: async (exercise) => {
+        const duplicate: Exercise = {
+          ...exercise,
+          id: crypto.randomUUID(),
+          userId,
+          name: `${exercise.name} – Kopie`,
+          isPublic: false,
+          isFavorite: false,
+          isCustomized: false,
+        };
+        if (supabase && !demoMode) {
+          const { error } = await supabase.from("exercises").insert({
+            id: duplicate.id,
+            user_id: userId,
+            name: duplicate.name,
+            muscle_group: duplicate.muscleGroup,
+            equipment_type: duplicate.equipment,
+            exercise_type: duplicate.exerciseType,
+            description: duplicate.description,
+            instructions: duplicate.instructions,
+            image_url: duplicate.image,
+            is_public: false,
+          });
+          if (error) throw error;
+        }
+        update((s) => ({
+          ...s,
+          exercises: [...s.exercises, duplicate],
+        }));
+        return duplicate;
       },
       saveSession: async (session) => {
         update((s) => ({

@@ -974,7 +974,7 @@ a {
   top: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: 1fr 180px 180px;
+  grid-template-columns: minmax(240px, 1fr) repeat(3, 160px) 150px;
   gap: 9px;
   padding: 9px 0;
   background: var(--bg);
@@ -1008,6 +1008,69 @@ a {
   color: #fff;
   background: #081019;
 }
+.favorite-filter {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #c7ced5;
+  background: #081019;
+  font-weight: 700;
+}
+.favorite-filter svg {
+  width: 17px;
+}
+.favorite-filter.is-active {
+  border-color: rgba(235, 45, 53, 0.55);
+  color: #ff454c;
+  background: rgba(229, 43, 50, 0.12);
+}
+.exercise-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 150px));
+  gap: 9px;
+}
+.exercise-overview > div {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #081019;
+}
+.exercise-overview strong {
+  color: #fff;
+  font-size: 20px;
+}
+.exercise-overview span,
+.exercise-result-row {
+  color: var(--muted);
+  font-size: 10px;
+}
+.exercise-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 26px;
+}
+.exercise-result-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.exercise-result-row svg {
+  width: 14px;
+}
+.exercise-result-row button {
+  border: 0;
+  color: #ff4a50;
+  background: transparent;
+  font-size: 10px;
+}
 .exercise-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1016,10 +1079,16 @@ a {
 .exercise-card {
   overflow: hidden;
 }
-.exercise-card > img,
+.exercise-card__media {
+  position: relative;
+  height: 165px;
+  overflow: hidden;
+  background: #101820;
+}
+.exercise-card__media > img,
 .exercise-card__placeholder {
   width: 100%;
-  height: 165px;
+  height: 100%;
   object-fit: cover;
   background: #101820;
 }
@@ -1030,7 +1099,29 @@ a {
   font-size: 30px;
   font-weight: 800;
 }
-.exercise-card > div:last-child {
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(4, 9, 14, 0.82);
+  backdrop-filter: blur(8px);
+}
+.favorite-button svg {
+  width: 18px;
+}
+.favorite-button.is-active {
+  border-color: rgba(255, 62, 70, 0.58);
+  color: #ff3e46;
+  background: rgba(43, 8, 11, 0.9);
+}
+.exercise-card__content {
   padding: 15px;
 }
 .exercise-card span {
@@ -1062,6 +1153,37 @@ a {
 .exercise-card ol {
   padding-left: 18px;
   line-height: 1.7;
+}
+.exercise-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.exercise-card__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 12px;
+}
+.exercise-card__actions button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: #d8dde2;
+  background: #0b141d;
+  font-size: 10px;
+  font-weight: 700;
+}
+.exercise-card__actions button:hover {
+  border-color: rgba(235, 45, 53, 0.45);
+  color: #fff;
+}
+.exercise-card__actions svg {
+  width: 14px;
 }
 .custom-badge {
   display: inline-block;
@@ -1107,6 +1229,22 @@ a {
   position: relative;
   display: grid;
   gap: 13px;
+}
+.exercise-editor {
+  width: min(100%, 590px);
+  max-height: min(92vh, 760px);
+  overflow-y: auto;
+}
+.dialog-kicker {
+  margin: 0 0 5px !important;
+  color: #f33a41 !important;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.dialog-hint {
+  margin: 4px 40px 0 0;
+  font-size: 11px;
 }
 .dialog-close {
   position: absolute;
@@ -1809,6 +1947,13 @@ a {
   .picker {
     grid-template-columns: repeat(2, 1fr);
   }
+  .exercise-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .exercise-filters .exercise-search {
+    grid-column: 1/-1;
+    min-height: 44px;
+  }
 }
 @media (max-width: 760px) {
   :root {
@@ -2003,7 +2148,7 @@ a {
     top: 72px;
     grid-template-columns: 1fr 1fr;
   }
-  .exercise-filters label {
+  .exercise-filters .exercise-search {
     grid-column: 1/-1;
     min-height: 44px;
   }
@@ -2011,7 +2156,7 @@ a {
     display: grid;
     grid-template-columns: 120px 1fr;
   }
-  .exercise-card > img,
+  .exercise-card__media,
   .exercise-card__placeholder {
     height: 100%;
     min-height: 190px;
