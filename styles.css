@@ -262,6 +262,32 @@ a {
     }
 }
 
+/* Progressive enhancement: on engines with scroll-driven animation support,
+   swap the IO-triggered once-only fade for a continuous scroll-scrubbed
+   reveal, so content animates in step with scroll like the hero scene.
+   .hero__intro/.heroMock are excluded here — they get their own staged
+   timeline further down (see Hero cinematic). */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .js-reveal [data-reveal]:not(.hero__intro):not(.heroMock) {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: none;
+            animation-name: revealScrub;
+            animation-duration: 1s;
+            animation-timing-function: var(--ease);
+            animation-fill-mode: both;
+            animation-timeline: view();
+            animation-range: entry 0% cover 35%;
+        }
+    }
+}
+
+@keyframes revealScrub {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: none; }
+}
+
 /* ---------- Header ---------- */
 .header {
     position: sticky;
@@ -476,6 +502,128 @@ img.brand__logo {
 .hero {
     padding: 76px 0 40px;
     position: relative;
+}
+
+/* ---------- Hero cinematic (scroll-driven "video") ----------
+   Progressive enhancement only: on engines without scroll-driven
+   animation support (or with prefers-reduced-motion), .hero__stage
+   stays a plain block and the hero behaves exactly like before.
+
+   Copy (badge/h1/lead/CTA/stats) stays fully visible at rest — a
+   visitor who never scrolls must still see a complete, readable hero.
+   Only the decorative product visual (aria-hidden) and the copy's
+   subtle parallax drift are driven by the scroll scene. */
+@supports (animation-timeline: view()) {
+    /* min-width guard: below this the hero grid stacks to a single column
+       (see the 980px mobile media query below), so the invisible heroMock
+       still occupies flow height under the text and centering the pinned
+       stage would push the headline out of view. Cinematic mode is a
+       desktop/tablet embellishment; mobile keeps the plain, always-visible
+       hero. */
+    @media (prefers-reduced-motion: no-preference) and (min-width: 981px) {
+        .hero--cine {
+            height: 220vh;
+            view-timeline-name: --heroScene;
+            view-timeline-axis: block;
+        }
+
+        .hero--cine .hero__stage {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding-top: 32px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .hero--cine .hero__intro > .badge,
+        .hero--cine .hero__intro > h1,
+        .hero--cine .hero__intro > .lead,
+        .hero--cine .hero__intro > .hero__cta,
+        .hero--cine .hero__intro > .hero__stats {
+            animation-name: heroDrift;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: --heroScene;
+            animation-range: contain 0% contain 100%;
+        }
+
+        .hero--cine .hero__intro > h1 { animation-name: heroDriftSlow; }
+        .hero--cine .hero__intro > .hero__stats { animation-name: heroDriftFast; }
+
+        .hero--cine .heroMock {
+            animation-name: heroMockReveal;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: --heroScene;
+            animation-range: contain 0% contain 55%;
+        }
+
+        .hero--cine .scrollCue {
+            animation-name: heroCueOut;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: --heroScene;
+            animation-range: contain 0% contain 12%;
+        }
+
+        .hero--cine .networkArt .networkArt__lines path {
+            animation-name: heroLineDraw;
+            animation-duration: 1s;
+            animation-direction: normal;
+            animation-timing-function: linear;
+            animation-fill-mode: both;
+            animation-timeline: --heroScene;
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+        }
+
+        .hero--cine .networkArt .networkArt__lines path:nth-child(1) { animation-range: contain 20% contain 34%; }
+        .hero--cine .networkArt .networkArt__lines path:nth-child(2) { animation-range: contain 24% contain 38%; }
+        .hero--cine .networkArt .networkArt__lines path:nth-child(3) { animation-range: contain 28% contain 42%; }
+        .hero--cine .networkArt .networkArt__lines path:nth-child(4) { animation-range: contain 32% contain 46%; }
+        .hero--cine .networkArt .networkArt__lines path:nth-child(5) { animation-range: contain 36% contain 50%; }
+        .hero--cine .networkArt .networkArt__lines path:nth-child(6) { animation-range: contain 40% contain 54%; }
+        .hero--cine .networkArt .networkArt__lines path:nth-child(7) { animation-range: contain 44% contain 58%; }
+        .hero--cine .networkArt .networkArt__lines path:nth-child(8) { animation-range: contain 48% contain 62%; }
+    }
+}
+
+/* Always-visible parallax drift: content never hides, it just gains a
+   subtle sense of depth/motion as the scene scrolls past underneath it. */
+@keyframes heroDrift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-10px); }
+}
+
+@keyframes heroDriftSlow {
+    from { transform: translateY(0); }
+    to { transform: translateY(-4px); }
+}
+
+@keyframes heroDriftFast {
+    from { transform: translateY(0); }
+    to { transform: translateY(-16px); }
+}
+
+@keyframes heroMockReveal {
+    from { opacity: 0; transform: translate3d(60px, 40px, 0) rotateY(-18deg) rotateX(6deg) scale(.82); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes heroCueOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes heroLineDraw {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
 }
 
 .hero__grid {
