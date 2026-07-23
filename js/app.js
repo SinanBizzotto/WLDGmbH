@@ -335,49 +335,57 @@ function initScrollReveal() {
   els.forEach((el) => obs.observe(el));
 }
 
-// ---------- KPI count-up (Case Studies) ----------
+// ---------- KPI scroll-scrub (Case Studies) ----------
+// Morphs each "after" value from its "before" value in sync with scroll
+// position, instead of a fixed-duration count-up-once-visible timer — the
+// before/after story literally plays out as the card scrolls through view.
 function initCountUp() {
-  const els = qsa('.kpi__after[data-value]');
-  if (!els.length) return;
+  const afterEls = qsa('.kpi__after[data-value]');
+  if (!afterEls.length) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const animate = (el) => {
+  const items = afterEls.map((el) => {
     const raw = el.getAttribute('data-value');
-    const target = parseFloat(raw);
+    const to = parseFloat(raw);
+    const beforeEl = el.closest('.kpi__value')?.querySelector('.kpi__before[data-value]');
+    const from = parseFloat(beforeEl?.getAttribute('data-value') ?? raw);
     const suffix = el.textContent.replace(/^-?[\d.,]+/, '');
     const decimals = (raw.split('.')[1] || '').length;
+    const card = el.closest('.case');
+    return { el, card, from, to, suffix, decimals, raw };
+  }).filter((item) => item.card && !Number.isNaN(item.from) && !Number.isNaN(item.to));
 
-    if (reduceMotion || Number.isNaN(target)) {
-      el.textContent = `${raw}${suffix}`;
-      return;
-    }
+  if (!items.length) return;
 
-    const duration = 900;
-    const start = performance.now();
+  if (reduceMotion) {
+    items.forEach((item) => { item.el.textContent = `${item.raw}${item.suffix}`; });
+    return;
+  }
 
-    const frame = (now) => {
-      const p = Math.min(1, (now - start) / duration);
+  const render = () => {
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    items.forEach((item) => {
+      const rect = item.card.getBoundingClientRect();
+      // 0 as the card's top enters the viewport bottom, 1 once it has
+      // travelled up to the vertical middle — then holds at the final value.
+      const p = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.65)));
       const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = `${(target * eased).toFixed(decimals)}${suffix}`;
-      if (p < 1) requestAnimationFrame(frame);
-      else el.textContent = `${raw}${suffix}`;
-    };
-    requestAnimationFrame(frame);
+      const value = item.from + (item.to - item.from) * eased;
+      item.el.textContent = `${value.toFixed(item.decimals)}${item.suffix}`;
+    });
   };
 
-  const seen = new WeakSet();
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && !seen.has(entry.target)) {
-        seen.add(entry.target);
-        animate(entry.target);
-        obs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.4 });
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { render(); ticking = false; });
+  };
 
-  els.forEach((el) => obs.observe(el));
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  render();
 }
 
 // ---------- Contact form (Formspree) UX ----------
