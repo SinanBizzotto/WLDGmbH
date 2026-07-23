@@ -55,11 +55,11 @@ export const defaultExercises: Exercise[] = [
   ),
   exercise(
     "ex-stairs",
-    "Stairmaster",
-    "Beine",
-    "Cardio",
+    "Kurzhantel-Rack",
+    "Ganzkörper",
+    "Kurzhantel",
     "/assets/fitness/stairmaster.jpeg",
-    "Intensive Ausdauer mit Fokus auf Beine und Gesäß.",
+    "Freie Gewichte für vielseitiges Ganzkörpertraining.",
   ),
   exercise(
     "ex-crunch",

@@ -40,15 +40,15 @@
     },
     {
       id: 'stairmaster',
-      name: 'StairMaster',
-      muscle: 'Cardio',
+      name: 'Kurzhantel-Rack',
+      muscle: 'Ganzkörper',
       image: 'assets/fitness/stairmaster.jpeg',
-      defaultExercise: 'StairMaster Climb',
-      work: 240,
-      rest: 60,
-      sets: 1,
-      calories: 70,
-      description: 'Treppenintervalle für Kondition und Beinbrennen. Ja, die Lunge meldet sich.'
+      defaultExercise: 'Kurzhantel Komplex',
+      work: 45,
+      rest: 30,
+      sets: 4,
+      calories: 16,
+      description: 'Freie Gewichte für vielseitiges Ganzkörpertraining.'
     },
     {
       id: 'crunch',

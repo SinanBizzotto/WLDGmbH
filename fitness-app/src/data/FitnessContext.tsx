@@ -116,19 +116,35 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
         }
       : base.profile,
     exercises: (exercises.data ?? []).map(
-      (e) =>
-        ({
+      (e) => {
+        const isMislabeledDumbbellRack =
+          e.id === "10000000-0000-4000-8000-000000000004";
+        return {
           id: e.id,
           userId: e.user_id ?? undefined,
-          name: e.name,
-          muscleGroup: e.muscle_group,
-          equipment: e.equipment_type,
-          exerciseType: e.exercise_type,
-          description: e.description ?? "",
-          instructions: e.instructions ?? [],
+          name: isMislabeledDumbbellRack ? "Kurzhantel-Rack" : e.name,
+          muscleGroup: isMislabeledDumbbellRack
+            ? "Ganzkörper"
+            : e.muscle_group,
+          equipment: isMislabeledDumbbellRack
+            ? "Kurzhantel"
+            : e.equipment_type,
+          exerciseType: isMislabeledDumbbellRack
+            ? "Kraft"
+            : e.exercise_type,
+          description: isMislabeledDumbbellRack
+            ? "Freie Gewichte für vielseitiges Ganzkörpertraining."
+            : (e.description ?? ""),
+          instructions: isMislabeledDumbbellRack
+            ? [
+                "Passendes Gewicht kontrolliert entnehmen",
+                "Kurzhanteln nach dem Training sicher zurücklegen",
+              ]
+            : (e.instructions ?? []),
           image: e.image_url ?? undefined,
           isPublic: e.is_public,
-        }) as Exercise,
+        } as Exercise;
+      },
     ),
     plans: (plans.data ?? []).map((pn) => ({
       id: pn.id,

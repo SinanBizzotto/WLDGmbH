@@ -13,6 +13,17 @@ describe("WLD Fitness demo fallback", () => {
       ).length,
     ).toBeGreaterThanOrEqual(10);
   });
+  it("labels the duplicated dumbbell-rack photo correctly", () => {
+    const rack = defaultExercises.find(
+      (exercise) => exercise.image === "/assets/fitness/stairmaster.jpeg",
+    );
+
+    expect(rack).toMatchObject({
+      name: "Kurzhantel-Rack",
+      equipment: "Kurzhantel",
+      exerciseType: "Kraft",
+    });
+  });
   it("creates an isolated, usable fitness store", () => {
     const store = createDemoStore("test-user");
     expect(store.profile.id).toBe("test-user");
