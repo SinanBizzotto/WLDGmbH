@@ -22,21 +22,30 @@ export default function Profile() {
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
-    await saveProfile({
-      ...store.profile,
-      displayName: String(d.get("name")),
-      avatarUrl: avatarUrl || undefined,
-      heightCm: +String(d.get("height")),
-      currentWeightKg: +String(d.get("currentWeight")),
-      targetWeightKg: +String(d.get("targetWeight")),
-      goal: String(d.get("goal")),
-      level: String(d.get("level")),
-      trainingDays: +String(d.get("days")),
-      shareTraining,
-      shareWeight,
-      shareNutrition,
-    });
-    toast("Profil gespeichert");
+    try {
+      await saveProfile({
+        ...store.profile,
+        displayName: String(d.get("name")),
+        avatarUrl: avatarUrl || undefined,
+        heightCm: +String(d.get("height")),
+        currentWeightKg: +String(d.get("currentWeight")),
+        targetWeightKg: +String(d.get("targetWeight")),
+        goal: String(d.get("goal")),
+        level: String(d.get("level")),
+        trainingDays: +String(d.get("days")),
+        shareTraining,
+        shareWeight,
+        shareNutrition,
+      });
+      toast("Profil gespeichert");
+    } catch (error) {
+      toast(
+        error instanceof Error
+          ? `Profil konnte nicht gespeichert werden: ${error.message}`
+          : "Profil konnte nicht gespeichert werden",
+        "error",
+      );
+    }
   };
   return (
     <div className="stack-page">

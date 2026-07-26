@@ -762,9 +762,8 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           await supabase.from("water_logs").delete().eq("id", id);
       },
       saveProfile: async (profile) => {
-        update((s) => ({ ...s, profile }));
-        if (supabase && !demoMode)
-          await supabase.from("profiles").upsert({
+        if (supabase && !demoMode) {
+          const { error } = await supabase.from("profiles").upsert({
             id: userId,
             display_name: profile.displayName,
             avatar_url: profile.avatarUrl,
@@ -778,6 +777,9 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             share_weight: profile.shareWeight,
             share_nutrition: profile.shareNutrition,
           });
+          if (error) throw new Error(error.message);
+        }
+        update((s) => ({ ...s, profile }));
       },
       sendFriendRequest: async (code) => {
         const trimmed = code.trim().toUpperCase();
