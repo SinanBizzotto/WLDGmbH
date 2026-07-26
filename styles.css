@@ -50,10 +50,24 @@ body {
         radial-gradient(1100px 560px at 12% -10%, rgba(239, 68, 68, .07), transparent 60%),
         radial-gradient(900px 620px at 92% 0%, rgba(220, 38, 38, .08), transparent 55%),
         var(--bg);
+    background-repeat: no-repeat;
+    background-position: 12% -10%, 92% 0%, 0 0;
+    animation: bgDrift 34s ease-in-out infinite;
     color: var(--text);
     line-height: 1.55;
     overflow-x: hidden;
     position: relative;
+}
+
+@keyframes bgDrift {
+    0%, 100% { background-position: 12% -10%, 92% 0%, 0 0; }
+    50% { background-position: 18% -2%, 85% 8%, 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body {
+        animation: none;
+    }
 }
 
 /* Faint cyberpunk grid, fixed behind all content */
@@ -345,6 +359,7 @@ img.brand__logo {
 }
 
 .nav a {
+    position: relative;
     color: var(--muted);
     font-weight: 700;
     font-size: 14px;
@@ -355,11 +370,7 @@ img.brand__logo {
     color: var(--text);
 }
 
-.nav a[aria-current="page"] {
-    position: relative;
-}
-
-.nav a[aria-current="page"]::after {
+.nav a::after {
     content: "";
     position: absolute;
     left: 0;
@@ -368,6 +379,23 @@ img.brand__logo {
     height: 2px;
     background: var(--accent);
     border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s var(--ease);
+}
+
+.nav a:hover::after {
+    transform: scaleX(1);
+}
+
+.nav a[aria-current="page"]::after {
+    transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav a::after {
+        transition: none;
+    }
 }
 
 .navToggle {
@@ -693,6 +721,22 @@ img.brand__logo {
 .statIcon svg {
     width: 17px;
     height: 17px;
+}
+
+.card__icon {
+    margin-bottom: 16px;
+    transition: transform .3s var(--ease), background .3s var(--ease);
+}
+
+.card:hover .card__icon {
+    transform: translateY(-2px) scale(1.06);
+    background: rgba(239, 68, 68, .16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card__icon {
+        transition: none;
+    }
 }
 
 .stat strong {
