@@ -54,14 +54,19 @@ export default function Progress() {
   }));
   const addWeight = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    await saveMeasurement({
-      id: crypto.randomUUID(),
-      measuredAt: new Date().toISOString(),
-      weightKg: Number(form.get("weight")),
-    });
-    e.currentTarget.reset();
-    toast("Gewicht gespeichert");
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    try {
+      await saveMeasurement({
+        id: crypto.randomUUID(),
+        measuredAt: new Date().toISOString(),
+        weightKg: Number(data.get("weight")),
+      });
+      form.reset();
+      toast("Gewicht gespeichert");
+    } catch {
+      toast("Gewicht konnte nicht gespeichert werden", "error");
+    }
   };
   return (
     <div className="stack-page">

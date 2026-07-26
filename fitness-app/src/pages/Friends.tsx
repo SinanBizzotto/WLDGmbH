@@ -215,9 +215,13 @@ export default function Friends() {
                     className="icon-button"
                     aria-label="Annehmen"
                     onClick={() =>
-                      respondToFriendRequest(friend.id, true).then(() =>
-                        toast(`${friend.friendDisplayName} ist jetzt dein Freund`),
-                      )
+                      respondToFriendRequest(friend.id, true)
+                        .then(() =>
+                          toast(`${friend.friendDisplayName} ist jetzt dein Freund`),
+                        )
+                        .catch(() =>
+                          toast("Anfrage konnte nicht angenommen werden", "error"),
+                        )
                     }
                   >
                     <Check />
@@ -227,9 +231,11 @@ export default function Friends() {
                     className="icon-button"
                     aria-label="Ablehnen"
                     onClick={() =>
-                      respondToFriendRequest(friend.id, false).then(() =>
-                        toast("Anfrage abgelehnt"),
-                      )
+                      respondToFriendRequest(friend.id, false)
+                        .then(() => toast("Anfrage abgelehnt"))
+                        .catch(() =>
+                          toast("Anfrage konnte nicht abgelehnt werden", "error"),
+                        )
                     }
                   >
                     <UserX />
@@ -255,9 +261,11 @@ export default function Friends() {
                     className="icon-button"
                     aria-label="Anfrage zurückziehen"
                     onClick={() =>
-                      removeFriend(friend.id).then(() =>
-                        toast("Anfrage zurückgezogen"),
-                      )
+                      removeFriend(friend.id)
+                        .then(() => toast("Anfrage zurückgezogen"))
+                        .catch(() =>
+                          toast("Anfrage konnte nicht zurückgezogen werden", "error"),
+                        )
                     }
                   >
                     <UserX />
@@ -295,9 +303,11 @@ export default function Friends() {
                       type="button"
                       className="button button--secondary friend-list__remove"
                       onClick={() =>
-                        removeFriend(friend.id).then(() =>
-                          toast("Freund entfernt"),
-                        )
+                        removeFriend(friend.id)
+                          .then(() => toast("Freund entfernt"))
+                          .catch(() =>
+                            toast("Freund konnte nicht entfernt werden", "error"),
+                          )
                       }
                     >
                       <UserX /> Freund entfernen

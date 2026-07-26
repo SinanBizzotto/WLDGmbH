@@ -120,9 +120,15 @@ export function TrainingPlans() {
         danger
         onCancel={() => setRemove(null)}
         onConfirm={async () => {
-          if (remove) await deletePlan(remove);
+          if (remove) {
+            try {
+              await deletePlan(remove);
+              toast("Plan gelöscht");
+            } catch {
+              toast("Plan konnte nicht gelöscht werden", "error");
+            }
+          }
           setRemove(null);
-          toast("Plan gelöscht");
         }}
       />
     </div>
@@ -201,16 +207,20 @@ export function WorkoutPlanForm() {
           .filter(Boolean),
       ),
     ] as WorkoutPlan["muscleGroups"];
-    await savePlan({
-      id: existing?.id ?? id(),
-      name: form.name,
-      estimatedMinutes: form.estimatedMinutes,
-      muscleGroups,
-      updatedAt: new Date().toISOString(),
-      exercises: selected,
-    });
-    toast("Trainingsplan gespeichert");
-    navigate("/fitness/training");
+    try {
+      await savePlan({
+        id: existing?.id ?? id(),
+        name: form.name,
+        estimatedMinutes: form.estimatedMinutes,
+        muscleGroups,
+        updatedAt: new Date().toISOString(),
+        exercises: selected,
+      });
+      toast("Trainingsplan gespeichert");
+      navigate("/fitness/training");
+    } catch {
+      toast("Trainingsplan konnte nicht gespeichert werden", "error");
+    }
   };
   return (
     <div className="stack-page">

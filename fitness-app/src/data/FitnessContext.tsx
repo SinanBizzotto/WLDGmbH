@@ -485,41 +485,54 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       store,
       loading: query.isLoading,
       savePlan: async (plan) => {
+        if (supabase && !demoMode) {
+          const { error: planError } = await supabase
+            .from("workout_plans")
+            .upsert({
+              id: plan.id,
+              user_id: userId,
+              name: plan.name,
+              muscle_groups: plan.muscleGroups,
+              estimated_minutes: plan.estimatedMinutes,
+            });
+          if (planError) throw new Error(planError.message);
+          const { error: deleteError } = await supabase
+            .from("workout_plan_exercises")
+            .delete()
+            .eq("plan_id", plan.id);
+          if (deleteError) throw new Error(deleteError.message);
+          if (plan.exercises.length) {
+            const { error: exercisesError } = await supabase
+              .from("workout_plan_exercises")
+              .insert(
+                plan.exercises.map((e) => ({
+                  id: e.id,
+                  plan_id: plan.id,
+                  exercise_id: e.exerciseId,
+                  sort_order: e.order,
+                  sets: e.sets,
+                  reps: e.reps,
+                  weight_kg: e.weightKg,
+                  rest_seconds: e.restSeconds,
+                })),
+              );
+            if (exercisesError) throw new Error(exercisesError.message);
+          }
+        }
         update((s) => ({
           ...s,
           plans: [...s.plans.filter((p) => p.id !== plan.id), plan],
         }));
-        if (supabase && !demoMode) {
-          await supabase.from("workout_plans").upsert({
-            id: plan.id,
-            user_id: userId,
-            name: plan.name,
-            muscle_groups: plan.muscleGroups,
-            estimated_minutes: plan.estimatedMinutes,
-          });
-          await supabase
-            .from("workout_plan_exercises")
-            .delete()
-            .eq("plan_id", plan.id);
-          if (plan.exercises.length)
-            await supabase.from("workout_plan_exercises").insert(
-              plan.exercises.map((e) => ({
-                id: e.id,
-                plan_id: plan.id,
-                exercise_id: e.exerciseId,
-                sort_order: e.order,
-                sets: e.sets,
-                reps: e.reps,
-                weight_kg: e.weightKg,
-                rest_seconds: e.restSeconds,
-              })),
-            );
-        }
       },
       deletePlan: async (id) => {
+        if (supabase && !demoMode) {
+          const { error } = await supabase
+            .from("workout_plans")
+            .delete()
+            .eq("id", id);
+          if (error) throw new Error(error.message);
+        }
         update((s) => ({ ...s, plans: s.plans.filter((p) => p.id !== id) }));
-        if (supabase && !demoMode)
-          await supabase.from("workout_plans").delete().eq("id", id);
       },
       saveExercise: async (exercise) => {
         if (exercise.isPublic) {
@@ -535,17 +548,20 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           };
           writeLocalPreference(userId, preference);
           if (supabase && !demoMode) {
-            await supabase.from("exercise_preferences").upsert({
-              user_id: userId,
-              exercise_id: exercise.id,
-              custom_name: preference.customName,
-              custom_muscle_group: preference.muscleGroup,
-              custom_equipment_type: preference.equipment,
-              custom_exercise_type: preference.exerciseType,
-              custom_description: preference.description,
-              custom_instructions: preference.instructions,
-              is_favorite: preference.isFavorite,
-            });
+            const { error } = await supabase
+              .from("exercise_preferences")
+              .upsert({
+                user_id: userId,
+                exercise_id: exercise.id,
+                custom_name: preference.customName,
+                custom_muscle_group: preference.muscleGroup,
+                custom_equipment_type: preference.equipment,
+                custom_exercise_type: preference.exerciseType,
+                custom_description: preference.description,
+                custom_instructions: preference.instructions,
+                is_favorite: preference.isFavorite,
+              });
+            if (error) throw new Error(error.message);
           }
           update((s) => ({
             ...s,
@@ -614,11 +630,14 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           ),
         }));
         if (supabase && !demoMode) {
-          await supabase.from("exercise_preferences").upsert({
-            user_id: userId,
-            exercise_id: id,
-            is_favorite: nextFavorite,
-          });
+          const { error } = await supabase
+            .from("exercise_preferences")
+            .upsert({
+              user_id: userId,
+              exercise_id: id,
+              is_favorite: nextFavorite,
+            });
+          if (error) throw new Error(error.message);
         }
       },
       duplicateExercise: async (exercise) => {
@@ -690,46 +709,52 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
         }
       },
       saveMeasurement: async (m) => {
-        update((s) => ({
-          ...s,
-          measurements: [...s.measurements.filter((x) => x.id !== m.id), m],
-        }));
-        if (supabase && !demoMode)
-          await supabase.from("body_measurements").upsert({
+        if (supabase && !demoMode) {
+          const { error } = await supabase.from("body_measurements").upsert({
             id: m.id,
             user_id: userId,
             measured_at: m.measuredAt,
             weight_kg: m.weightKg,
           });
+          if (error) throw new Error(error.message);
+        }
+        update((s) => ({
+          ...s,
+          measurements: [...s.measurements.filter((x) => x.id !== m.id), m],
+        }));
       },
       saveMeal: async (meal) => {
+        if (supabase && !demoMode) {
+          const { error } = await supabase.from("meals").upsert({
+            id: meal.id,
+            user_id: userId,
+            name: meal.name,
+            eaten_at: meal.eatenAt,
+            calories: meal.calories,
+            protein_g: meal.proteinG,
+            carbs_g: meal.carbsG,
+            fat_g: meal.fatG,
+          });
+          if (error) throw new Error(error.message);
+        }
         update((s) => ({
           ...s,
           meals: [...s.meals.filter((m) => m.id !== meal.id), meal],
         }));
-        if (supabase && !demoMode)
-          await supabase.from("meals").upsert({
-            id: meal.id,
-            user_id: userId,
-            ...{
-              name: meal.name,
-              eaten_at: meal.eatenAt,
-              calories: meal.calories,
-              protein_g: meal.proteinG,
-              carbs_g: meal.carbsG,
-              fat_g: meal.fatG,
-            },
-          });
       },
       deleteMeal: async (id) => {
+        if (supabase && !demoMode) {
+          const { error } = await supabase
+            .from("meals")
+            .delete()
+            .eq("id", id);
+          if (error) throw new Error(error.message);
+        }
         update((s) => ({ ...s, meals: s.meals.filter((m) => m.id !== id) }));
-        if (supabase && !demoMode)
-          await supabase.from("meals").delete().eq("id", id);
       },
       saveGoal: async (goal) => {
-        update((s) => ({ ...s, nutritionGoal: goal }));
-        if (supabase && !demoMode)
-          await supabase.from("nutrition_goals").upsert({
+        if (supabase && !demoMode) {
+          const { error } = await supabase.from("nutrition_goals").upsert({
             user_id: userId,
             calories: goal.calories,
             protein_g: goal.proteinG,
@@ -737,6 +762,9 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             fat_g: goal.fatG,
             water_goal_ml: goal.waterMl,
           });
+          if (error) throw new Error(error.message);
+        }
+        update((s) => ({ ...s, nutritionGoal: goal }));
       },
       addWaterLog: async (amountMl) => {
         const log: WaterLog = {
@@ -744,22 +772,29 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           loggedAt: new Date().toISOString(),
           amountMl,
         };
-        update((s) => ({ ...s, waterLogs: [log, ...s.waterLogs] }));
-        if (supabase && !demoMode)
-          await supabase.from("water_logs").insert({
+        if (supabase && !demoMode) {
+          const { error } = await supabase.from("water_logs").insert({
             id: log.id,
             user_id: userId,
             logged_at: log.loggedAt,
             amount_ml: log.amountMl,
           });
+          if (error) throw new Error(error.message);
+        }
+        update((s) => ({ ...s, waterLogs: [log, ...s.waterLogs] }));
       },
       deleteWaterLog: async (id) => {
+        if (supabase && !demoMode) {
+          const { error } = await supabase
+            .from("water_logs")
+            .delete()
+            .eq("id", id);
+          if (error) throw new Error(error.message);
+        }
         update((s) => ({
           ...s,
           waterLogs: s.waterLogs.filter((w) => w.id !== id),
         }));
-        if (supabase && !demoMode)
-          await supabase.from("water_logs").delete().eq("id", id);
       },
       saveProfile: async (profile) => {
         if (supabase && !demoMode) {
@@ -830,13 +865,25 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       },
       respondToFriendRequest: async (friendshipId, accept) => {
         if (!accept) {
+          if (supabase && !demoMode) {
+            const { error } = await supabase
+              .from("friendships")
+              .delete()
+              .eq("id", friendshipId);
+            if (error) throw new Error(error.message);
+          }
           update((s) => ({
             ...s,
             friends: s.friends.filter((f) => f.id !== friendshipId),
           }));
-          if (supabase && !demoMode)
-            await supabase.from("friendships").delete().eq("id", friendshipId);
           return;
+        }
+        if (supabase && !demoMode) {
+          const { error } = await supabase
+            .from("friendships")
+            .update({ status: "accepted" })
+            .eq("id", friendshipId);
+          if (error) throw new Error(error.message);
         }
         update((s) => ({
           ...s,
@@ -844,19 +891,19 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             f.id === friendshipId ? { ...f, status: "accepted" } : f,
           ),
         }));
-        if (supabase && !demoMode)
-          await supabase
-            .from("friendships")
-            .update({ status: "accepted" })
-            .eq("id", friendshipId);
       },
       removeFriend: async (friendshipId) => {
+        if (supabase && !demoMode) {
+          const { error } = await supabase
+            .from("friendships")
+            .delete()
+            .eq("id", friendshipId);
+          if (error) throw new Error(error.message);
+        }
         update((s) => ({
           ...s,
           friends: s.friends.filter((f) => f.id !== friendshipId),
         }));
-        if (supabase && !demoMode)
-          await supabase.from("friendships").delete().eq("id", friendshipId);
       },
       loadFriendStats: async (friendId) => {
         if (demoMode) {
