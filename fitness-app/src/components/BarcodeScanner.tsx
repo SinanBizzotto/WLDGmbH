@@ -3,6 +3,7 @@ import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
 import {
   AlertCircle,
+  Camera,
   Flame,
   Flashlight,
   FlashlightOff,
@@ -15,6 +16,7 @@ import {
   searchProductsByName,
   type ScannedProduct,
 } from "../lib/openFoodFacts";
+import { detectFoods, preloadFoodModels, type DetectedFood } from "../lib/foodClassifier";
 
 type ScanState =
   | { phase: "scanning" }
@@ -22,7 +24,12 @@ type ScanState =
   | { phase: "found"; product: ScannedProduct }
   | { phase: "not-found"; barcode: string }
   | { phase: "camera-error"; message: string }
-  | { phase: "search" };
+  | { phase: "search" }
+  | { phase: "photo-analyzing" }
+  | { phase: "photo-empty" }
+  | { phase: "photo-items" }
+  | { phase: "photo-matching" }
+  | { phase: "photo-review" };
 
 export interface ScannedMeal {
   name: string;
@@ -46,6 +53,16 @@ interface ScannerControls {
   switchTorch?: (onOff: boolean) => Promise<void>;
 }
 
+interface PhotoItem extends DetectedFood {
+  included: boolean;
+  grams: number;
+}
+
+interface PhotoMatch {
+  item: PhotoItem;
+  product: ScannedProduct | null;
+}
+
 const HINTS = new Map();
 HINTS.set(DecodeHintType.POSSIBLE_FORMATS, [
   BarcodeFormat.EAN_13,
@@ -55,11 +72,21 @@ HINTS.set(DecodeHintType.POSSIBLE_FORMATS, [
   BarcodeFormat.CODE_128,
 ]);
 
+function loadImageFile(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Bild konnte nicht geladen werden"));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export default function BarcodeScanner({
   onClose,
   onConfirm,
 }: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const controlsRef = useRef<ScannerControls | null>(null);
   const [state, setState] = useState<ScanState>({ phase: "scanning" });
   const [grams, setGrams] = useState(100);
@@ -71,6 +98,16 @@ export default function BarcodeScanner({
   );
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [photoItems, setPhotoItems] = useState<PhotoItem[]>([]);
+  const [photoMatches, setPhotoMatches] = useState<PhotoMatch[]>([]);
+  const [photoMealName, setPhotoMealName] = useState("");
+
+  useEffect(() => {
+    // Warm the ML models up as soon as the scanner opens so the photo path
+    // (if the user picks it) doesn't wait for the ~15 MB download on top of
+    // camera + product lookups.
+    preloadFoodModels();
+  }, []);
 
   useEffect(() => {
     if (state.phase !== "scanning") return;
@@ -159,6 +196,58 @@ export default function BarcodeScanner({
     setState({ phase: "found", product });
   };
 
+  const onPhotoSelected = async (file: File) => {
+    setState({ phase: "photo-analyzing" });
+    try {
+      const img = await loadImageFile(file);
+      const detected = await detectFoods(img);
+      URL.revokeObjectURL(img.src);
+      if (detected.length === 0) {
+        setState({ phase: "photo-empty" });
+        return;
+      }
+      setPhotoItems(
+        detected.map((d) => ({ ...d, included: true, grams: d.estimatedGrams })),
+      );
+      setState({ phase: "photo-items" });
+    } catch {
+      setState({ phase: "photo-empty" });
+    }
+  };
+
+  const runPhotoMatching = async () => {
+    const included = photoItems.filter((i) => i.included);
+    setState({ phase: "photo-matching" });
+    const matches: PhotoMatch[] = await Promise.all(
+      included.map(async (item) => {
+        try {
+          const results = await searchProductsByName(item.query);
+          return { item, product: results[0] ?? null };
+        } catch {
+          return { item, product: null };
+        }
+      }),
+    );
+    setPhotoMatches(matches);
+    setPhotoMealName(included.map((i) => i.label).join(", "));
+    setState({ phase: "photo-review" });
+  };
+
+  const matchedTotals = photoMatches.reduce(
+    (sum, m) => {
+      if (!m.product) return sum;
+      const factor = m.item.grams / 100;
+      return {
+        calories: sum.calories + Math.round(m.product.caloriesPer100g * factor),
+        proteinG: sum.proteinG + Math.round(m.product.proteinPer100g * factor),
+        carbsG: sum.carbsG + Math.round(m.product.carbsPer100g * factor),
+        fatG: sum.fatG + Math.round(m.product.fatPer100g * factor),
+        totalGrams: sum.totalGrams + m.item.grams,
+      };
+    },
+    { calories: 0, proteinG: 0, carbsG: 0, fatG: 0, totalGrams: 0 },
+  );
+
   return (
     <div
       className="modal"
@@ -167,6 +256,18 @@ export default function BarcodeScanner({
         if (e.target === e.currentTarget) onClose();
       }}
     >
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) void onPhotoSelected(file);
+        }}
+      />
       <div
         className="dialog scanner-dialog"
         role="dialog"
@@ -202,13 +303,22 @@ export default function BarcodeScanner({
             <p className="dialog-hint">
               Halte den Barcode der Verpackung vor die Kamera.
             </p>
-            <button
-              type="button"
-              className="scanner-link"
-              onClick={() => setState({ phase: "search" })}
-            >
-              <Search size={13} /> Oder Produkt manuell suchen
-            </button>
+            <div className="scanner-linkrow">
+              <button
+                type="button"
+                className="scanner-link"
+                onClick={() => setState({ phase: "search" })}
+              >
+                <Search size={13} /> Produkt manuell suchen
+              </button>
+              <button
+                type="button"
+                className="scanner-link"
+                onClick={() => photoInputRef.current?.click()}
+              >
+                <Camera size={13} /> Mahlzeit fotografieren
+              </button>
+            </div>
           </div>
         )}
 
@@ -216,6 +326,52 @@ export default function BarcodeScanner({
           <div className="scanner-status">
             <ScanLine className="scanner-status__icon scanner-status__icon--spin" />
             <p>Produkt wird gesucht…</p>
+          </div>
+        )}
+
+        {state.phase === "photo-analyzing" && (
+          <div className="scanner-status">
+            <Camera className="scanner-status__icon scanner-status__icon--spin" />
+            <p>Foto wird analysiert…</p>
+            <p className="dialog-hint">
+              Erkennung läuft direkt im Browser, das kann beim ersten Mal ein
+              paar Sekunden dauern.
+            </p>
+          </div>
+        )}
+
+        {state.phase === "photo-matching" && (
+          <div className="scanner-status">
+            <ScanLine className="scanner-status__icon scanner-status__icon--spin" />
+            <p>Nährwerte werden gesucht…</p>
+          </div>
+        )}
+
+        {state.phase === "photo-empty" && (
+          <div className="scanner-status">
+            <AlertCircle className="scanner-status__icon" />
+            <p>
+              Konnte auf dem Foto nichts Essbares erkennen. Die Erkennung ist
+              ein einfaches, kostenloses Modell und kennt nur gängige
+              Grundzutaten/Gerichte — versuch ein anderes Foto oder such
+              manuell.
+            </p>
+            <div className="dialog__actions" style={{ justifyContent: "center" }}>
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => photoInputRef.current?.click()}
+              >
+                <Camera size={14} /> Anderes Foto
+              </button>
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setState({ phase: "search" })}
+              >
+                <Search size={14} /> Suchen
+              </button>
+            </div>
           </div>
         )}
 
@@ -312,6 +468,141 @@ export default function BarcodeScanner({
             >
               <ScanLine size={13} /> Stattdessen scannen
             </button>
+          </div>
+        )}
+
+        {state.phase === "photo-items" && (
+          <div className="scanner-photo-items">
+            <p className="dialog-hint">
+              Erkannt (Menge geschätzt, bitte prüfen und anpassen):
+            </p>
+            <ul className="scanner-photo-items__list">
+              {photoItems.map((item, index) => (
+                <li key={item.id}>
+                  <label className="scanner-photo-items__check">
+                    <input
+                      type="checkbox"
+                      checked={item.included}
+                      onChange={(e) =>
+                        setPhotoItems((current) =>
+                          current.map((it, i) =>
+                            i === index ? { ...it, included: e.target.checked } : it,
+                          ),
+                        )
+                      }
+                    />
+                    <span>
+                      <strong>{item.label}</strong>
+                      <small>{Math.round(item.confidence * 100)}% sicher</small>
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    className="scanner-photo-items__grams"
+                    value={item.grams}
+                    disabled={!item.included}
+                    onChange={(e) =>
+                      setPhotoItems((current) =>
+                        current.map((it, i) =>
+                          i === index
+                            ? { ...it, grams: Math.max(1, Number(e.target.value) || 1) }
+                            : it,
+                        ),
+                      )
+                    }
+                  />
+                  <span className="scanner-photo-items__unit">g</span>
+                </li>
+              ))}
+            </ul>
+            <div className="dialog__actions">
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => photoInputRef.current?.click()}
+              >
+                <Camera size={14} /> Anderes Foto
+              </button>
+              <button
+                type="button"
+                className="button button--primary"
+                disabled={!photoItems.some((i) => i.included)}
+                onClick={() => void runPhotoMatching()}
+              >
+                Weiter
+              </button>
+            </div>
+          </div>
+        )}
+
+        {state.phase === "photo-review" && (
+          <div className="scanner-result">
+            <label>
+              <span>Name</span>
+              <input
+                type="text"
+                value={photoMealName}
+                onChange={(e) => setPhotoMealName(e.target.value)}
+              />
+            </label>
+            <ul className="scanner-photo-review__list">
+              {photoMatches.map((m) => (
+                <li key={m.item.id}>
+                  <span>
+                    {m.item.label} · {m.item.grams} g
+                  </span>
+                  {m.product ? (
+                    <b>
+                      {Math.round((m.product.caloriesPer100g * m.item.grams) / 100)} kcal
+                    </b>
+                  ) : (
+                    <b className="scanner-photo-review__missing">nicht gefunden</b>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <div className="scanner-macros">
+              <span>
+                <Flame size={14} /> {matchedTotals.calories} kcal
+              </span>
+              <span>P {matchedTotals.proteinG} g</span>
+              <span>K {matchedTotals.carbsG} g</span>
+              <span>F {matchedTotals.fatG} g</span>
+            </div>
+            {photoMatches.some((m) => !m.product) && (
+              <p className="dialog-hint">
+                Für nicht gefundene Zutaten wurden keine Nährwerte gezählt —
+                die kannst du separat manuell hinzufügen.
+              </p>
+            )}
+            <div className="dialog__actions">
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setState({ phase: "photo-items" })}
+              >
+                Zurück
+              </button>
+              <button
+                type="button"
+                className="button button--primary"
+                disabled={matchedTotals.calories === 0}
+                onClick={() =>
+                  onConfirm({
+                    name: photoMealName || "Foto-Mahlzeit",
+                    calories: matchedTotals.calories,
+                    proteinG: matchedTotals.proteinG,
+                    carbsG: matchedTotals.carbsG,
+                    fatG: matchedTotals.fatG,
+                    barcode: `photo-${photoMatches.map((m) => m.item.query).join("+")}`,
+                    grams: matchedTotals.totalGrams,
+                  })
+                }
+              >
+                Als Mahlzeit hinzufügen
+              </button>
+            </div>
           </div>
         )}
 
