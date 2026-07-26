@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Edit3, Flame, Plus, Trash2, X } from "lucide-react";
+import { Edit3, Flame, Plus, ScanLine, Trash2, X } from "lucide-react";
 import { useFitness } from "../data/FitnessContext";
 import { ConfirmDialog, useToast } from "../components/ui";
+import BarcodeScanner, {
+  type ScannedMeal,
+} from "../components/BarcodeScanner";
 import type { Meal } from "../types";
 
 function Macro({
@@ -35,6 +38,20 @@ export default function Nutrition() {
   const toast = useToast();
   const [editing, setEditing] = useState<Meal | null | undefined>(undefined);
   const [remove, setRemove] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const addScannedMeal = async (scanned: ScannedMeal) => {
+    await saveMeal({
+      id: crypto.randomUUID(),
+      name: scanned.name,
+      eatenAt: new Date().toISOString(),
+      calories: scanned.calories,
+      proteinG: scanned.proteinG,
+      carbsG: scanned.carbsG,
+      fatG: scanned.fatG,
+    });
+    setScanning(false);
+    toast("Mahlzeit aus Scan hinzugefügt");
+  };
   const today = store.meals.filter(
     (m) => new Date(m.eatenAt).toDateString() === new Date().toDateString(),
   );
@@ -69,12 +86,20 @@ export default function Nutrition() {
           <p>TAGESÜBERSICHT</p>
           <h2>Ernährung</h2>
         </div>
-        <button
-          className="button button--primary"
-          onClick={() => setEditing(null)}
-        >
-          <Plus /> Mahlzeit
-        </button>
+        <div className="page-title__actions">
+          <button
+            className="button button--secondary"
+            onClick={() => setScanning(true)}
+          >
+            <ScanLine /> Scannen
+          </button>
+          <button
+            className="button button--primary"
+            onClick={() => setEditing(null)}
+          >
+            <Plus /> Mahlzeit
+          </button>
+        </div>
       </div>
       <div className="nutrition-grid">
         <section className="card calorie-card">
@@ -244,6 +269,12 @@ export default function Nutrition() {
             <button className="button button--primary">Speichern</button>
           </form>
         </div>
+      )}
+      {scanning && (
+        <BarcodeScanner
+          onClose={() => setScanning(false)}
+          onConfirm={addScannedMeal}
+        />
       )}
       <ConfirmDialog
         open={Boolean(remove)}

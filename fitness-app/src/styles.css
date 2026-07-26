@@ -713,6 +713,11 @@ a {
   margin: 0;
   font-size: 28px;
 }
+.page-title__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .plan-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1259,6 +1264,118 @@ a {
 }
 .dialog-close svg {
   width: 16px;
+}
+.scanner-dialog {
+  width: min(100%, 420px);
+}
+.scanner-view {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+.scanner-view video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.scanner-frame {
+  position: absolute;
+  inset: 18% 10%;
+  border: 2px solid var(--red);
+  border-radius: 10px;
+  box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+.scanner-status {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 30px 10px;
+  text-align: center;
+  color: var(--muted);
+}
+.scanner-status p {
+  margin: 0;
+}
+.scanner-status__icon {
+  width: 32px;
+  height: 32px;
+  color: var(--red);
+}
+.scanner-status__icon--spin {
+  animation: scanner-spin 1.1s linear infinite;
+}
+@keyframes scanner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scanner-status__icon--spin {
+    animation: none;
+  }
+}
+.scanner-result {
+  display: grid;
+  gap: 14px;
+}
+.scanner-result__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.scanner-result__head img {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #0a121a;
+  border: 1px solid var(--line);
+}
+.scanner-result__head strong {
+  display: block;
+}
+.scanner-result__head small {
+  color: var(--muted);
+}
+.scanner-result label {
+  display: grid;
+  gap: 6px;
+  color: #b8c0c8;
+  font-size: 10px;
+  font-weight: 600;
+}
+.scanner-result input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #fff;
+  background: #070d14;
+  outline: none;
+}
+.scanner-macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #070d14;
+  font-size: 12px;
+  font-weight: 700;
+}
+.scanner-macros span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.scanner-macros svg {
+  width: 14px;
+  color: var(--red);
 }
 .range-tabs {
   display: flex;
