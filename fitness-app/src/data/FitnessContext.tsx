@@ -26,6 +26,7 @@ import {
   toggleLike as feedToggleLike,
 } from "../lib/feedStore";
 import { LoadingSkeleton, PageError } from "../components/ui";
+import { withReporting } from "../lib/monitoring";
 import type {
   BodyMeasurement,
   Exercise,
@@ -481,7 +482,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           avatarUrl: friend?.friendAvatarUrl,
         };
       };
-      return {
+      const actions: FitnessValue = {
       store,
       loading: query.isLoading,
       savePlan: async (plan) => {
@@ -1446,6 +1447,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           .slice(0, 30);
       },
       };
+      return withReporting(actions);
     },
     [store, query.isLoading, update, demoMode, userId],
   );
