@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { X } from "lucide-react";
+import { ImagePicker } from "../ImagePicker";
 import type { EquipmentType, Exercise, MuscleGroup } from "../../types";
 
 const exerciseTypes: Exercise["exerciseType"][] = [
@@ -11,15 +13,18 @@ export function ExerciseEditor({
   exercise,
   muscles,
   equipment,
+  userId,
   onSubmit,
   onClose,
 }: {
   exercise: Exercise | null;
   muscles: MuscleGroup[];
   equipment: EquipmentType[];
+  userId: string;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
 }) {
+  const [image, setImage] = useState(exercise?.image);
   return (
     <div
       className="modal"
@@ -56,6 +61,20 @@ export function ExerciseEditor({
               Originalübung bleibt unverändert.
             </p>
           )}
+        </div>
+        <input type="hidden" name="image" value={image ?? ""} />
+        <div className="field-group">
+          <span className="field-group__label">
+            Foto vom Gerät (aufnehmen oder aus Fotos wählen)
+          </span>
+          <ImagePicker
+            bucket="exercise-images"
+            userId={userId}
+            value={image}
+            onChange={setImage}
+            label={image ? "Foto ändern" : "Foto hinzufügen"}
+            shape="square"
+          />
         </div>
         <label>
           <span>Name nach Wunsch</span>

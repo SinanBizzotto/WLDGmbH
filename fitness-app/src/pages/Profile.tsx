@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { LogOut, ShieldAlert, UserRound } from "lucide-react";
+import { LogOut, ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useFitness } from "../data/FitnessContext";
 import { supabase } from "../lib/supabase";
 import { ConfirmDialog, useToast } from "../components/ui";
+import { ImagePicker } from "../components/ImagePicker";
 
 export default function Profile() {
   const { store, saveProfile } = useFitness();
@@ -12,19 +13,28 @@ export default function Profile() {
   const toast = useToast();
   const navigate = useNavigate();
   const [confirm, setConfirm] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(store.profile.avatarUrl);
+  const [shareTraining, setShareTraining] = useState(store.profile.shareTraining);
+  const [shareWeight, setShareWeight] = useState(store.profile.shareWeight);
+  const [shareNutrition, setShareNutrition] = useState(
+    store.profile.shareNutrition,
+  );
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
     await saveProfile({
       ...store.profile,
       displayName: String(d.get("name")),
-      avatarUrl: String(d.get("avatar")) || undefined,
+      avatarUrl: avatarUrl || undefined,
       heightCm: +String(d.get("height")),
       currentWeightKg: +String(d.get("currentWeight")),
       targetWeightKg: +String(d.get("targetWeight")),
       goal: String(d.get("goal")),
       level: String(d.get("level")),
       trainingDays: +String(d.get("days")),
+      shareTraining,
+      shareWeight,
+      shareNutrition,
     });
     toast("Profil gespeichert");
   };
@@ -47,25 +57,18 @@ export default function Profile() {
       </div>
       <form className="profile-grid" onSubmit={submit}>
         <section className="card profile-card">
-          <div className="profile-avatar">
-            {store.profile.avatarUrl ? (
-              <img src={store.profile.avatarUrl} alt="Profil" />
-            ) : (
-              <UserRound />
-            )}
-          </div>
+          <ImagePicker
+            bucket="avatars"
+            userId={store.profile.id}
+            value={avatarUrl}
+            onChange={setAvatarUrl}
+            label={avatarUrl ? "Foto ändern" : "Foto hinzufügen"}
+            shape="round"
+          />
           <h2>{store.profile.displayName || "Dein Profil"}</h2>
           <p>
             {store.profile.goal} · {store.profile.level}
           </p>
-          <label>
-            <span>Profilbild-URL</span>
-            <input
-              name="avatar"
-              type="url"
-              defaultValue={store.profile.avatarUrl}
-            />
-          </label>
         </section>
         <section className="card profile-form">
           <h2>Persönliche Daten</h2>
@@ -141,6 +144,46 @@ export default function Profile() {
           <button className="button button--primary">
             Änderungen speichern
           </button>
+        </section>
+        <section className="card share-settings">
+          <h2>Was Freunde sehen dürfen</h2>
+          <p className="share-settings__hint">
+            Du entscheidest, welche Bereiche deine Freunde einsehen können.
+            Nichts davon ist standardmäßig öffentlich.
+          </p>
+          <label className="share-toggle">
+            <span>
+              <strong>Training</strong>
+              <small>Workouts, Volumen und persönliche Bestleistungen</small>
+            </span>
+            <input
+              type="checkbox"
+              checked={shareTraining}
+              onChange={(event) => setShareTraining(event.target.checked)}
+            />
+          </label>
+          <label className="share-toggle">
+            <span>
+              <strong>Gewicht</strong>
+              <small>Dein Gewichtsverlauf</small>
+            </span>
+            <input
+              type="checkbox"
+              checked={shareWeight}
+              onChange={(event) => setShareWeight(event.target.checked)}
+            />
+          </label>
+          <label className="share-toggle">
+            <span>
+              <strong>Ernährung</strong>
+              <small>Deine protokollierten Mahlzeiten</small>
+            </span>
+            <input
+              type="checkbox"
+              checked={shareNutrition}
+              onChange={(event) => setShareNutrition(event.target.checked)}
+            />
+          </label>
         </section>
       </form>
       <section className="card danger-zone">

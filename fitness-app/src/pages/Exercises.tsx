@@ -103,7 +103,7 @@ export default function Exercises() {
         .split("\n")
         .map((instruction) => instruction.trim())
         .filter(Boolean),
-      image: editing?.image,
+      image: String(data.get("image") || "") || undefined,
       isPublic: editing?.isPublic ?? false,
       isFavorite: editing?.isFavorite ?? false,
       isCustomized: editing?.isCustomized,
@@ -277,6 +277,7 @@ export default function Exercises() {
           exercise={editing}
           muscles={muscleOptions}
           equipment={equipmentOptions}
+          userId={store.profile.id}
           onSubmit={submit}
           onClose={() => setFormOpen(false)}
         />

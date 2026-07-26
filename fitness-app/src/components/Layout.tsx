@@ -11,6 +11,7 @@ import {
   Plus,
   Salad,
   UserRound,
+  Users,
   X,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
@@ -22,6 +23,7 @@ const nav = [
   { to: "/fitness/exercises", label: "Übungen", icon: Plus },
   { to: "/fitness/progress", label: "Fortschritt", icon: BarChart3 },
   { to: "/fitness/nutrition", label: "Ernährung", icon: Salad },
+  { to: "/fitness/friends", label: "Freunde", icon: Users },
   { to: "/fitness/profile", label: "Profil", icon: UserRound },
 ];
 const mobile = nav.slice(0, 5);

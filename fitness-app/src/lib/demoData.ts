@@ -1,6 +1,7 @@
 import type {
   Exercise,
   FitnessStore,
+  FriendStats,
   MuscleGroup,
   EquipmentType,
 } from "../types";
@@ -379,6 +380,10 @@ export const createDemoStore = (userId = "demo-user"): FitnessStore => ({
     goal: "Muskelaufbau",
     level: "Fortgeschritten",
     trainingDays: 5,
+    friendCode: "DEMO1234",
+    shareTraining: true,
+    shareWeight: false,
+    shareNutrition: false,
   },
   exercises: defaultExercises,
   plans: [
@@ -498,4 +503,42 @@ export const createDemoStore = (userId = "demo-user"): FitnessStore => ({
     { id: "water-1", loggedAt: new Date().toISOString(), amountMl: 500 },
     { id: "water-2", loggedAt: new Date().toISOString(), amountMl: 250 },
   ],
+  friends: [
+    {
+      id: "friendship-demo-1",
+      status: "accepted",
+      direction: "outgoing",
+      friendId: "friend-demo-1",
+      friendDisplayName: "Lena K.",
+    },
+  ],
 });
+
+export const DEMO_FRIEND_STATS_BY_ID: Record<string, FriendStats> = {
+  "friend-demo-1": {
+    sharesTraining: true,
+    sharesWeight: true,
+    sharesNutrition: false,
+    workoutCount: 9,
+    totalVolumeKg: 15420,
+    personalRecords: [
+      {
+        id: "demo-pr-1",
+        exerciseName: "Kniebeuge",
+        weightKg: 100,
+        achievedAt: daysAgo(12),
+      },
+      {
+        id: "demo-pr-2",
+        exerciseName: "Bankdrücken",
+        weightKg: 65,
+        achievedAt: daysAgo(20),
+      },
+    ],
+    weightSeries: [68, 67.6, 67.2, 66.9, 66.5].map((kg, i) => ({
+      date: daysAgo((4 - i) * 7),
+      kg,
+    })),
+    avgDailyCalories: null,
+  },
+};

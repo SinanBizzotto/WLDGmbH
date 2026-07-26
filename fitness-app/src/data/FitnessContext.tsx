@@ -9,7 +9,11 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../auth/AuthContext";
-import { createDemoStore, defaultExercises } from "../lib/demoData";
+import {
+  createDemoStore,
+  defaultExercises,
+  DEMO_FRIEND_STATS_BY_ID,
+} from "../lib/demoData";
 import { supabase } from "../lib/supabase";
 import { LoadingSkeleton, PageError } from "../components/ui";
 import type {
@@ -17,6 +21,8 @@ import type {
   Exercise,
   ExercisePreference,
   FitnessStore,
+  FriendConnection,
+  FriendStats,
   Meal,
   NutritionGoal,
   Profile,
@@ -39,6 +45,13 @@ interface FitnessActions {
   saveProfile: (profile: Profile) => Promise<void>;
   addWaterLog: (amountMl: number) => Promise<void>;
   deleteWaterLog: (id: string) => Promise<void>;
+  sendFriendRequest: (code: string) => Promise<string>;
+  respondToFriendRequest: (
+    friendshipId: string,
+    accept: boolean,
+  ) => Promise<void>;
+  removeFriend: (friendshipId: string) => Promise<void>;
+  loadFriendStats: (friendId: string) => Promise<FriendStats>;
 }
 interface FitnessValue extends FitnessActions {
   store: FitnessStore;
@@ -55,6 +68,7 @@ const emptyStore = (id: string): FitnessStore => ({
   records: [],
   meals: [],
   waterLogs: [],
+  friends: [],
 });
 const storageKey = (id: string) => `wld-fitness-v1:${id}`;
 const preferenceStorageKey = (id: string) =>
@@ -141,6 +155,7 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
     goal,
     meals,
     waterLogs,
+    friendships,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase
@@ -185,9 +200,25 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
       .select("*")
       .eq("user_id", userId)
       .order("logged_at", { ascending: false }),
+    supabase
+      .from("friendships")
+      .select("*")
+      .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
   ]);
   const base = emptyStore(userId);
   const p = profile.data;
+  const friendIds = (friendships.data ?? []).map((f) =>
+    f.requester_id === userId ? f.addressee_id : f.requester_id,
+  );
+  const friendProfiles = friendIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id,display_name,avatar_url")
+        .in("id", friendIds)
+    : { data: [] };
+  const friendProfileMap = new Map(
+    (friendProfiles.data ?? []).map((fp) => [fp.id, fp]),
+  );
   const preferenceMap = new Map<string, ExercisePreference>();
   for (const preference of preferences.data ?? []) {
     preferenceMap.set(preference.exercise_id, {
@@ -226,6 +257,10 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
           goal: p.training_goal ?? "",
           level: p.experience_level ?? "",
           trainingDays: p.training_days_per_week ?? 3,
+          friendCode: p.friend_code ?? "",
+          shareTraining: p.share_training ?? true,
+          shareWeight: p.share_weight ?? false,
+          shareNutrition: p.share_nutrition ?? false,
         }
       : base.profile,
     exercises: (exercises.data ?? []).map(
@@ -349,6 +384,19 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
       loggedAt: w.logged_at,
       amountMl: w.amount_ml,
     })),
+    friends: (friendships.data ?? []).map((f) => {
+      const outgoing = f.requester_id === userId;
+      const friendId = outgoing ? f.addressee_id : f.requester_id;
+      const friendProfile = friendProfileMap.get(friendId);
+      return {
+        id: f.id,
+        status: f.status as FriendConnection["status"],
+        direction: outgoing ? "outgoing" : "incoming",
+        friendId,
+        friendDisplayName: friendProfile?.display_name ?? "Unbekannt",
+        friendAvatarUrl: friendProfile?.avatar_url ?? undefined,
+      } satisfies FriendConnection;
+    }),
   };
 }
 
@@ -371,8 +419,12 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
   const [store, setStore] = useState<FitnessStore>(() =>
     demoMode ? createDemoStore(userId) : emptyStore(userId),
   );
+  const [synced, setSynced] = useState(false);
   useEffect(() => {
-    if (query.data) setStore(query.data);
+    if (query.data) {
+      setStore(query.data);
+      setSynced(true);
+    }
   }, [query.data]);
   const update = useCallback(
     (fn: (current: FitnessStore) => FitnessStore) =>
@@ -678,13 +730,193 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             training_goal: profile.goal,
             experience_level: profile.level,
             training_days_per_week: profile.trainingDays,
+            share_training: profile.shareTraining,
+            share_weight: profile.shareWeight,
+            share_nutrition: profile.shareNutrition,
           });
+      },
+      sendFriendRequest: async (code) => {
+        const trimmed = code.trim().toUpperCase();
+        if (!trimmed) throw new Error("Bitte einen Freundescode eingeben");
+        if (demoMode) {
+          if (trimmed === store.profile.friendCode)
+            throw new Error("Du kannst dich nicht selbst hinzufügen");
+          if (
+            store.friends.some(
+              (f) => f.friendDisplayName.toUpperCase().includes(trimmed),
+            )
+          )
+            throw new Error("Ihr seid bereits verbunden");
+          const friend: FriendConnection = {
+            id: crypto.randomUUID(),
+            status: "accepted",
+            direction: "outgoing",
+            friendId: crypto.randomUUID(),
+            friendDisplayName: `Freund ${trimmed}`,
+          };
+          update((s) => ({ ...s, friends: [...s.friends, friend] }));
+          return friend.friendDisplayName;
+        }
+        if (!supabase) throw new Error("Nicht verfügbar");
+        const { data, error } = await supabase.rpc("send_friend_request", {
+          target_code: trimmed,
+        });
+        if (error) throw new Error(error.message);
+        const row = data?.[0];
+        if (!row) throw new Error("Kein Nutzer mit diesem Code gefunden");
+        update((s) => ({
+          ...s,
+          friends: [
+            ...s.friends.filter((f) => f.id !== row.friendship_id),
+            {
+              id: row.friendship_id,
+              status: row.friendship_status as FriendConnection["status"],
+              direction: "outgoing",
+              friendId: row.friend_id,
+              friendDisplayName: row.friend_display_name,
+              friendAvatarUrl: row.friend_avatar_url ?? undefined,
+            },
+          ],
+        }));
+        return row.friend_display_name;
+      },
+      respondToFriendRequest: async (friendshipId, accept) => {
+        if (!accept) {
+          update((s) => ({
+            ...s,
+            friends: s.friends.filter((f) => f.id !== friendshipId),
+          }));
+          if (supabase && !demoMode)
+            await supabase.from("friendships").delete().eq("id", friendshipId);
+          return;
+        }
+        update((s) => ({
+          ...s,
+          friends: s.friends.map((f) =>
+            f.id === friendshipId ? { ...f, status: "accepted" } : f,
+          ),
+        }));
+        if (supabase && !demoMode)
+          await supabase
+            .from("friendships")
+            .update({ status: "accepted" })
+            .eq("id", friendshipId);
+      },
+      removeFriend: async (friendshipId) => {
+        update((s) => ({
+          ...s,
+          friends: s.friends.filter((f) => f.id !== friendshipId),
+        }));
+        if (supabase && !demoMode)
+          await supabase.from("friendships").delete().eq("id", friendshipId);
+      },
+      loadFriendStats: async (friendId) => {
+        if (demoMode) {
+          const stats = DEMO_FRIEND_STATS_BY_ID[friendId];
+          if (stats) return stats;
+          return {
+            sharesTraining: false,
+            sharesWeight: false,
+            sharesNutrition: false,
+            workoutCount: 0,
+            totalVolumeKg: 0,
+            personalRecords: [],
+            weightSeries: [],
+            avgDailyCalories: null,
+          };
+        }
+        if (!supabase)
+          return {
+            sharesTraining: false,
+            sharesWeight: false,
+            sharesNutrition: false,
+            workoutCount: 0,
+            totalVolumeKg: 0,
+            personalRecords: [],
+            weightSeries: [],
+            avgDailyCalories: null,
+          };
+        const friendProfile = await supabase
+          .from("profiles")
+          .select("share_training,share_weight,share_nutrition")
+          .eq("id", friendId)
+          .maybeSingle();
+        const sharesTraining = friendProfile.data?.share_training ?? false;
+        const sharesWeight = friendProfile.data?.share_weight ?? false;
+        const sharesNutrition = friendProfile.data?.share_nutrition ?? false;
+        const [sessions, records, measurements, meals] = await Promise.all([
+          sharesTraining
+            ? supabase
+                .from("workout_sessions")
+                .select("total_volume_kg")
+                .eq("user_id", friendId)
+            : Promise.resolve({ data: [] as { total_volume_kg: number }[] }),
+          sharesTraining
+            ? supabase
+                .from("personal_records")
+                .select("*")
+                .eq("user_id", friendId)
+                .order("achieved_at", { ascending: false })
+                .limit(5)
+            : Promise.resolve({ data: [] as never[] }),
+          sharesWeight
+            ? supabase
+                .from("body_measurements")
+                .select("*")
+                .eq("user_id", friendId)
+                .order("measured_at")
+            : Promise.resolve({ data: [] as never[] }),
+          sharesNutrition
+            ? supabase
+                .from("meals")
+                .select("calories,eaten_at")
+                .eq("user_id", friendId)
+                .order("eaten_at", { ascending: false })
+                .limit(14)
+            : Promise.resolve({ data: [] as { calories: number }[] }),
+        ]);
+        const mealsData = meals.data ?? [];
+        return {
+          sharesTraining,
+          sharesWeight,
+          sharesNutrition,
+          workoutCount: sessions.data?.length ?? 0,
+          totalVolumeKg: (sessions.data ?? []).reduce(
+            (sum, s) => sum + (s.total_volume_kg ?? 0),
+            0,
+          ),
+          personalRecords: (records.data ?? []).map(
+            (r: {
+              id: string;
+              exercise_name: string;
+              weight_kg: number;
+              achieved_at: string;
+            }) => ({
+              id: r.id,
+              exerciseName: r.exercise_name,
+              weightKg: r.weight_kg,
+              achievedAt: r.achieved_at,
+            }),
+          ),
+          weightSeries: (measurements.data ?? []).map(
+            (m: { measured_at: string; weight_kg: number }) => ({
+              date: m.measured_at,
+              kg: m.weight_kg,
+            }),
+          ),
+          avgDailyCalories: mealsData.length
+            ? Math.round(
+                mealsData.reduce((sum, m) => sum + (m.calories ?? 0), 0) /
+                  mealsData.length,
+              )
+            : null,
+        } satisfies FriendStats;
       },
     }),
     [store, query.isLoading, update, demoMode, userId],
   );
-  if (query.isLoading) return <LoadingSkeleton cards={8} />;
   if (query.isError) return <PageError retry={() => void query.refetch()} />;
+  if (query.isLoading || !synced) return <LoadingSkeleton cards={8} />;
   return (
     <FitnessContext.Provider value={value}>{children}</FitnessContext.Provider>
   );

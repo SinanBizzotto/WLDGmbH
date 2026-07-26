@@ -31,6 +31,18 @@ export interface Database {
         training_goal: string;
         experience_level: string;
         training_days_per_week: number;
+        friend_code: string;
+        share_training: boolean;
+        share_weight: boolean;
+        share_nutrition: boolean;
+        created_at: string;
+        updated_at: string;
+      }>;
+      friendships: Table<{
+        id: string;
+        requester_id: string;
+        addressee_id: string;
+        status: string;
         created_at: string;
         updated_at: string;
       }>;
@@ -152,6 +164,16 @@ export interface Database {
     Views: Record<string, never>;
     Functions: {
       delete_current_user: { Args: Record<PropertyKey, never>; Returns: void };
+      send_friend_request: {
+        Args: { target_code: string };
+        Returns: {
+          friendship_id: string;
+          friendship_status: string;
+          friend_id: string;
+          friend_display_name: string;
+          friend_avatar_url: string | null;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

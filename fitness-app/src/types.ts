@@ -18,6 +18,10 @@ export interface Profile {
   goal: string;
   level: string;
   trainingDays: number;
+  friendCode: string;
+  shareTraining: boolean;
+  shareWeight: boolean;
+  shareNutrition: boolean;
 }
 export interface Exercise {
   id: string;
@@ -113,6 +117,25 @@ export interface WaterLog {
   loggedAt: string;
   amountMl: number;
 }
+export type FriendDirection = "incoming" | "outgoing";
+export interface FriendConnection {
+  id: string;
+  status: "pending" | "accepted";
+  direction: FriendDirection;
+  friendId: string;
+  friendDisplayName: string;
+  friendAvatarUrl?: string;
+}
+export interface FriendStats {
+  sharesTraining: boolean;
+  sharesWeight: boolean;
+  sharesNutrition: boolean;
+  workoutCount: number;
+  totalVolumeKg: number;
+  personalRecords: PersonalRecord[];
+  weightSeries: { date: string; kg: number }[];
+  avgDailyCalories: number | null;
+}
 export interface FitnessStore {
   profile: Profile;
   exercises: Exercise[];
@@ -123,4 +146,5 @@ export interface FitnessStore {
   nutritionGoal: NutritionGoal;
   meals: Meal[];
   waterLogs: WaterLog[];
+  friends: FriendConnection[];
 }
