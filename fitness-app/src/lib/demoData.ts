@@ -5,7 +5,7 @@ import type {
   MuscleGroup,
   EquipmentType,
 } from "../types";
-import type { StoredPost } from "./feedStore";
+import type { FeedData } from "./feedStore";
 
 const exercise = (
   id: string,
@@ -511,6 +511,15 @@ export const createDemoStore = (userId = "demo-user"): FitnessStore => ({
       direction: "outgoing",
       friendId: "friend-demo-1",
       friendDisplayName: "Lena K.",
+      createdAt: daysAgo(30),
+    },
+    {
+      id: "friendship-demo-2",
+      status: "pending",
+      direction: "incoming",
+      friendId: "friend-demo-2",
+      friendDisplayName: "Max T.",
+      createdAt: daysAgo(0.5),
     },
   ],
 });
@@ -544,24 +553,49 @@ export const DEMO_FRIEND_STATS_BY_ID: Record<string, FriendStats> = {
   },
 };
 
-export const DEMO_FEED_SEED: StoredPost[] = [
-  {
-    id: "demo-post-1",
-    userId: "friend-demo-1",
-    kind: "workout",
-    createdAt: daysAgo(1),
-    workoutSummary: {
-      planName: "Leg Day",
-      durationSeconds: 3300,
-      totalVolumeKg: 4200,
-      exerciseCount: 6,
+export const DEMO_FEED_SEED: FeedData = {
+  posts: [
+    {
+      id: "demo-post-1",
+      userId: "friend-demo-1",
+      kind: "workout",
+      createdAt: daysAgo(1),
+      workoutSummary: {
+        planName: "Leg Day",
+        durationSeconds: 3300,
+        totalVolumeKg: 4200,
+        exerciseCount: 6,
+      },
     },
+    {
+      id: "demo-post-2",
+      userId: "friend-demo-1",
+      kind: "text",
+      caption: "Neue Bestleistung im Kniebeugen erreicht 💪",
+      createdAt: daysAgo(3),
+    },
+    {
+      id: "demo-post-my-1",
+      userId: "demo-user",
+      kind: "text",
+      caption: "Erster Tag im neuen Programm! 🔥",
+      createdAt: daysAgo(2),
+    },
+  ],
+  likes: {
+    "demo-post-my-1": [
+      { userId: "friend-demo-1", createdAt: daysAgo(2) },
+    ],
   },
-  {
-    id: "demo-post-2",
-    userId: "friend-demo-1",
-    kind: "text",
-    caption: "Neue Bestleistung im Kniebeugen erreicht 💪",
-    createdAt: daysAgo(3),
+  comments: {
+    "demo-post-my-1": [
+      {
+        id: "demo-comment-1",
+        postId: "demo-post-my-1",
+        userId: "friend-demo-1",
+        body: "Stark! Weiter so 💪",
+        createdAt: daysAgo(2),
+      },
+    ],
   },
-];
+};

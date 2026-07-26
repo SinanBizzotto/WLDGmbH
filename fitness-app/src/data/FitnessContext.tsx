@@ -34,6 +34,7 @@ import type {
   FriendConnection,
   FriendStats,
   Meal,
+  NotificationItem,
   NutritionGoal,
   Post,
   PostComment,
@@ -78,6 +79,7 @@ interface FitnessActions {
   loadComments: (postId: string) => Promise<PostComment[]>;
   addComment: (postId: string, body: string) => Promise<PostComment>;
   deleteComment: (postId: string, commentId: string) => Promise<void>;
+  loadNotifications: () => Promise<NotificationItem[]>;
 }
 interface FitnessValue extends FitnessActions {
   store: FitnessStore;
@@ -421,6 +423,7 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
         friendId,
         friendDisplayName: friendProfile?.display_name ?? "Unbekannt",
         friendAvatarUrl: friendProfile?.avatar_url ?? undefined,
+        createdAt: f.created_at,
       } satisfies FriendConnection;
     }),
   };
@@ -794,6 +797,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             direction: "outgoing",
             friendId: crypto.randomUUID(),
             friendDisplayName: `Freund ${trimmed}`,
+            createdAt: new Date().toISOString(),
           };
           update((s) => ({ ...s, friends: [...s.friends, friend] }));
           return friend.friendDisplayName;
@@ -816,6 +820,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
               friendId: row.friend_id,
               friendDisplayName: row.friend_display_name,
               friendAvatarUrl: row.friend_avatar_url ?? undefined,
+              createdAt: new Date().toISOString(),
             },
           ],
         }));
@@ -978,7 +983,7 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
                 workoutSummary: p.workoutSummary,
                 createdAt: p.createdAt,
                 likeCount: likes.length,
-                likedByMe: likes.includes(userId),
+                likedByMe: likes.some((like) => like.userId === userId),
                 commentCount: (data.comments[p.id] ?? []).length,
               } satisfies Post;
             });
@@ -1247,6 +1252,141 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             .eq("id", commentId);
           if (error) throw new Error(error.message);
         }
+      },
+      loadNotifications: async () => {
+        const requestNotifications: NotificationItem[] = store.friends
+          .filter((f) => f.status === "pending" && f.direction === "incoming")
+          .map((f) => ({
+            id: `friend_request:${f.id}`,
+            kind: "friend_request",
+            createdAt: f.createdAt,
+            actorDisplayName: f.friendDisplayName,
+            actorAvatarUrl: f.friendAvatarUrl,
+            friendshipId: f.id,
+          }));
+        if (demoMode) {
+          const data = seedFeedIfEmpty(userId, DEMO_FEED_SEED);
+          const myPosts = data.posts.filter((p) => p.userId === userId);
+          const likeNotifications: NotificationItem[] = myPosts.flatMap((p) =>
+            (data.likes[p.id] ?? [])
+              .filter((like) => like.userId !== userId)
+              .map((like) => {
+                const author = resolveAuthor(like.userId);
+                return {
+                  id: `like:${p.id}:${like.userId}`,
+                  kind: "like",
+                  createdAt: like.createdAt,
+                  actorDisplayName: author.displayName,
+                  actorAvatarUrl: author.avatarUrl,
+                  postId: p.id,
+                } satisfies NotificationItem;
+              }),
+          );
+          const commentNotifications: NotificationItem[] = myPosts.flatMap(
+            (p) =>
+              (data.comments[p.id] ?? [])
+                .filter((c) => c.userId !== userId)
+                .map((c) => {
+                  const author = resolveAuthor(c.userId);
+                  return {
+                    id: `comment:${c.id}`,
+                    kind: "comment",
+                    createdAt: c.createdAt,
+                    actorDisplayName: author.displayName,
+                    actorAvatarUrl: author.avatarUrl,
+                    postId: p.id,
+                    commentBody: c.body,
+                  } satisfies NotificationItem;
+                }),
+          );
+          return [
+            ...requestNotifications,
+            ...likeNotifications,
+            ...commentNotifications,
+          ]
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )
+            .slice(0, 30);
+        }
+        if (!supabase) return requestNotifications;
+        const { data: myPosts } = await supabase
+          .from("posts")
+          .select("id")
+          .eq("user_id", userId);
+        const postIds = (myPosts ?? []).map((p) => p.id);
+        if (!postIds.length)
+          return requestNotifications
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )
+            .slice(0, 30);
+        const [likes, comments] = await Promise.all([
+          supabase
+            .from("post_likes")
+            .select("post_id,user_id,created_at")
+            .in("post_id", postIds)
+            .neq("user_id", userId),
+          supabase
+            .from("post_comments")
+            .select("id,post_id,user_id,body,created_at")
+            .in("post_id", postIds)
+            .neq("user_id", userId),
+        ]);
+        const actorIds = [
+          ...new Set([
+            ...(likes.data ?? []).map((l) => l.user_id),
+            ...(comments.data ?? []).map((c) => c.user_id),
+          ]),
+        ];
+        const profiles = actorIds.length
+          ? await supabase
+              .from("profiles")
+              .select("id,display_name,avatar_url")
+              .in("id", actorIds)
+          : {
+              data: [] as {
+                id: string;
+                display_name: string;
+                avatar_url: string | null;
+              }[],
+            };
+        const profileMap = new Map((profiles.data ?? []).map((p) => [p.id, p]));
+        const likeNotifications: NotificationItem[] = (likes.data ?? []).map(
+          (l) => ({
+            id: `like:${l.post_id}:${l.user_id}`,
+            kind: "like",
+            createdAt: l.created_at,
+            actorDisplayName: profileMap.get(l.user_id)?.display_name ?? "Unbekannt",
+            actorAvatarUrl: profileMap.get(l.user_id)?.avatar_url ?? undefined,
+            postId: l.post_id,
+          }),
+        );
+        const commentNotifications: NotificationItem[] = (
+          comments.data ?? []
+        ).map((c) => ({
+          id: `comment:${c.id}`,
+          kind: "comment",
+          createdAt: c.created_at,
+          actorDisplayName: profileMap.get(c.user_id)?.display_name ?? "Unbekannt",
+          actorAvatarUrl: profileMap.get(c.user_id)?.avatar_url ?? undefined,
+          postId: c.post_id,
+          commentBody: c.body,
+        }));
+        return [
+          ...requestNotifications,
+          ...likeNotifications,
+          ...commentNotifications,
+        ]
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )
+          .slice(0, 30);
       },
       };
     },

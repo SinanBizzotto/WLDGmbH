@@ -125,6 +125,7 @@ export interface FriendConnection {
   friendId: string;
   friendDisplayName: string;
   friendAvatarUrl?: string;
+  createdAt: string;
 }
 export interface FriendStats {
   sharesTraining: boolean;
@@ -166,6 +167,17 @@ export interface PostComment {
   authorAvatarUrl?: string;
   body: string;
   createdAt: string;
+}
+export type NotificationKind = "friend_request" | "like" | "comment";
+export interface NotificationItem {
+  id: string;
+  kind: NotificationKind;
+  createdAt: string;
+  actorDisplayName: string;
+  actorAvatarUrl?: string;
+  friendshipId?: string;
+  postId?: string;
+  commentBody?: string;
 }
 export interface FitnessStore {
   profile: Profile;

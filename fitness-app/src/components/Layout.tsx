@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Apple,
@@ -6,17 +6,23 @@ import {
   Bell,
   ChevronLeft,
   Dumbbell,
+  Heart,
   Home,
   Menu,
+  MessageCircle,
   Newspaper,
   Plus,
   Salad,
+  UserPlus,
   UserRound,
   Users,
   X,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { useFitness } from "../data/FitnessContext";
+import { getSeenIds, markSeen } from "../lib/notificationsSeen";
+import { formatRelativeTime } from "../lib/time";
+import type { NotificationItem } from "../types";
 
 const nav = [
   { to: "/fitness", label: "Übersicht", icon: Home, end: true },
@@ -29,11 +35,25 @@ const nav = [
   { to: "/fitness/profile", label: "Profil", icon: UserRound },
 ];
 const mobile = nav.slice(0, 5);
+const notificationIcon = {
+  friend_request: UserPlus,
+  like: Heart,
+  comment: MessageCircle,
+};
+const notificationText = (item: NotificationItem) => {
+  if (item.kind === "friend_request")
+    return `${item.actorDisplayName} möchte sich mit dir verbinden`;
+  if (item.kind === "like")
+    return `${item.actorDisplayName} hat deinen Beitrag geliked`;
+  return `${item.actorDisplayName} hat kommentiert: „${item.commentBody}"`;
+};
 export function FitnessLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [notifications, setNotifications] = useState(false);
-  const { store } = useFitness();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [seenIds, setSeenIds] = useState<Set<string>>(() => new Set());
+  const { store, loadNotifications } = useFitness();
   const location = useLocation();
   const navigate = useNavigate();
   const title =
@@ -42,6 +62,36 @@ export function FitnessLayout({ children }: { children: ReactNode }) {
         location.pathname === x.to ||
         (!x.end && location.pathname.startsWith(x.to)),
     )?.label ?? "WLD Fitness";
+
+  useEffect(() => {
+    setSeenIds(getSeenIds(store.profile.id));
+    loadNotifications().then(setNotifications).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store.profile.id]);
+
+  const unseenCount = notifications.filter((n) => !seenIds.has(n.id)).length;
+
+  const markAllSeen = () => {
+    if (!notifications.length) return;
+    markSeen(
+      store.profile.id,
+      notifications.map((n) => n.id),
+    );
+    setSeenIds(getSeenIds(store.profile.id));
+  };
+
+  const toggleNotifications = () => {
+    setNotificationsOpen((open) => {
+      if (open) markAllSeen();
+      return !open;
+    });
+  };
+
+  const goToNotification = (item: NotificationItem) => {
+    markAllSeen();
+    setNotificationsOpen(false);
+    navigate(item.kind === "friend_request" ? "/fitness/friends" : "/fitness/feed");
+  };
   return (
     <div className={`app-shell ${collapsed ? "is-collapsed" : ""}`}>
       <aside className="sidebar">
@@ -108,11 +158,11 @@ export function FitnessLayout({ children }: { children: ReactNode }) {
             <button
               className="icon-button"
               aria-label="Benachrichtigungen"
-              aria-expanded={notifications}
-              onClick={() => setNotifications((value) => !value)}
+              aria-expanded={notificationsOpen}
+              onClick={toggleNotifications}
             >
               <Bell />
-              <i>2</i>
+              {unseenCount > 0 && <i>{unseenCount}</i>}
             </button>
             <button
               className="avatar"
@@ -132,11 +182,35 @@ export function FitnessLayout({ children }: { children: ReactNode }) {
               Training starten <span>→</span>
             </button>
           </div>
-          {notifications && (
+          {notificationsOpen && (
             <div className="notifications">
               <strong>Benachrichtigungen</strong>
-              <p>Dein Push-Day ist heute geplant.</p>
-              <p>Neue Wochenstatistik ist verfügbar.</p>
+              {notifications.length ? (
+                <ul className="notification-list">
+                  {notifications.map((item) => {
+                    const Icon = notificationIcon[item.kind];
+                    return (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          className={`notification-item ${!seenIds.has(item.id) ? "is-unseen" : ""}`}
+                          onClick={() => goToNotification(item)}
+                        >
+                          <span className="notification-item__icon">
+                            <Icon size={15} />
+                          </span>
+                          <span className="notification-item__body">
+                            <span>{notificationText(item)}</span>
+                            <small>{formatRelativeTime(item.createdAt)}</small>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p>Keine neuen Benachrichtigungen.</p>
+              )}
             </div>
           )}
         </header>

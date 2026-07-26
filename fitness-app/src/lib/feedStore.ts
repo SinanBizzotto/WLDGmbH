@@ -17,18 +17,23 @@ export interface StoredComment {
   body: string;
   createdAt: string;
 }
-interface FeedData {
+export interface StoredLike {
+  userId: string;
+  createdAt: string;
+}
+export interface FeedData {
   posts: StoredPost[];
-  likes: Record<string, string[]>;
+  likes: Record<string, StoredLike[]>;
   comments: Record<string, StoredComment[]>;
 }
 
 const storageKey = (userId: string) => `wld-fitness-feed-v1:${userId}`;
+const empty = (): FeedData => ({ posts: [], likes: {}, comments: {} });
 
 function read(userId: string): FeedData {
   try {
     const raw = localStorage.getItem(storageKey(userId));
-    if (!raw) return { posts: [], likes: {}, comments: {} };
+    if (!raw) return empty();
     const parsed = JSON.parse(raw) as Partial<FeedData>;
     return {
       posts: parsed.posts ?? [],
@@ -36,18 +41,18 @@ function read(userId: string): FeedData {
       comments: parsed.comments ?? {},
     };
   } catch {
-    return { posts: [], likes: {}, comments: {} };
+    return empty();
   }
 }
 function write(userId: string, data: FeedData) {
   localStorage.setItem(storageKey(userId), JSON.stringify(data));
 }
 
-export function seedFeedIfEmpty(userId: string, seed: StoredPost[]): FeedData {
+export function seedFeedIfEmpty(userId: string, seed: FeedData): FeedData {
   const data = read(userId);
-  if (data.posts.length === 0 && seed.length) {
-    data.posts = seed;
-    write(userId, data);
+  if (data.posts.length === 0 && seed.posts.length) {
+    write(userId, seed);
+    return seed;
   }
   return data;
 }
@@ -75,9 +80,9 @@ export function toggleLike(
 ): FeedData {
   const data = read(userId);
   const current = data.likes[postId] ?? [];
-  data.likes[postId] = current.includes(actorId)
-    ? current.filter((id) => id !== actorId)
-    : [...current, actorId];
+  data.likes[postId] = current.some((like) => like.userId === actorId)
+    ? current.filter((like) => like.userId !== actorId)
+    : [...current, { userId: actorId, createdAt: new Date().toISOString() }];
   write(userId, data);
   return data;
 }
