@@ -35,6 +35,8 @@ const nav = [
   { to: "/fitness/profile", label: "Profil", icon: UserRound },
 ];
 const mobile = nav.slice(0, 5);
+const LOGO_MARK = `${import.meta.env.BASE_URL}logo-fitness-mark.png`;
+const LOGO_FULL = `${import.meta.env.BASE_URL}logo-fitness-full.png`;
 const notificationIcon = {
   friend_request: UserPlus,
   like: Heart,
@@ -96,10 +98,7 @@ export function FitnessLayout({ children }: { children: ReactNode }) {
     <div className={`app-shell ${collapsed ? "is-collapsed" : ""}`}>
       <aside className="sidebar">
         <div className="brand">
-          <strong>
-            WLD<span>.</span>
-          </strong>
-          <small>Fitness</small>
+          <img src={LOGO_MARK} alt="WLD Fitness" />
         </div>
         <nav>
           {nav.map(({ to, label, icon: Icon, end }) => (
@@ -236,10 +235,7 @@ export function FitnessLayout({ children }: { children: ReactNode }) {
               <X />
             </button>
             <div className="brand">
-              <strong>
-                WLD<span>.</span>
-              </strong>
-              <small>Fitness</small>
+              <img src={LOGO_MARK} alt="WLD Fitness" />
             </div>
             {nav.map(({ to, label, icon: Icon, end }) => (
               <NavLink
@@ -264,18 +260,14 @@ export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="auth-layout">
       <a className="brand auth-brand" href="/fitness/">
-        <strong>
-          WLD<span>.</span>
-        </strong>
-        <small>Fitness</small>
+        <img src={LOGO_MARK} alt="WLD Fitness" />
       </a>
       <div className="auth-visual">
-        <Dumbbell />
-        <h1>
-          Stärker.
-          <br />
-          Jeden Tag.
-        </h1>
+        <img
+          className="auth-visual__logo"
+          src={LOGO_FULL}
+          alt="WLD Fitness – Train. Track. Transform."
+        />
         <p>
           Plane dein Training, verfolge deinen Fortschritt und erreiche deine
           Ziele.

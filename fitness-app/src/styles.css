@@ -91,6 +91,14 @@ a {
   font-size: 15px;
   font-weight: 700;
 }
+.brand img {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+.is-collapsed .brand img {
+  height: 26px;
+}
 .sidebar nav {
   display: grid;
   gap: 8px;
@@ -181,9 +189,6 @@ a {
 .is-collapsed .sidebar nav span,
 .is-collapsed .sidebar__goal {
   display: none;
-}
-.is-collapsed .brand strong {
-  font-size: 20px;
 }
 .is-collapsed .sidebar nav a {
   justify-content: center;
@@ -2642,17 +2647,10 @@ a {
     ),
     linear-gradient(140deg, #080e14, #030609);
 }
-.auth-visual > svg {
-  width: 65px;
-  height: 65px;
-  color: #e52b32;
-  stroke-width: 1;
-}
-.auth-visual h1 {
-  margin: 25px 0 14px;
-  font-size: clamp(42px, 6vw, 76px);
-  line-height: 0.95;
-  letter-spacing: -0.06em;
+.auth-visual__logo {
+  width: min(100%, 420px);
+  height: auto;
+  margin-bottom: 22px;
 }
 .auth-visual p {
   max-width: 430px;
