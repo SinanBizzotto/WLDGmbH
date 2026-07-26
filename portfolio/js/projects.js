@@ -90,7 +90,7 @@ export const projects = [
       "live": "https://weblabdesign.ch/projects/Kochwelt/index.html",
       "repo": null
     },
-    "image": "../projects/Kochwelt/Vorlage/mockup.png"
+    "image": "../projects/Kochwelt/Vorlage/mockup.jpg"
   },
   {
     "slug": "relaxplore",
