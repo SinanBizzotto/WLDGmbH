@@ -467,7 +467,13 @@ export const createDemoStore = (userId = "demo-user"): FitnessStore => ({
       achievedAt: daysAgo(25),
     },
   ],
-  nutritionGoal: { calories: 2600, proteinG: 180, carbsG: 290, fatG: 75 },
+  nutritionGoal: {
+    calories: 2600,
+    proteinG: 180,
+    carbsG: 290,
+    fatG: 75,
+    waterMl: 2500,
+  },
   meals: [
     {
       id: "meal-1",
@@ -487,5 +493,9 @@ export const createDemoStore = (userId = "demo-user"): FitnessStore => ({
       carbsG: 85,
       fatG: 22,
     },
+  ],
+  waterLogs: [
+    { id: "water-1", loggedAt: new Date().toISOString(), amountMl: 500 },
+    { id: "water-2", loggedAt: new Date().toISOString(), amountMl: 250 },
   ],
 });

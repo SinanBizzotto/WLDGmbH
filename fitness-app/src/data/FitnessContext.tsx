@@ -20,6 +20,7 @@ import type {
   Meal,
   NutritionGoal,
   Profile,
+  WaterLog,
   WorkoutPlan,
   WorkoutSession,
 } from "../types";
@@ -36,6 +37,8 @@ interface FitnessActions {
   deleteMeal: (id: string) => Promise<void>;
   saveGoal: (goal: NutritionGoal) => Promise<void>;
   saveProfile: (profile: Profile) => Promise<void>;
+  addWaterLog: (amountMl: number) => Promise<void>;
+  deleteWaterLog: (id: string) => Promise<void>;
 }
 interface FitnessValue extends FitnessActions {
   store: FitnessStore;
@@ -51,6 +54,7 @@ const emptyStore = (id: string): FitnessStore => ({
   measurements: [],
   records: [],
   meals: [],
+  waterLogs: [],
 });
 const storageKey = (id: string) => `wld-fitness-v1:${id}`;
 const preferenceStorageKey = (id: string) =>
@@ -136,6 +140,7 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
     records,
     goal,
     meals,
+    waterLogs,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase
@@ -175,6 +180,11 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
       .select("*")
       .eq("user_id", userId)
       .order("eaten_at", { ascending: false }),
+    supabase
+      .from("water_logs")
+      .select("*")
+      .eq("user_id", userId)
+      .order("logged_at", { ascending: false }),
   ]);
   const base = emptyStore(userId);
   const p = profile.data;
@@ -322,6 +332,7 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
           proteinG: goal.data.protein_g,
           carbsG: goal.data.carbs_g,
           fatG: goal.data.fat_g,
+          waterMl: goal.data.water_goal_ml ?? 2500,
         }
       : base.nutritionGoal,
     meals: (meals.data ?? []).map((m) => ({
@@ -332,6 +343,11 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
       proteinG: m.protein_g,
       carbsG: m.carbs_g,
       fatG: m.fat_g,
+    })),
+    waterLogs: (waterLogs.data ?? []).map((w) => ({
+      id: w.id,
+      loggedAt: w.logged_at,
+      amountMl: w.amount_ml,
     })),
   };
 }
@@ -623,7 +639,31 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             protein_g: goal.proteinG,
             carbs_g: goal.carbsG,
             fat_g: goal.fatG,
+            water_goal_ml: goal.waterMl,
           });
+      },
+      addWaterLog: async (amountMl) => {
+        const log: WaterLog = {
+          id: crypto.randomUUID(),
+          loggedAt: new Date().toISOString(),
+          amountMl,
+        };
+        update((s) => ({ ...s, waterLogs: [log, ...s.waterLogs] }));
+        if (supabase && !demoMode)
+          await supabase.from("water_logs").insert({
+            id: log.id,
+            user_id: userId,
+            logged_at: log.loggedAt,
+            amount_ml: log.amountMl,
+          });
+      },
+      deleteWaterLog: async (id) => {
+        update((s) => ({
+          ...s,
+          waterLogs: s.waterLogs.filter((w) => w.id !== id),
+        }));
+        if (supabase && !demoMode)
+          await supabase.from("water_logs").delete().eq("id", id);
       },
       saveProfile: async (profile) => {
         update((s) => ({ ...s, profile }));

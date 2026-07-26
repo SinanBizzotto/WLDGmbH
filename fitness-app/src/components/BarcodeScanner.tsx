@@ -1,15 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
-import { AlertCircle, Flame, ScanLine, X } from "lucide-react";
-import { lookupProductByBarcode, type ScannedProduct } from "../lib/openFoodFacts";
+import {
+  AlertCircle,
+  Flame,
+  Flashlight,
+  FlashlightOff,
+  ScanLine,
+  Search,
+  X,
+} from "lucide-react";
+import {
+  lookupProductByBarcode,
+  searchProductsByName,
+  type ScannedProduct,
+} from "../lib/openFoodFacts";
 
 type ScanState =
   | { phase: "scanning" }
   | { phase: "looking-up"; barcode: string }
   | { phase: "found"; product: ScannedProduct }
   | { phase: "not-found"; barcode: string }
-  | { phase: "camera-error"; message: string };
+  | { phase: "camera-error"; message: string }
+  | { phase: "search" };
 
 export interface ScannedMeal {
   name: string;
@@ -17,11 +30,20 @@ export interface ScannedMeal {
   proteinG: number;
   carbsG: number;
   fatG: number;
+  barcode: string;
+  grams: number;
+  brand?: string;
+  imageUrl?: string;
 }
 
 interface BarcodeScannerProps {
   onClose: () => void;
   onConfirm: (meal: ScannedMeal) => void;
+}
+
+interface ScannerControls {
+  stop: () => void;
+  switchTorch?: (onOff: boolean) => Promise<void>;
 }
 
 const HINTS = new Map();
@@ -38,13 +60,23 @@ export default function BarcodeScanner({
   onConfirm,
 }: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const controlsRef = useRef<{ stop: () => void } | null>(null);
+  const controlsRef = useRef<ScannerControls | null>(null);
   const [state, setState] = useState<ScanState>({ phase: "scanning" });
   const [grams, setGrams] = useState(100);
+  const [torchOn, setTorchOn] = useState(false);
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<ScannedProduct[] | null>(
+    null,
+  );
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.phase !== "scanning") return;
     let cancelled = false;
+    setTorchOn(false);
+    setTorchSupported(false);
     const reader = new BrowserMultiFormatReader(HINTS);
 
     reader
@@ -53,6 +85,7 @@ export default function BarcodeScanner({
         videoRef.current ?? undefined,
         (result, _error, controls) => {
           controlsRef.current = controls;
+          setTorchSupported(Boolean(controls.switchTorch));
           if (cancelled || !result) return;
           controls.stop();
           setState({ phase: "looking-up", barcode: result.getText() });
@@ -103,6 +136,29 @@ export default function BarcodeScanner({
 
   const scale = (per100g: number) => Math.round((per100g * grams) / 100);
 
+  const toggleTorch = () => {
+    const next = !torchOn;
+    controlsRef.current?.switchTorch?.(next).catch(() => undefined);
+    setTorchOn(next);
+  };
+
+  const runSearch = async () => {
+    setSearchLoading(true);
+    setSearchError(null);
+    try {
+      setSearchResults(await searchProductsByName(searchQuery));
+    } catch {
+      setSearchError("Suche fehlgeschlagen. Bitte erneut versuchen.");
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const pickProduct = (product: ScannedProduct) => {
+    setGrams(Math.round(product.servingSizeG ?? 100));
+    setState({ phase: "found", product });
+  };
+
   return (
     <div
       className="modal"
@@ -132,9 +188,27 @@ export default function BarcodeScanner({
           <div className="scanner-view">
             <video ref={videoRef} muted playsInline />
             <div className="scanner-frame" aria-hidden="true" />
+            {torchSupported && (
+              <button
+                type="button"
+                className="scanner-torch"
+                onClick={toggleTorch}
+                aria-pressed={torchOn}
+                aria-label="Taschenlampe umschalten"
+              >
+                {torchOn ? <FlashlightOff /> : <Flashlight />}
+              </button>
+            )}
             <p className="dialog-hint">
               Halte den Barcode der Verpackung vor die Kamera.
             </p>
+            <button
+              type="button"
+              className="scanner-link"
+              onClick={() => setState({ phase: "search" })}
+            >
+              <Search size={13} /> Oder Produkt manuell suchen
+            </button>
           </div>
         )}
 
@@ -149,6 +223,13 @@ export default function BarcodeScanner({
           <div className="scanner-status">
             <AlertCircle className="scanner-status__icon" />
             <p>{state.message}</p>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => setState({ phase: "search" })}
+            >
+              <Search size={14} /> Stattdessen suchen
+            </button>
           </div>
         )}
 
@@ -156,15 +237,80 @@ export default function BarcodeScanner({
           <div className="scanner-status">
             <AlertCircle className="scanner-status__icon" />
             <p>
-              Kein Produkt zu diesem Barcode gefunden ({state.barcode}). Du
-              kannst die Mahlzeit stattdessen manuell hinzufügen.
+              Kein Produkt zu diesem Barcode gefunden ({state.barcode}).
             </p>
+            <div className="dialog__actions" style={{ justifyContent: "center" }}>
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setState({ phase: "scanning" })}
+              >
+                Erneut scannen
+              </button>
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setState({ phase: "search" })}
+              >
+                <Search size={14} /> Suchen
+              </button>
+            </div>
+          </div>
+        )}
+
+        {state.phase === "search" && (
+          <div className="scanner-search">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void runSearch();
+              }}
+            >
+              <input
+                type="search"
+                placeholder="Produktname eingeben…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+              />
+              <button
+                type="submit"
+                className="button button--secondary"
+                disabled={searchLoading || !searchQuery.trim()}
+              >
+                <Search size={16} /> Suchen
+              </button>
+            </form>
+            {searchLoading && <p className="dialog-hint">Suche läuft…</p>}
+            {searchError && <p className="dialog-hint">{searchError}</p>}
+            {searchResults && searchResults.length === 0 && !searchLoading && (
+              <p className="dialog-hint">Keine Treffer. Versuch einen anderen Suchbegriff.</p>
+            )}
+            {searchResults && searchResults.length > 0 && (
+              <ul className="scanner-search__results">
+                {searchResults.map((product) => (
+                  <li key={product.barcode}>
+                    <button type="button" onClick={() => pickProduct(product)}>
+                      {product.imageUrl ? (
+                        <img src={product.imageUrl} alt="" />
+                      ) : (
+                        <span className="scanner-search__placeholder" />
+                      )}
+                      <span>
+                        <strong>{product.name}</strong>
+                        {product.brand && <small>{product.brand}</small>}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
             <button
               type="button"
-              className="button button--secondary"
+              className="scanner-link"
               onClick={() => setState({ phase: "scanning" })}
             >
-              Erneut scannen
+              <ScanLine size={13} /> Stattdessen scannen
             </button>
           </div>
         )}
@@ -218,6 +364,10 @@ export default function BarcodeScanner({
                     proteinG: scale(product.proteinPer100g),
                     carbsG: scale(product.carbsPer100g),
                     fatG: scale(product.fatPer100g),
+                    barcode: product.barcode,
+                    grams,
+                    brand: product.brand,
+                    imageUrl: product.imageUrl,
                   });
                 }}
               >

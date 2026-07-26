@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { Edit3, Flame, Plus, ScanLine, Trash2, X } from "lucide-react";
+import { Droplet, Edit3, Flame, Plus, ScanLine, Trash2, X } from "lucide-react";
 import { useFitness } from "../data/FitnessContext";
+import { useAuth } from "../auth/AuthContext";
 import { ConfirmDialog, useToast } from "../components/ui";
 import BarcodeScanner, {
   type ScannedMeal,
 } from "../components/BarcodeScanner";
+import NutritionTrend from "../components/NutritionTrend";
+import {
+  getRecentScans,
+  recordRecentScan,
+  removeRecentScan,
+  type RecentScan,
+} from "../lib/recentScans";
 import type { Meal } from "../types";
 
 function Macro({
@@ -34,11 +42,21 @@ function Macro({
   );
 }
 export default function Nutrition() {
-  const { store, saveMeal, deleteMeal, saveGoal } = useFitness();
+  const { store, saveMeal, deleteMeal, saveGoal, addWaterLog, deleteWaterLog } =
+    useFitness();
+  const { user } = useAuth();
+  const userId = user?.id ?? "anonymous";
   const toast = useToast();
   const [editing, setEditing] = useState<Meal | null | undefined>(undefined);
   const [remove, setRemove] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [recentScans, setRecentScans] = useState<RecentScan[]>(() =>
+    getRecentScans(userId),
+  );
+
+  const rememberScan = (scan: RecentScan) =>
+    setRecentScans(recordRecentScan(userId, scan));
+
   const addScannedMeal = async (scanned: ScannedMeal) => {
     await saveMeal({
       id: crypto.randomUUID(),
@@ -49,9 +67,36 @@ export default function Nutrition() {
       carbsG: scanned.carbsG,
       fatG: scanned.fatG,
     });
+    rememberScan({
+      barcode: scanned.barcode,
+      name: scanned.name,
+      brand: scanned.brand,
+      imageUrl: scanned.imageUrl,
+      grams: scanned.grams,
+      calories: scanned.calories,
+      proteinG: scanned.proteinG,
+      carbsG: scanned.carbsG,
+      fatG: scanned.fatG,
+      lastUsedAt: new Date().toISOString(),
+    });
     setScanning(false);
     toast("Mahlzeit aus Scan hinzugefügt");
   };
+
+  const quickAddScan = async (scan: RecentScan) => {
+    await saveMeal({
+      id: crypto.randomUUID(),
+      name: scan.name,
+      eatenAt: new Date().toISOString(),
+      calories: scan.calories,
+      proteinG: scan.proteinG,
+      carbsG: scan.carbsG,
+      fatG: scan.fatG,
+    });
+    rememberScan({ ...scan, lastUsedAt: new Date().toISOString() });
+    toast(`${scan.name} hinzugefügt`);
+  };
+
   const today = store.meals.filter(
     (m) => new Date(m.eatenAt).toDateString() === new Date().toDateString(),
   );
@@ -64,6 +109,11 @@ export default function Nutrition() {
     }),
     { calories: 0, proteinG: 0, carbsG: 0, fatG: 0 },
   );
+  const todayWater = store.waterLogs.filter(
+    (w) => new Date(w.loggedAt).toDateString() === new Date().toDateString(),
+  );
+  const totalWaterMl = todayWater.reduce((sum, w) => sum + w.amountMl, 0);
+
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
@@ -101,6 +151,44 @@ export default function Nutrition() {
           </button>
         </div>
       </div>
+
+      {recentScans.length > 0 && (
+        <section className="card recent-scans">
+          <div className="card__head">
+            <h2>Zuletzt gescannt</h2>
+          </div>
+          <div className="recent-scans__list">
+            {recentScans.map((scan) => (
+              <div className="recent-scans__item" key={scan.barcode}>
+                <button type="button" onClick={() => void quickAddScan(scan)}>
+                  {scan.imageUrl ? (
+                    <img src={scan.imageUrl} alt="" />
+                  ) : (
+                    <span className="scanner-search__placeholder" />
+                  )}
+                  <span>
+                    <strong>{scan.name}</strong>
+                    <small>
+                      {scan.calories} kcal · {scan.grams} g
+                    </small>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="recent-scans__remove"
+                  aria-label={`${scan.name} aus Verlauf entfernen`}
+                  onClick={() =>
+                    setRecentScans(removeRecentScan(userId, scan.barcode))
+                  }
+                >
+                  <X size={13} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="nutrition-grid">
         <section className="card calorie-card">
           <div
@@ -149,6 +237,7 @@ export default function Nutrition() {
                 proteinG: +String(d.get("protein")),
                 carbsG: +String(d.get("carbs")),
                 fatG: +String(d.get("fat")),
+                waterMl: +String(d.get("water")),
               });
               toast("Ziele gespeichert");
             }}
@@ -185,12 +274,72 @@ export default function Nutrition() {
                 defaultValue={store.nutritionGoal.fatG}
               />
             </label>
+            <label>
+              Wasser (ml)
+              <input
+                name="water"
+                type="number"
+                defaultValue={store.nutritionGoal.waterMl}
+              />
+            </label>
             <button className="button button--secondary">
               Ziele speichern
             </button>
           </form>
         </section>
+        <section className="card water-card">
+          <div className="card__head">
+            <h2>
+              <Droplet size={16} /> Wasser
+            </h2>
+            <b>
+              {totalWaterMl} / {store.nutritionGoal.waterMl} ml
+            </b>
+          </div>
+          <div className="mini-progress">
+            <i
+              style={{
+                width: `${Math.min(100, (totalWaterMl / store.nutritionGoal.waterMl) * 100)}%`,
+              }}
+            />
+          </div>
+          <div className="water-actions">
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => void addWaterLog(250)}
+            >
+              +250 ml
+            </button>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => void addWaterLog(500)}
+            >
+              +500 ml
+            </button>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => void addWaterLog(750)}
+            >
+              +750 ml
+            </button>
+          </div>
+          {todayWater.length > 0 && (
+            <button
+              type="button"
+              className="scanner-link"
+              onClick={() => void deleteWaterLog(todayWater[0].id)}
+            >
+              Letzten Eintrag rückgängig
+            </button>
+          )}
+        </section>
       </div>
+
+      <NutritionTrend meals={store.meals} calorieGoal={store.nutritionGoal.calories} />
+
       <section className="card meals">
         <div className="card__head">
           <h2>Heutige Mahlzeiten</h2>
@@ -273,7 +422,7 @@ export default function Nutrition() {
       {scanning && (
         <BarcodeScanner
           onClose={() => setScanning(false)}
-          onConfirm={addScannedMeal}
+          onConfirm={(meal) => void addScannedMeal(meal)}
         />
       )}
       <ConfirmDialog

@@ -97,6 +97,7 @@ export interface NutritionGoal {
   proteinG: number;
   carbsG: number;
   fatG: number;
+  waterMl: number;
 }
 export interface Meal {
   id: string;
@@ -107,6 +108,11 @@ export interface Meal {
   carbsG: number;
   fatG: number;
 }
+export interface WaterLog {
+  id: string;
+  loggedAt: string;
+  amountMl: number;
+}
 export interface FitnessStore {
   profile: Profile;
   exercises: Exercise[];
@@ -116,4 +122,5 @@ export interface FitnessStore {
   records: PersonalRecord[];
   nutritionGoal: NutritionGoal;
   meals: Meal[];
+  waterLogs: WaterLog[];
 }

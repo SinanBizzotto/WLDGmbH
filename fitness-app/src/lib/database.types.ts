@@ -112,7 +112,11 @@ export interface Database {
           protein_g: number;
           carbs_g: number;
           fat_g: number;
+          water_goal_ml: number;
         }
+      >;
+      water_logs: Table<
+        Owned & { logged_at: string; amount_ml: number }
       >;
       meals: Table<
         Owned & {
