@@ -677,35 +677,43 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
           sessions: [session, ...s.sessions.filter((x) => x.id !== session.id)],
         }));
         if (supabase && !demoMode) {
-          await supabase.from("workout_sessions").upsert({
-            id: session.id,
-            user_id: userId,
-            plan_id: session.planId,
-            plan_name: session.planName,
-            status: session.status,
-            started_at: session.startedAt,
-            completed_at: session.completedAt,
-            duration_seconds: session.durationSeconds,
-            total_volume_kg: session.totalVolumeKg,
-            current_exercise_index: session.currentExerciseIndex,
-          });
-          await supabase
+          const { error: sessionError } = await supabase
+            .from("workout_sessions")
+            .upsert({
+              id: session.id,
+              user_id: userId,
+              plan_id: session.planId,
+              plan_name: session.planName,
+              status: session.status,
+              started_at: session.startedAt,
+              completed_at: session.completedAt,
+              duration_seconds: session.durationSeconds,
+              total_volume_kg: session.totalVolumeKg,
+              current_exercise_index: session.currentExerciseIndex,
+            });
+          if (sessionError) throw new Error(sessionError.message);
+          const { error: deleteError } = await supabase
             .from("workout_sets")
             .delete()
             .eq("session_id", session.id);
-          if (session.sets.length)
-            await supabase.from("workout_sets").insert(
-              session.sets.map((x) => ({
-                id: x.id,
-                session_id: session.id,
-                exercise_id: x.exerciseId,
-                set_number: x.setNumber,
-                planned_reps: x.plannedReps,
-                actual_reps: x.actualReps,
-                weight_kg: x.weightKg,
-                completed: x.completed,
-              })),
-            );
+          if (deleteError) throw new Error(deleteError.message);
+          if (session.sets.length) {
+            const { error: setsError } = await supabase
+              .from("workout_sets")
+              .insert(
+                session.sets.map((x) => ({
+                  id: x.id,
+                  session_id: session.id,
+                  exercise_id: x.exerciseId,
+                  set_number: x.setNumber,
+                  planned_reps: x.plannedReps,
+                  actual_reps: x.actualReps,
+                  weight_kg: x.weightKg,
+                  completed: x.completed,
+                })),
+              );
+            if (setsError) throw new Error(setsError.message);
+          }
         }
       },
       saveMeasurement: async (m) => {

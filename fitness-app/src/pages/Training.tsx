@@ -434,12 +434,24 @@ export function ActiveWorkout() {
   const [running, setRunning] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const initialized = useRef(false);
+  const autosaveWarned = useRef(false);
+  const autosave = (s: WorkoutSession) =>
+    saveSession(s).catch(() => {
+      if (!autosaveWarned.current) {
+        autosaveWarned.current = true;
+        toast(
+          "Automatisches Speichern unterbrochen – prüfe deine Verbindung",
+          "error",
+        );
+      }
+    });
   useEffect(() => {
     if (!initialized.current && session) {
       initialized.current = true;
-      void saveSession(session);
+      void autosave(session);
     }
-  }, [session, saveSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
   useEffect(() => {
     if (!running || rest <= 0) return;
     const timer = window.setInterval(
@@ -508,7 +520,7 @@ export function ActiveWorkout() {
     }
     window.setTimeout(() => {
       setSession((current) => {
-        if (current) void saveSession(current);
+        if (current) void autosave(current);
         return current;
       });
     }, 0);
@@ -532,13 +544,18 @@ export function ActiveWorkout() {
     const totalVolumeKg = session.sets
       .filter((s) => s.completed)
       .reduce((n, s) => n + s.actualReps * s.weightKg, 0);
-    await saveSession({
-      ...session,
-      status: "completed",
-      completedAt: new Date().toISOString(),
-      durationSeconds: duration,
-      totalVolumeKg,
-    });
+    try {
+      await saveSession({
+        ...session,
+        status: "completed",
+        completedAt: new Date().toISOString(),
+        durationSeconds: duration,
+        totalVolumeKg,
+      });
+    } catch {
+      toast("Workout konnte nicht gespeichert werden – versuch's erneut", "error");
+      return;
+    }
     toast("Workout abgeschlossen – starke Leistung!");
     navigate("/fitness/progress");
   };
@@ -659,7 +676,13 @@ export function ActiveWorkout() {
         message="Dein aktueller Stand wird gespeichert. Du kannst das Workout später fortsetzen."
         onCancel={() => setConfirm(false)}
         onConfirm={async () => {
-          await saveSession(session);
+          try {
+            await saveSession(session);
+          } catch {
+            toast("Stand konnte nicht gespeichert werden – versuch's erneut", "error");
+            return;
+          }
+          setConfirm(false);
           navigate("/fitness/training");
         }}
       />
