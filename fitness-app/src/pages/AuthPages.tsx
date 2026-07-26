@@ -171,6 +171,13 @@ export function Register() {
         <small>
           Bereits registriert? <Link to="/fitness/login">Zum Login</Link>
         </small>
+        <small>
+          Mit der Registrierung akzeptierst du unsere{" "}
+          <a href="/datenschutz.html" target="_blank" rel="noopener">
+            Datenschutzerklärung
+          </a>
+          .
+        </small>
       </form>
     </AuthLayout>
   );
