@@ -1,6 +1,6 @@
 import { isDemoMode, supabase } from "./supabase";
 
-export type ImageBucket = "avatars" | "exercise-images";
+export type ImageBucket = "avatars" | "exercise-images" | "post-images";
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

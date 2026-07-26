@@ -5,6 +5,7 @@ import type {
   MuscleGroup,
   EquipmentType,
 } from "../types";
+import type { StoredPost } from "./feedStore";
 
 const exercise = (
   id: string,
@@ -542,3 +543,25 @@ export const DEMO_FRIEND_STATS_BY_ID: Record<string, FriendStats> = {
     avgDailyCalories: null,
   },
 };
+
+export const DEMO_FEED_SEED: StoredPost[] = [
+  {
+    id: "demo-post-1",
+    userId: "friend-demo-1",
+    kind: "workout",
+    createdAt: daysAgo(1),
+    workoutSummary: {
+      planName: "Leg Day",
+      durationSeconds: 3300,
+      totalVolumeKg: 4200,
+      exerciseCount: 6,
+    },
+  },
+  {
+    id: "demo-post-2",
+    userId: "friend-demo-1",
+    kind: "text",
+    caption: "Neue Bestleistung im Kniebeugen erreicht 💪",
+    createdAt: daysAgo(3),
+  },
+];

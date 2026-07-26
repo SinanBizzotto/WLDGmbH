@@ -12,9 +12,19 @@ import { useAuth } from "../auth/AuthContext";
 import {
   createDemoStore,
   defaultExercises,
+  DEMO_FEED_SEED,
   DEMO_FRIEND_STATS_BY_ID,
 } from "../lib/demoData";
 import { supabase } from "../lib/supabase";
+import {
+  addComment as feedAddComment,
+  addPost as feedAddPost,
+  getFeed,
+  removeComment as feedRemoveComment,
+  removePost as feedRemovePost,
+  seedFeedIfEmpty,
+  toggleLike as feedToggleLike,
+} from "../lib/feedStore";
 import { LoadingSkeleton, PageError } from "../components/ui";
 import type {
   BodyMeasurement,
@@ -25,6 +35,10 @@ import type {
   FriendStats,
   Meal,
   NutritionGoal,
+  Post,
+  PostComment,
+  PostKind,
+  PostWorkoutSummary,
   Profile,
   WaterLog,
   WorkoutPlan,
@@ -52,6 +66,18 @@ interface FitnessActions {
   ) => Promise<void>;
   removeFriend: (friendshipId: string) => Promise<void>;
   loadFriendStats: (friendId: string) => Promise<FriendStats>;
+  loadFeed: () => Promise<Post[]>;
+  createPost: (input: {
+    kind: PostKind;
+    caption?: string;
+    imageUrl?: string;
+    workoutSessionId?: string;
+  }) => Promise<Post>;
+  deletePost: (postId: string) => Promise<void>;
+  toggleLike: (postId: string, currentlyLiked: boolean) => Promise<void>;
+  loadComments: (postId: string) => Promise<PostComment[]>;
+  addComment: (postId: string, body: string) => Promise<PostComment>;
+  deleteComment: (postId: string, commentId: string) => Promise<void>;
 }
 interface FitnessValue extends FitnessActions {
   store: FitnessStore;
@@ -437,7 +463,22 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
     [demoMode, userId],
   );
   const value = useMemo<FitnessValue>(
-    () => ({
+    () => {
+      const resolveAuthor = (
+        authorId: string,
+      ): { displayName: string; avatarUrl?: string } => {
+        if (authorId === userId)
+          return {
+            displayName: store.profile.displayName || "Du",
+            avatarUrl: store.profile.avatarUrl,
+          };
+        const friend = store.friends.find((f) => f.friendId === authorId);
+        return {
+          displayName: friend?.friendDisplayName ?? "Unbekannt",
+          avatarUrl: friend?.friendAvatarUrl,
+        };
+      };
+      return {
       store,
       loading: query.isLoading,
       savePlan: async (plan) => {
@@ -912,7 +953,303 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             : null,
         } satisfies FriendStats;
       },
-    }),
+      loadFeed: async () => {
+        if (demoMode) {
+          const data = seedFeedIfEmpty(userId, DEMO_FEED_SEED);
+          return data.posts
+            .slice()
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )
+            .map((p) => {
+              const author = resolveAuthor(p.userId);
+              const likes = data.likes[p.id] ?? [];
+              return {
+                id: p.id,
+                userId: p.userId,
+                authorDisplayName: author.displayName,
+                authorAvatarUrl: author.avatarUrl,
+                kind: p.kind,
+                caption: p.caption,
+                imageUrl: p.imageUrl,
+                workoutSessionId: p.workoutSessionId,
+                workoutSummary: p.workoutSummary,
+                createdAt: p.createdAt,
+                likeCount: likes.length,
+                likedByMe: likes.includes(userId),
+                commentCount: (data.comments[p.id] ?? []).length,
+              } satisfies Post;
+            });
+        }
+        if (!supabase) return [];
+        const { data: posts, error } = await supabase
+          .from("posts")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(50);
+        if (error) throw new Error(error.message);
+        const rows = posts ?? [];
+        const ids = rows.map((p) => p.id);
+        const authorIds = [...new Set(rows.map((p) => p.user_id))];
+        const [profiles, likes, comments] = await Promise.all([
+          authorIds.length
+            ? supabase
+                .from("profiles")
+                .select("id,display_name,avatar_url")
+                .in("id", authorIds)
+            : Promise.resolve({
+                data: [] as {
+                  id: string;
+                  display_name: string;
+                  avatar_url: string | null;
+                }[],
+              }),
+          ids.length
+            ? supabase
+                .from("post_likes")
+                .select("post_id,user_id")
+                .in("post_id", ids)
+            : Promise.resolve({
+                data: [] as { post_id: string; user_id: string }[],
+              }),
+          ids.length
+            ? supabase.from("post_comments").select("post_id").in("post_id", ids)
+            : Promise.resolve({ data: [] as { post_id: string }[] }),
+        ]);
+        const profileMap = new Map((profiles.data ?? []).map((p) => [p.id, p]));
+        const likesByPost = new Map<string, string[]>();
+        for (const like of likes.data ?? []) {
+          likesByPost.set(like.post_id, [
+            ...(likesByPost.get(like.post_id) ?? []),
+            like.user_id,
+          ]);
+        }
+        const commentCountByPost = new Map<string, number>();
+        for (const c of comments.data ?? []) {
+          commentCountByPost.set(
+            c.post_id,
+            (commentCountByPost.get(c.post_id) ?? 0) + 1,
+          );
+        }
+        return rows.map((p) => {
+          const author = profileMap.get(p.user_id);
+          const likeIds = likesByPost.get(p.id) ?? [];
+          return {
+            id: p.id,
+            userId: p.user_id,
+            authorDisplayName: author?.display_name ?? "Unbekannt",
+            authorAvatarUrl: author?.avatar_url ?? undefined,
+            kind: p.kind as PostKind,
+            caption: p.caption ?? undefined,
+            imageUrl: p.image_url ?? undefined,
+            workoutSessionId: p.workout_session_id ?? undefined,
+            workoutSummary:
+              p.kind === "workout" && p.workout_plan_name
+                ? {
+                    planName: p.workout_plan_name,
+                    durationSeconds: p.workout_duration_seconds ?? 0,
+                    totalVolumeKg: p.workout_volume_kg ?? 0,
+                    exerciseCount: p.workout_exercise_count ?? 0,
+                  }
+                : undefined,
+            createdAt: p.created_at,
+            likeCount: likeIds.length,
+            likedByMe: likeIds.includes(userId),
+            commentCount: commentCountByPost.get(p.id) ?? 0,
+          } satisfies Post;
+        });
+      },
+      createPost: async (input) => {
+        const id = crypto.randomUUID();
+        const createdAt = new Date().toISOString();
+        let workoutSummary: PostWorkoutSummary | undefined;
+        if (input.kind === "workout") {
+          const session = store.sessions.find(
+            (s) => s.id === input.workoutSessionId,
+          );
+          if (!session) throw new Error("Workout nicht gefunden");
+          workoutSummary = {
+            planName: session.planName,
+            durationSeconds: session.durationSeconds,
+            totalVolumeKg: session.totalVolumeKg,
+            exerciseCount: new Set(session.sets.map((s) => s.exerciseId)).size,
+          };
+        }
+        if (demoMode) {
+          feedAddPost(userId, {
+            id,
+            userId,
+            kind: input.kind,
+            caption: input.caption,
+            imageUrl: input.imageUrl,
+            workoutSessionId: input.workoutSessionId,
+            workoutSummary,
+            createdAt,
+          });
+        } else if (supabase) {
+          const { error } = await supabase.from("posts").insert({
+            id,
+            user_id: userId,
+            kind: input.kind,
+            caption: input.caption ?? null,
+            image_url: input.imageUrl ?? null,
+            workout_session_id: input.workoutSessionId ?? null,
+            workout_plan_name: workoutSummary?.planName ?? null,
+            workout_duration_seconds: workoutSummary?.durationSeconds ?? null,
+            workout_volume_kg: workoutSummary?.totalVolumeKg ?? null,
+            workout_exercise_count: workoutSummary?.exerciseCount ?? null,
+            created_at: createdAt,
+          });
+          if (error) throw new Error(error.message);
+        } else {
+          throw new Error("Nicht verfügbar");
+        }
+        return {
+          id,
+          userId,
+          authorDisplayName: store.profile.displayName || "Du",
+          authorAvatarUrl: store.profile.avatarUrl,
+          kind: input.kind,
+          caption: input.caption,
+          imageUrl: input.imageUrl,
+          workoutSessionId: input.workoutSessionId,
+          workoutSummary,
+          createdAt,
+          likeCount: 0,
+          likedByMe: false,
+          commentCount: 0,
+        } satisfies Post;
+      },
+      deletePost: async (postId) => {
+        if (demoMode) {
+          feedRemovePost(userId, postId);
+          return;
+        }
+        if (supabase) {
+          const { error } = await supabase
+            .from("posts")
+            .delete()
+            .eq("id", postId);
+          if (error) throw new Error(error.message);
+        }
+      },
+      toggleLike: async (postId, currentlyLiked) => {
+        if (demoMode) {
+          feedToggleLike(userId, postId, userId);
+          return;
+        }
+        if (!supabase) return;
+        if (currentlyLiked) {
+          const { error } = await supabase
+            .from("post_likes")
+            .delete()
+            .eq("post_id", postId)
+            .eq("user_id", userId);
+          if (error) throw new Error(error.message);
+        } else {
+          const { error } = await supabase
+            .from("post_likes")
+            .insert({ post_id: postId, user_id: userId });
+          if (error) throw new Error(error.message);
+        }
+      },
+      loadComments: async (postId) => {
+        if (demoMode) {
+          const data = getFeed(userId);
+          return (data.comments[postId] ?? []).map((c) => {
+            const author = resolveAuthor(c.userId);
+            return {
+              id: c.id,
+              postId: c.postId,
+              userId: c.userId,
+              authorDisplayName: author.displayName,
+              authorAvatarUrl: author.avatarUrl,
+              body: c.body,
+              createdAt: c.createdAt,
+            } satisfies PostComment;
+          });
+        }
+        if (!supabase) return [];
+        const { data, error } = await supabase
+          .from("post_comments")
+          .select("*")
+          .eq("post_id", postId)
+          .order("created_at", { ascending: true });
+        if (error) throw new Error(error.message);
+        const rows = data ?? [];
+        const authorIds = [...new Set(rows.map((c) => c.user_id))];
+        const profiles = authorIds.length
+          ? await supabase
+              .from("profiles")
+              .select("id,display_name,avatar_url")
+              .in("id", authorIds)
+          : {
+              data: [] as {
+                id: string;
+                display_name: string;
+                avatar_url: string | null;
+              }[],
+            };
+        const profileMap = new Map((profiles.data ?? []).map((p) => [p.id, p]));
+        return rows.map((c) => {
+          const author = profileMap.get(c.user_id);
+          return {
+            id: c.id,
+            postId: c.post_id,
+            userId: c.user_id,
+            authorDisplayName: author?.display_name ?? "Unbekannt",
+            authorAvatarUrl: author?.avatar_url ?? undefined,
+            body: c.body,
+            createdAt: c.created_at,
+          } satisfies PostComment;
+        });
+      },
+      addComment: async (postId, body) => {
+        const trimmed = body.trim();
+        if (!trimmed) throw new Error("Kommentar darf nicht leer sein");
+        const id = crypto.randomUUID();
+        const createdAt = new Date().toISOString();
+        if (demoMode) {
+          feedAddComment(userId, { id, postId, userId, body: trimmed, createdAt });
+        } else if (supabase) {
+          const { error } = await supabase.from("post_comments").insert({
+            id,
+            post_id: postId,
+            user_id: userId,
+            body: trimmed,
+            created_at: createdAt,
+          });
+          if (error) throw new Error(error.message);
+        } else {
+          throw new Error("Nicht verfügbar");
+        }
+        return {
+          id,
+          postId,
+          userId,
+          authorDisplayName: store.profile.displayName || "Du",
+          authorAvatarUrl: store.profile.avatarUrl,
+          body: trimmed,
+          createdAt,
+        } satisfies PostComment;
+      },
+      deleteComment: async (postId, commentId) => {
+        if (demoMode) {
+          feedRemoveComment(userId, postId, commentId);
+          return;
+        }
+        if (supabase) {
+          const { error } = await supabase
+            .from("post_comments")
+            .delete()
+            .eq("id", commentId);
+          if (error) throw new Error(error.message);
+        }
+      },
+      };
+    },
     [store, query.isLoading, update, demoMode, userId],
   );
   if (query.isError) return <PageError retry={() => void query.refetch()} />;

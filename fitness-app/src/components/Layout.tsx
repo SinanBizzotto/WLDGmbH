@@ -8,6 +8,7 @@ import {
   Dumbbell,
   Home,
   Menu,
+  Newspaper,
   Plus,
   Salad,
   UserRound,
@@ -23,6 +24,7 @@ const nav = [
   { to: "/fitness/exercises", label: "Übungen", icon: Plus },
   { to: "/fitness/progress", label: "Fortschritt", icon: BarChart3 },
   { to: "/fitness/nutrition", label: "Ernährung", icon: Salad },
+  { to: "/fitness/feed", label: "Feed", icon: Newspaper },
   { to: "/fitness/friends", label: "Freunde", icon: Users },
   { to: "/fitness/profile", label: "Profil", icon: UserRound },
 ];

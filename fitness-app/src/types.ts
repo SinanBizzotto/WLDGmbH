@@ -136,6 +136,37 @@ export interface FriendStats {
   weightSeries: { date: string; kg: number }[];
   avgDailyCalories: number | null;
 }
+export type PostKind = "text" | "workout";
+export interface PostWorkoutSummary {
+  planName: string;
+  durationSeconds: number;
+  totalVolumeKg: number;
+  exerciseCount: number;
+}
+export interface Post {
+  id: string;
+  userId: string;
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
+  kind: PostKind;
+  caption?: string;
+  imageUrl?: string;
+  workoutSessionId?: string;
+  workoutSummary?: PostWorkoutSummary;
+  createdAt: string;
+  likeCount: number;
+  likedByMe: boolean;
+  commentCount: number;
+}
+export interface PostComment {
+  id: string;
+  postId: string;
+  userId: string;
+  authorDisplayName: string;
+  authorAvatarUrl?: string;
+  body: string;
+  createdAt: string;
+}
 export interface FitnessStore {
   profile: Profile;
   exercises: Exercise[];

@@ -17,6 +17,7 @@ const Progress = lazy(() => import("./pages/Progress"));
 const Nutrition = lazy(() => import("./pages/Nutrition"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Friends = lazy(() => import("./pages/Friends"));
+const Feed = lazy(() => import("./pages/Feed"));
 
 function Protected({
   children,
@@ -157,6 +158,14 @@ export default function App() {
                 element={
                   <Protected>
                     <Friends />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/fitness/feed"
+                element={
+                  <Protected>
+                    <Feed />
                   </Protected>
                 }
               />

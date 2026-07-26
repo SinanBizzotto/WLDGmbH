@@ -46,6 +46,32 @@ export interface Database {
         created_at: string;
         updated_at: string;
       }>;
+      posts: Table<{
+        id: string;
+        user_id: string;
+        kind: string;
+        caption: string | null;
+        image_url: string | null;
+        workout_session_id: string | null;
+        workout_plan_name: string | null;
+        workout_duration_seconds: number | null;
+        workout_volume_kg: number | null;
+        workout_exercise_count: number | null;
+        created_at: string;
+      }>;
+      post_likes: Table<{
+        id: string;
+        post_id: string;
+        user_id: string;
+        created_at: string;
+      }>;
+      post_comments: Table<{
+        id: string;
+        post_id: string;
+        user_id: string;
+        body: string;
+        created_at: string;
+      }>;
       exercises: Table<
         Owned & {
           name: string;
