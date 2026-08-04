@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Droplet, Edit3, Flame, Plus, ScanLine, Trash2, X } from "lucide-react";
 import { useFitness } from "../data/FitnessContext";
 import { useAuth } from "../auth/AuthContext";
-import { ConfirmDialog, useToast } from "../components/ui";
+import { ConfirmDialog, useModalA11y, useToast } from "../components/ui";
 import BarcodeScanner, {
   type ScannedMeal,
 } from "../components/BarcodeScanner";
@@ -26,7 +26,7 @@ function Macro({
   target: number;
   color: string;
 }) {
-  const percent = Math.min(100, (value / target) * 100);
+  const percent = Math.min(100, (value / Math.max(1, target)) * 100);
   return (
     <div className="macro">
       <div>
@@ -35,7 +35,13 @@ function Macro({
           {value} / {target} g
         </b>
       </div>
-      <div>
+      <div
+        role="progressbar"
+        aria-valuenow={value}
+        aria-valuemin={0}
+        aria-valuemax={target}
+        aria-label={label}
+      >
         <i style={{ width: `${percent}%`, background: color }} />
       </div>
     </div>
@@ -52,6 +58,12 @@ export default function Nutrition() {
   const [scanning, setScanning] = useState(false);
   const [recentScans, setRecentScans] = useState<RecentScan[]>(() =>
     getRecentScans(userId),
+  );
+  const [savingMeal, setSavingMeal] = useState(false);
+  const [savingGoal, setSavingGoal] = useState(false);
+  const mealDialogRef = useModalA11y<HTMLFormElement>(
+    editing !== undefined,
+    () => setEditing(undefined),
   );
 
   const rememberScan = (scan: RecentScan) =>
@@ -141,6 +153,7 @@ export default function Nutrition() {
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
+    setSavingMeal(true);
     try {
       await saveMeal({
         id: editing?.id ?? crypto.randomUUID(),
@@ -155,6 +168,8 @@ export default function Nutrition() {
       toast("Mahlzeit gespeichert");
     } catch {
       toast("Mahlzeit konnte nicht gespeichert werden", "error");
+    } finally {
+      setSavingMeal(false);
     }
   };
   return (
@@ -221,9 +236,14 @@ export default function Nutrition() {
         <section className="card calorie-card">
           <div
             className="calorie-ring"
+            role="progressbar"
+            aria-valuenow={total.calories}
+            aria-valuemin={0}
+            aria-valuemax={store.nutritionGoal.calories}
+            aria-label="Kalorien"
             style={
               {
-                "--p": `${Math.min(100, (total.calories / store.nutritionGoal.calories) * 100)}%`,
+                "--p": `${Math.min(100, (total.calories / Math.max(1, store.nutritionGoal.calories)) * 100)}%`,
               } as React.CSSProperties
             }
           >
@@ -260,17 +280,20 @@ export default function Nutrition() {
             onSubmit={async (e) => {
               e.preventDefault();
               const d = new FormData(e.currentTarget);
+              setSavingGoal(true);
               try {
                 await saveGoal({
-                  calories: +String(d.get("calories")),
-                  proteinG: +String(d.get("protein")),
-                  carbsG: +String(d.get("carbs")),
-                  fatG: +String(d.get("fat")),
-                  waterMl: +String(d.get("water")),
+                  calories: Math.max(1, +String(d.get("calories")) || 1),
+                  proteinG: Math.max(0, +String(d.get("protein")) || 0),
+                  carbsG: Math.max(0, +String(d.get("carbs")) || 0),
+                  fatG: Math.max(0, +String(d.get("fat")) || 0),
+                  waterMl: Math.max(1, +String(d.get("water")) || 1),
                 });
                 toast("Ziele gespeichert");
               } catch {
                 toast("Ziele konnten nicht gespeichert werden", "error");
+              } finally {
+                setSavingGoal(false);
               }
             }}
           >
@@ -279,6 +302,8 @@ export default function Nutrition() {
               <input
                 name="calories"
                 type="number"
+                min="1"
+                required
                 defaultValue={store.nutritionGoal.calories}
               />
             </label>
@@ -287,6 +312,8 @@ export default function Nutrition() {
               <input
                 name="protein"
                 type="number"
+                min="0"
+                required
                 defaultValue={store.nutritionGoal.proteinG}
               />
             </label>
@@ -295,6 +322,8 @@ export default function Nutrition() {
               <input
                 name="carbs"
                 type="number"
+                min="0"
+                required
                 defaultValue={store.nutritionGoal.carbsG}
               />
             </label>
@@ -303,6 +332,8 @@ export default function Nutrition() {
               <input
                 name="fat"
                 type="number"
+                min="0"
+                required
                 defaultValue={store.nutritionGoal.fatG}
               />
             </label>
@@ -311,11 +342,13 @@ export default function Nutrition() {
               <input
                 name="water"
                 type="number"
+                min="1"
+                required
                 defaultValue={store.nutritionGoal.waterMl}
               />
             </label>
-            <button className="button button--secondary">
-              Ziele speichern
+            <button className="button button--secondary" disabled={savingGoal}>
+              {savingGoal ? "Speichert…" : "Ziele speichern"}
             </button>
           </form>
         </section>
@@ -328,10 +361,17 @@ export default function Nutrition() {
               {totalWaterMl} / {store.nutritionGoal.waterMl} ml
             </b>
           </div>
-          <div className="mini-progress">
+          <div
+            className="mini-progress"
+            role="progressbar"
+            aria-valuenow={totalWaterMl}
+            aria-valuemin={0}
+            aria-valuemax={store.nutritionGoal.waterMl}
+            aria-label="Wasser"
+          >
             <i
               style={{
-                width: `${Math.min(100, (totalWaterMl / store.nutritionGoal.waterMl) * 100)}%`,
+                width: `${Math.min(100, (totalWaterMl / Math.max(1, store.nutritionGoal.waterMl)) * 100)}%`,
               }}
             />
           </div>
@@ -402,8 +442,22 @@ export default function Nutrition() {
         ))}
       </section>
       {editing !== undefined && (
-        <div className="modal">
-          <form className="dialog form-dialog" onSubmit={submit}>
+        <div
+          className="modal"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setEditing(undefined);
+          }}
+        >
+          <form
+            className="dialog form-dialog"
+            onSubmit={submit}
+            ref={mealDialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="meal-dialog-title"
+          >
             <button
               type="button"
               className="dialog-close"
@@ -411,7 +465,9 @@ export default function Nutrition() {
             >
               <X />
             </button>
-            <h2>{editing ? "Mahlzeit bearbeiten" : "Mahlzeit hinzufügen"}</h2>
+            <h2 id="meal-dialog-title">
+              {editing ? "Mahlzeit bearbeiten" : "Mahlzeit hinzufügen"}
+            </h2>
             <label>
               <span>Name</span>
               <input name="name" defaultValue={editing?.name} required />
@@ -447,7 +503,9 @@ export default function Nutrition() {
                 <input name="fat" type="number" defaultValue={editing?.fatG} />
               </label>
             </div>
-            <button className="button button--primary">Speichern</button>
+            <button className="button button--primary" disabled={savingMeal}>
+              {savingMeal ? "Speichert…" : "Speichern"}
+            </button>
           </form>
         </div>
       )}

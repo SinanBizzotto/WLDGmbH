@@ -31,8 +31,13 @@ export function ImagePicker({
     setUploading(true);
     try {
       onChange(await uploadImage(bucket, userId, file));
-    } catch {
-      toast("Foto konnte nicht hochgeladen werden", "error");
+    } catch (error) {
+      toast(
+        error instanceof Error
+          ? error.message
+          : "Foto konnte nicht hochgeladen werden",
+        "error",
+      );
     } finally {
       setUploading(false);
     }

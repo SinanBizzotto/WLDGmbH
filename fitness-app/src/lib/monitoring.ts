@@ -2,6 +2,12 @@ import * as Sentry from "@sentry/react";
 
 let active = false;
 
+const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+
+function redact(value: string): string {
+  return value.replace(EMAIL_PATTERN, "[redacted-email]");
+}
+
 /**
  * No-ops until VITE_SENTRY_DSN is set (and always in demo mode, since the
  * safe-testing .env.local swap strips every var except the Supabase/demo
@@ -10,7 +16,22 @@ let active = false;
 export function initMonitoring() {
   const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
   if (!dsn || active) return;
-  Sentry.init({ dsn, environment: import.meta.env.MODE });
+  Sentry.init({
+    dsn,
+    environment: import.meta.env.MODE,
+    // Errors here can carry raw Postgres/Postgrest messages (which may
+    // echo back a user's email, e.g. from an auth error) — scrub before
+    // it ever leaves the browser. sendDefaultPii stays off so the SDK
+    // doesn't attach IP/cookie data on top of that.
+    sendDefaultPii: false,
+    beforeSend(event) {
+      if (event.message) event.message = redact(event.message);
+      for (const exception of event.exception?.values ?? []) {
+        if (exception.value) exception.value = redact(exception.value);
+      }
+      return event;
+    },
+  });
   active = true;
 }
 

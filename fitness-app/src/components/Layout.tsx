@@ -21,7 +21,7 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { useFitness } from "../data/FitnessContext";
 import { getSeenIds, markSeen } from "../lib/notificationsSeen";
-import { formatRelativeTime } from "../lib/time";
+import { formatRelativeTime, isThisWeek } from "../lib/time";
 import type { NotificationItem } from "../types";
 
 const nav = [
@@ -94,6 +94,10 @@ export function FitnessLayout({ children }: { children: ReactNode }) {
     setNotificationsOpen(false);
     navigate(item.kind === "friend_request" ? "/fitness/friends" : "/fitness/feed");
   };
+  const workoutsThisWeek = store.sessions.filter(
+    (s) => s.status === "completed" && isThisWeek(s.startedAt),
+  ).length;
+  const trainingDaysGoal = Math.max(1, store.profile.trainingDays);
   return (
     <div className={`app-shell ${collapsed ? "is-collapsed" : ""}`}>
       <aside className="sidebar">
@@ -111,12 +115,19 @@ export function FitnessLayout({ children }: { children: ReactNode }) {
         <div className="sidebar__goal">
           <small>Wöchentliches Ziel</small>
           <strong>
-            4 <span>/ {store.profile.trainingDays}</span>
+            {workoutsThisWeek} <span>/ {trainingDaysGoal}</span>
           </strong>
-          <div className="mini-progress">
+          <div
+            className="mini-progress"
+            role="progressbar"
+            aria-valuenow={workoutsThisWeek}
+            aria-valuemin={0}
+            aria-valuemax={trainingDaysGoal}
+            aria-label="Wöchentliches Trainingsziel"
+          >
             <i
               style={{
-                width: `${Math.min(100, (4 / store.profile.trainingDays) * 100)}%`,
+                width: `${Math.min(100, (workoutsThisWeek / trainingDaysGoal) * 100)}%`,
               }}
             />
           </div>

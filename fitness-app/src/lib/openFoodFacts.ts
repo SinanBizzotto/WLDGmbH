@@ -10,6 +10,19 @@ export interface ScannedProduct {
   imageUrl?: string;
 }
 
+const REQUEST_TIMEOUT_MS = 10_000;
+
+// A hanging Open Food Facts response would otherwise leave the barcode/
+// search UI stuck indefinitely with no feedback.
+function fetchWithTimeout(url: string): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  return fetch(url, {
+    headers: { Accept: "application/json" },
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout));
+}
+
 const FIELDS = [
   "code",
   "product_name",
@@ -58,7 +71,7 @@ export async function lookupProductByBarcode(
   barcode: string,
 ): Promise<ScannedProduct | null> {
   const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=${FIELDS}`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetchWithTimeout(url);
   if (!res.ok) throw new Error(`Open Food Facts: HTTP ${res.status}`);
 
   const data = await res.json();
@@ -82,7 +95,7 @@ export async function searchProductsByName(
   const url =
     `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(trimmed)}` +
     `&search_simple=1&action=process&json=1&page_size=10&fields=${FIELDS}`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetchWithTimeout(url);
   if (!res.ok) throw new Error(`Open Food Facts: HTTP ${res.status}`);
 
   const data = await res.json();

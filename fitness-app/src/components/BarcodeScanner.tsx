@@ -17,6 +17,7 @@ import {
   type ScannedProduct,
 } from "../lib/openFoodFacts";
 import { detectFoods, preloadFoodModels, type DetectedFood } from "../lib/foodClassifier";
+import { useModalA11y } from "./ui";
 
 type ScanState =
   | { phase: "scanning" }
@@ -198,10 +199,11 @@ export default function BarcodeScanner({
 
   const onPhotoSelected = async (file: File) => {
     setState({ phase: "photo-analyzing" });
+    let objectUrl: string | undefined;
     try {
       const img = await loadImageFile(file);
+      objectUrl = img.src;
       const detected = await detectFoods(img);
-      URL.revokeObjectURL(img.src);
       if (detected.length === 0) {
         setState({ phase: "photo-empty" });
         return;
@@ -212,6 +214,8 @@ export default function BarcodeScanner({
       setState({ phase: "photo-items" });
     } catch {
       setState({ phase: "photo-empty" });
+    } finally {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
     }
   };
 
@@ -232,6 +236,8 @@ export default function BarcodeScanner({
     setPhotoMealName(included.map((i) => i.label).join(", "));
     setState({ phase: "photo-review" });
   };
+
+  const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
 
   const matchedTotals = photoMatches.reduce(
     (sum, m) => {
@@ -273,6 +279,8 @@ export default function BarcodeScanner({
         role="dialog"
         aria-modal="true"
         aria-labelledby="scanner-title"
+        ref={dialogRef}
+        tabIndex={-1}
       >
         <button
           type="button"

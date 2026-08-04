@@ -26,7 +26,7 @@ import {
   toggleLike as feedToggleLike,
 } from "../lib/feedStore";
 import { LoadingSkeleton, PageError } from "../components/ui";
-import { withReporting } from "../lib/monitoring";
+import { reportError, withReporting } from "../lib/monitoring";
 import type {
   BodyMeasurement,
   Exercise,
@@ -99,6 +99,21 @@ const emptyStore = (id: string): FitnessStore => ({
   waterLogs: [],
   friends: [],
 });
+// Row shape returned by the public.get_connection_profiles(uuid[]) RPC —
+// only ever the self profile or a connected user's, and only the safe
+// columns (see 202608040001_fix_connected_profile_leak.sql).
+interface ConnectionProfileRow {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  share_training: boolean | null;
+  share_weight: boolean | null;
+  share_nutrition: boolean | null;
+}
+type ConnectionProfilesResult = {
+  data: ConnectionProfileRow[] | null;
+  error: { message: string } | null;
+};
 const storageKey = (id: string) => `wld-fitness-v1:${id}`;
 const preferenceStorageKey = (id: string) =>
   `wld-fitness-exercise-preferences-v1:${id}`;
@@ -234,17 +249,32 @@ async function loadRemoteStore(userId: string): Promise<FitnessStore> {
       .select("*")
       .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
   ]);
+  const failed = [
+    profile,
+    exercises,
+    preferences,
+    plans,
+    sessions,
+    measurements,
+    records,
+    goal,
+    meals,
+    waterLogs,
+    friendships,
+  ].find((result) => result.error);
+  if (failed?.error) throw new Error(failed.error.message);
   const base = emptyStore(userId);
   const p = profile.data;
   const friendIds = (friendships.data ?? []).map((f) =>
     f.requester_id === userId ? f.addressee_id : f.requester_id,
   );
   const friendProfiles = friendIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id,display_name,avatar_url")
-        .in("id", friendIds)
-    : { data: [] };
+    ? ((await supabase.rpc("get_connection_profiles", {
+        target_ids: friendIds,
+      })) as ConnectionProfilesResult)
+    : { data: [], error: null };
+  if (friendProfiles.error)
+    reportError("loadRemoteStore.friendProfiles", friendProfiles.error);
   const friendProfileMap = new Map(
     (friendProfiles.data ?? []).map((fp) => [fp.id, fp]),
   );
@@ -497,15 +527,13 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
               estimated_minutes: plan.estimatedMinutes,
             });
           if (planError) throw new Error(planError.message);
-          const { error: deleteError } = await supabase
-            .from("workout_plan_exercises")
-            .delete()
-            .eq("plan_id", plan.id);
-          if (deleteError) throw new Error(deleteError.message);
+          // Upsert the current exercises before deleting stale ones, so a
+          // failure mid-save leaves the old + new rows overlapping rather
+          // than a window where the plan has zero exercises server-side.
           if (plan.exercises.length) {
             const { error: exercisesError } = await supabase
               .from("workout_plan_exercises")
-              .insert(
+              .upsert(
                 plan.exercises.map((e) => ({
                   id: e.id,
                   plan_id: plan.id,
@@ -519,6 +547,15 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
               );
             if (exercisesError) throw new Error(exercisesError.message);
           }
+          const keepIds = plan.exercises.map((e) => e.id);
+          const staleDelete = supabase
+            .from("workout_plan_exercises")
+            .delete()
+            .eq("plan_id", plan.id);
+          const { error: deleteError } = await (keepIds.length
+            ? staleDelete.not("id", "in", `(${keepIds.join(",")})`)
+            : staleDelete);
+          if (deleteError) throw new Error(deleteError.message);
         }
         update((s) => ({
           ...s,
@@ -693,15 +730,17 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
               current_exercise_index: session.currentExerciseIndex,
             });
           if (sessionError) throw new Error(sessionError.message);
-          const { error: deleteError } = await supabase
-            .from("workout_sets")
-            .delete()
-            .eq("session_id", session.id);
-          if (deleteError) throw new Error(deleteError.message);
+          // A session's sets are created once (in buildSession) with stable
+          // ids and are never added to/removed afterward — only their
+          // fields change (completed, actualReps, weightKg). Upserting by
+          // id keeps every autosave a single atomic-per-row write instead
+          // of a delete-then-insert, which previously had a window where a
+          // failure between the two calls could permanently drop a
+          // session's sets server-side.
           if (session.sets.length) {
             const { error: setsError } = await supabase
               .from("workout_sets")
-              .insert(
+              .upsert(
                 session.sets.map((x) => ({
                   id: x.id,
                   session_id: session.id,
@@ -763,14 +802,17 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
       },
       saveGoal: async (goal) => {
         if (supabase && !demoMode) {
-          const { error } = await supabase.from("nutrition_goals").upsert({
-            user_id: userId,
-            calories: goal.calories,
-            protein_g: goal.proteinG,
-            carbs_g: goal.carbsG,
-            fat_g: goal.fatG,
-            water_goal_ml: goal.waterMl,
-          });
+          const { error } = await supabase.from("nutrition_goals").upsert(
+            {
+              user_id: userId,
+              calories: goal.calories,
+              protein_g: goal.proteinG,
+              carbs_g: goal.carbsG,
+              fat_g: goal.fatG,
+              water_goal_ml: goal.waterMl,
+            },
+            { onConflict: "user_id" },
+          );
           if (error) throw new Error(error.message);
         }
         update((s) => ({ ...s, nutritionGoal: goal }));
@@ -940,14 +982,14 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
             weightSeries: [],
             avgDailyCalories: null,
           };
-        const friendProfile = await supabase
-          .from("profiles")
-          .select("share_training,share_weight,share_nutrition")
-          .eq("id", friendId)
-          .maybeSingle();
-        const sharesTraining = friendProfile.data?.share_training ?? false;
-        const sharesWeight = friendProfile.data?.share_weight ?? false;
-        const sharesNutrition = friendProfile.data?.share_nutrition ?? false;
+        const friendProfile = (await supabase.rpc("get_connection_profiles", {
+          target_ids: [friendId],
+        })) as ConnectionProfilesResult;
+        if (friendProfile.error) throw new Error(friendProfile.error.message);
+        const friendProfileRow = friendProfile.data?.[0];
+        const sharesTraining = friendProfileRow?.share_training ?? false;
+        const sharesWeight = friendProfileRow?.share_weight ?? false;
+        const sharesNutrition = friendProfileRow?.share_nutrition ?? false;
         const [sessions, records, measurements, meals] = await Promise.all([
           sharesTraining
             ? supabase
@@ -979,6 +1021,11 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
                 .limit(14)
             : Promise.resolve({ data: [] as { calories: number }[] }),
         ]);
+        const failedStat = [sessions, records, measurements, meals].find(
+          (result) => "error" in result && result.error,
+        );
+        if (failedStat && "error" in failedStat && failedStat.error)
+          throw new Error(failedStat.error.message);
         const mealsData = meals.data ?? [];
         return {
           sharesTraining,
@@ -1058,16 +1105,12 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
         const authorIds = [...new Set(rows.map((p) => p.user_id))];
         const [profiles, likes, comments] = await Promise.all([
           authorIds.length
-            ? supabase
-                .from("profiles")
-                .select("id,display_name,avatar_url")
-                .in("id", authorIds)
+            ? (supabase.rpc("get_connection_profiles", {
+                target_ids: authorIds,
+              }) as unknown as Promise<ConnectionProfilesResult>)
             : Promise.resolve({
-                data: [] as {
-                  id: string;
-                  display_name: string;
-                  avatar_url: string | null;
-                }[],
+                data: [] as ConnectionProfileRow[],
+                error: null,
               }),
           ids.length
             ? supabase
@@ -1244,17 +1287,10 @@ export function FitnessProvider({ children }: { children: ReactNode }) {
         const rows = data ?? [];
         const authorIds = [...new Set(rows.map((c) => c.user_id))];
         const profiles = authorIds.length
-          ? await supabase
-              .from("profiles")
-              .select("id,display_name,avatar_url")
-              .in("id", authorIds)
-          : {
-              data: [] as {
-                id: string;
-                display_name: string;
-                avatar_url: string | null;
-              }[],
-            };
+          ? ((await supabase.rpc("get_connection_profiles", {
+              target_ids: authorIds,
+            })) as ConnectionProfilesResult)
+          : { data: [] as ConnectionProfileRow[], error: null };
         const profileMap = new Map((profiles.data ?? []).map((p) => [p.id, p]));
         return rows.map((c) => {
           const author = profileMap.get(c.user_id);

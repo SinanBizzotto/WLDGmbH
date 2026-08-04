@@ -32,7 +32,10 @@ export default function Profile() {
         targetWeightKg: +String(d.get("targetWeight")),
         goal: String(d.get("goal")),
         level: String(d.get("level")),
-        trainingDays: +String(d.get("days")),
+        trainingDays: Math.min(
+          7,
+          Math.max(1, Math.round(+String(d.get("days")) || 1)),
+        ),
         shareTraining,
         shareWeight,
         shareNutrition,
@@ -142,6 +145,7 @@ export default function Profile() {
                 type="number"
                 min="1"
                 max="7"
+                required
                 defaultValue={store.profile.trainingDays}
               />
             </label>

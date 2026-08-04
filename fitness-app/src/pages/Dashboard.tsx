@@ -20,6 +20,7 @@ import {
 import { Link } from "react-router-dom";
 import { useFitness } from "../data/FitnessContext";
 import { EmptyState, LoadingSkeleton } from "../components/ui";
+import { computeDayStreak, isThisWeek } from "../lib/time";
 
 function MetricCard({
   icon: Icon,
@@ -283,30 +284,29 @@ function Records() {
 function WeeklyStreak() {
   const { store } = useFitness();
   const days = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-  const completed = new Set(
-    store.sessions
-      .filter((s) => s.status === "completed")
+  const completedSessions = store.sessions.filter(
+    (s) => s.status === "completed",
+  );
+  const completedThisWeek = new Set(
+    completedSessions
+      .filter((s) => isThisWeek(s.startedAt))
       .map((s) => new Date(s.startedAt).getDay()),
   );
+  const streak = computeDayStreak(completedSessions.map((s) => s.startedAt));
   return (
     <section className="card streak-card">
       <div>
         <h2>Deine Woche</h2>
         <strong>
-          <Flame />{" "}
-          {Math.max(
-            1,
-            store.sessions.filter((s) => s.status === "completed").length,
-          )}{" "}
-          Tage Serie
+          <Flame /> {streak} {streak === 1 ? "Tag" : "Tage"} Serie
         </strong>
       </div>
       <div className="streak-days">
         {days.map((d, i) => (
           <span key={d}>
             <small>{d}</small>
-            <b className={completed.has((i + 1) % 7) ? "done" : ""}>
-              {completed.has((i + 1) % 7) ? "✓" : "–"}
+            <b className={completedThisWeek.has((i + 1) % 7) ? "done" : ""}>
+              {completedThisWeek.has((i + 1) % 7) ? "✓" : "–"}
             </b>
           </span>
         ))}
@@ -318,25 +318,25 @@ export default function Dashboard() {
   const { store, loading } = useFitness();
   if (loading) return <LoadingSkeleton cards={8} />;
   const completed = store.sessions.filter((s) => s.status === "completed");
-  const thisWeek = completed.filter(
-    (s) => Date.now() - new Date(s.startedAt).getTime() < 604800000,
-  );
+  const thisWeek = completed.filter((s) => isThisWeek(s.startedAt));
   const seconds = thisWeek.reduce((n, s) => n + s.durationSeconds, 0);
   const volume = thisWeek.reduce((n, s) => n + s.totalVolumeKg, 0);
+  const trainingDaysGoal = Math.max(1, store.profile.trainingDays);
+  const streak = computeDayStreak(completed.map((s) => s.startedAt));
   return (
     <>
       <div className="metrics">
         <MetricCard
           icon={Dumbbell}
           label="Training diese Woche"
-          value={`${thisWeek.length} / ${store.profile.trainingDays}`}
+          value={`${thisWeek.length} / ${trainingDaysGoal}`}
           note="Workouts"
-          progress={(thisWeek.length / store.profile.trainingDays) * 100}
+          progress={Math.min(100, (thisWeek.length / trainingDaysGoal) * 100)}
         />
         <MetricCard
           icon={Flame}
           label="Aktuelle Serie"
-          value={`${Math.max(1, completed.length)} Tage`}
+          value={`${streak} ${streak === 1 ? "Tag" : "Tage"}`}
           note="Weiter so!"
         />
         <MetricCard

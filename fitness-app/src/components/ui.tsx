@@ -1,5 +1,65 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { AlertCircle, Inbox } from "lucide-react";
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/**
+ * Focus trap + Escape-to-close + focus restoration for a modal dialog.
+ * Attach the returned ref to the dialog's outer content element (not the
+ * full-screen backdrop). Re-queries focusable elements on every Tab press
+ * so it stays correct even as a dialog's content changes between phases.
+ */
+export function useModalA11y<T extends HTMLElement>(
+  open: boolean,
+  onClose: () => void,
+) {
+  const containerRef = useRef<T>(null);
+  useEffect(() => {
+    if (!open) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const container = containerRef.current;
+    const focusable = container?.querySelectorAll<HTMLElement>(
+      FOCUSABLE_SELECTOR,
+    );
+    (focusable?.[0] ?? container)?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab" || !container) return;
+      const items = Array.from(
+        container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      );
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [open, onClose]);
+  return containerRef;
+}
 
 type ToastKind = "success" | "error";
 interface Toast {
@@ -42,6 +102,7 @@ export function ConfirmDialog({
   onCancel: () => void;
   danger?: boolean;
 }) {
+  const dialogRef = useModalA11y<HTMLDivElement>(open, onCancel);
   if (!open) return null;
   return (
     <div
@@ -56,6 +117,8 @@ export function ConfirmDialog({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
+        ref={dialogRef}
+        tabIndex={-1}
       >
         <h2 id="dialog-title">{title}</h2>
         <p>{message}</p>

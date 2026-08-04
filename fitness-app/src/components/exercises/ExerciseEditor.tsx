@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { ImagePicker } from "../ImagePicker";
+import { useModalA11y } from "../ui";
 import type { EquipmentType, Exercise, MuscleGroup } from "../../types";
 
 const exerciseTypes: Exercise["exerciseType"][] = [
@@ -16,6 +17,7 @@ export function ExerciseEditor({
   userId,
   onSubmit,
   onClose,
+  submitting = false,
 }: {
   exercise: Exercise | null;
   muscles: MuscleGroup[];
@@ -23,8 +25,10 @@ export function ExerciseEditor({
   userId: string;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
+  submitting?: boolean;
 }) {
   const [image, setImage] = useState(exercise?.image);
+  const dialogRef = useModalA11y<HTMLFormElement>(true, onClose);
   return (
     <div
       className="modal"
@@ -37,6 +41,10 @@ export function ExerciseEditor({
         key={exercise?.id ?? "new-exercise"}
         className="dialog form-dialog exercise-editor"
         onSubmit={onSubmit}
+        ref={dialogRef}
+        tabIndex={-1}
+        aria-modal="true"
+        role="dialog"
       >
         <button
           type="button"
@@ -133,8 +141,12 @@ export function ExerciseEditor({
             defaultValue={exercise?.instructions.join("\n")}
           />
         </label>
-        <button className="button button--primary">
-          {exercise ? "Änderungen speichern" : "Übung speichern"}
+        <button className="button button--primary" disabled={submitting}>
+          {submitting
+            ? "Speichert…"
+            : exercise
+              ? "Änderungen speichern"
+              : "Übung speichern"}
         </button>
       </form>
     </div>

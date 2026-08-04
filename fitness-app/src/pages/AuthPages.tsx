@@ -81,7 +81,8 @@ export function Login() {
               <button
                 type="button"
                 onClick={() => setShow((v) => !v)}
-                aria-label="Passwort anzeigen"
+                aria-label={show ? "Passwort verbergen" : "Passwort anzeigen"}
+                aria-pressed={show}
               >
                 {show ? <EyeOff /> : <Eye />}
               </button>

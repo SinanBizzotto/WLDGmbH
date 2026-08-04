@@ -1,12 +1,13 @@
--- The app has always written to public.exercise_preferences (per-user
--- customization/favorite state for shared public exercises), but this
--- table was never actually created in the database — an RLS audit
--- (comparing every table the client code writes to against what
--- actually exists) turned up that it's missing entirely, meaning
--- favoriting or customizing a public exercise silently never made it
--- to the server (only the local browser cache kept it working at all).
+-- NOTE: public.exercise_preferences is already created by
+-- 202607230002_exercise_library_upgrade.sql (with IF NOT EXISTS). This
+-- migration was originally written believing the table was missing
+-- entirely, but it isn't — it duplicates that earlier migration. It's
+-- kept (instead of deleted) to avoid renumbering history, but rewritten
+-- to be fully idempotent so replaying all migrations in order on a
+-- fresh database doesn't fail on "relation already exists" /
+-- "policy already exists" errors.
 
-create table public.exercise_preferences (
+create table if not exists public.exercise_preferences (
   user_id uuid not null references auth.users(id) on delete cascade,
   exercise_id uuid not null references public.exercises(id) on delete cascade,
   custom_name text,
@@ -23,9 +24,19 @@ create table public.exercise_preferences (
 
 alter table public.exercise_preferences enable row level security;
 
-create policy "exercise preferences own" on public.exercise_preferences
-  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'exercise_preferences'
+      and policyname = 'exercise preferences own'
+  ) then
+    create policy "exercise preferences own" on public.exercise_preferences
+      for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+  end if;
+end $$;
 
-create trigger set_exercise_preferences_updated_at
+create or replace trigger set_exercise_preferences_updated_at
   before update on public.exercise_preferences
   for each row execute function public.set_updated_at();

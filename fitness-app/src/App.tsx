@@ -1,5 +1,5 @@
-import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Suspense, lazy, useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { useRegisterSW } from "virtual:pwa-register/react";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { FitnessProvider } from "./data/FitnessContext";
@@ -19,20 +19,27 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Friends = lazy(() => import("./pages/Friends"));
 const Feed = lazy(() => import("./pages/Feed"));
 
-function Protected({
-  children,
-  bare = false,
-}: {
-  children: ReactNode;
-  bare?: boolean;
-}) {
+// A single FitnessProvider instance for the whole protected route tree —
+// previously each route wrapped its own <Protected><FitnessProvider>,
+// so navigating between pages fully unmounted/remounted the provider
+// (resetting its "synced" state and re-showing the loading skeleton on
+// every click, and dropping local UI state like the sidebar's collapsed
+// flag) even though react-query's own cache didn't need a refetch.
+function ProtectedRoot() {
   const { user, loading } = useAuth();
   if (loading) return <LoadingSkeleton />;
   if (!user) return <Navigate to="/fitness/login" replace />;
   return (
     <FitnessProvider>
-      {bare ? children : <FitnessLayout>{children}</FitnessLayout>}
+      <Outlet />
     </FitnessProvider>
+  );
+}
+function ProtectedLayout() {
+  return (
+    <FitnessLayout>
+      <Outlet />
+    </FitnessLayout>
   );
 }
 function PwaUpdate() {
@@ -89,86 +96,26 @@ export default function App() {
             <Routes>
               <Route path="/fitness/login" element={<Login />} />
               <Route path="/fitness/register" element={<Register />} />
-              <Route
-                path="/fitness"
-                element={
-                  <Protected>
-                    <Dashboard />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/training"
-                element={
-                  <Protected>
-                    <TrainingPlans />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/training/new"
-                element={
-                  <Protected>
-                    <WorkoutPlanForm />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/training/:workoutId"
-                element={
-                  <Protected bare>
-                    <ActiveWorkout />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/exercises"
-                element={
-                  <Protected>
-                    <Exercises />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/progress"
-                element={
-                  <Protected>
-                    <Progress />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/nutrition"
-                element={
-                  <Protected>
-                    <Nutrition />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/profile"
-                element={
-                  <Protected>
-                    <Profile />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/friends"
-                element={
-                  <Protected>
-                    <Friends />
-                  </Protected>
-                }
-              />
-              <Route
-                path="/fitness/feed"
-                element={
-                  <Protected>
-                    <Feed />
-                  </Protected>
-                }
-              />
+              <Route element={<ProtectedRoot />}>
+                <Route element={<ProtectedLayout />}>
+                  <Route path="/fitness" element={<Dashboard />} />
+                  <Route path="/fitness/training" element={<TrainingPlans />} />
+                  <Route
+                    path="/fitness/training/new"
+                    element={<WorkoutPlanForm />}
+                  />
+                  <Route path="/fitness/exercises" element={<Exercises />} />
+                  <Route path="/fitness/progress" element={<Progress />} />
+                  <Route path="/fitness/nutrition" element={<Nutrition />} />
+                  <Route path="/fitness/profile" element={<Profile />} />
+                  <Route path="/fitness/friends" element={<Friends />} />
+                  <Route path="/fitness/feed" element={<Feed />} />
+                </Route>
+                <Route
+                  path="/fitness/training/:workoutId"
+                  element={<ActiveWorkout />}
+                />
+              </Route>
               <Route path="*" element={<Navigate to="/fitness" replace />} />
             </Routes>
             <PwaUpdate />

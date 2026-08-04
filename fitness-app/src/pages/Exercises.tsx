@@ -47,6 +47,7 @@ export default function Exercises() {
   const [sort, setSort] = useState<SortOrder>("name");
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Exercise | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const filtered = useMemo(() => {
     const search = query.trim().toLowerCase();
@@ -108,6 +109,7 @@ export default function Exercises() {
       isFavorite: editing?.isFavorite ?? false,
       isCustomized: editing?.isCustomized,
     };
+    setSaving(true);
     try {
       await saveExercise(exercise);
       setFormOpen(false);
@@ -115,6 +117,8 @@ export default function Exercises() {
       toast(editing ? "Übung aktualisiert" : "Eigene Übung erstellt");
     } catch {
       toast("Übung konnte nicht gespeichert werden", "error");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -280,6 +284,7 @@ export default function Exercises() {
           userId={store.profile.id}
           onSubmit={submit}
           onClose={() => setFormOpen(false)}
+          submitting={saving}
         />
       )}
     </div>

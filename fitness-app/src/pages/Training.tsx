@@ -23,6 +23,10 @@ import {
 } from "lucide-react";
 import { useFitness } from "../data/FitnessContext";
 import { ConfirmDialog, EmptyState, useToast } from "../components/ui";
+import {
+  createCoalescingSave,
+  createSequentialQueue,
+} from "../lib/sequentialQueue";
 import type {
   PlanExercise,
   WorkoutPlan,
@@ -152,7 +156,7 @@ export function WorkoutPlanForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -385,9 +389,9 @@ export function WorkoutPlanForm() {
           </button>
           <button
             className="button button--primary"
-            disabled={!selected.length}
+            disabled={!selected.length || isSubmitting}
           >
-            Plan speichern
+            {isSubmitting ? "Speichert…" : "Plan speichern"}
           </button>
         </div>
       </form>
@@ -435,16 +439,34 @@ export function ActiveWorkout() {
   const [confirm, setConfirm] = useState(false);
   const initialized = useRef(false);
   const autosaveWarned = useRef(false);
-  const autosave = (s: WorkoutSession) =>
-    saveSession(s).catch(() => {
-      if (!autosaveWarned.current) {
-        autosaveWarned.current = true;
-        toast(
-          "Automatisches Speichern unterbrochen – prüfe deine Verbindung",
-          "error",
-        );
+  // Every saveSession call for this workout (autosave, finish, exit) runs
+  // through this queue so calls are always sent in order — otherwise an
+  // older request's response could land after a newer one and overwrite it
+  // (e.g. a stale "active" snapshot overwriting a just-finished session).
+  const enqueueSave = useRef(createSequentialQueue()).current;
+  // Kept fresh via refs (not deps) so `autosave` itself can stay a single
+  // stable function across renders — it owns one coalescing "pending" slot
+  // for this workout's whole lifetime, so rapid-fire toggles always
+  // collapse into the same in-flight save instead of racing.
+  const saveSessionRef = useRef(saveSession);
+  saveSessionRef.current = saveSession;
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
+  const autosave = useRef(
+    createCoalescingSave<WorkoutSession>(enqueueSave, async (s) => {
+      try {
+        await saveSessionRef.current(s);
+      } catch {
+        if (!autosaveWarned.current) {
+          autosaveWarned.current = true;
+          toastRef.current(
+            "Automatisches Speichern unterbrochen – prüfe deine Verbindung",
+            "error",
+          );
+        }
       }
-    });
+    }),
+  ).current;
   useEffect(() => {
     if (!initialized.current && session) {
       initialized.current = true;
@@ -525,7 +547,7 @@ export function ActiveWorkout() {
       });
     }, 0);
   };
-  const skip = () =>
+  const skip = () => {
     setSession((s) =>
       s
         ? {
@@ -537,6 +559,13 @@ export function ActiveWorkout() {
           }
         : s,
     );
+    window.setTimeout(() => {
+      setSession((current) => {
+        if (current) void autosave(current);
+        return current;
+      });
+    }, 0);
+  };
   const finish = async () => {
     const duration = Math.round(
       (Date.now() - new Date(session.startedAt).getTime()) / 1000,
@@ -545,13 +574,15 @@ export function ActiveWorkout() {
       .filter((s) => s.completed)
       .reduce((n, s) => n + s.actualReps * s.weightKg, 0);
     try {
-      await saveSession({
-        ...session,
-        status: "completed",
-        completedAt: new Date().toISOString(),
-        durationSeconds: duration,
-        totalVolumeKg,
-      });
+      await enqueueSave(() =>
+        saveSession({
+          ...session,
+          status: "completed",
+          completedAt: new Date().toISOString(),
+          durationSeconds: duration,
+          totalVolumeKg,
+        }),
+      );
     } catch {
       toast("Workout konnte nicht gespeichert werden – versuch's erneut", "error");
       return;
@@ -677,7 +708,7 @@ export function ActiveWorkout() {
         onCancel={() => setConfirm(false)}
         onConfirm={async () => {
           try {
-            await saveSession(session);
+            await enqueueSave(() => saveSession(session));
           } catch {
             toast("Stand konnte nicht gespeichert werden – versuch's erneut", "error");
             return;
