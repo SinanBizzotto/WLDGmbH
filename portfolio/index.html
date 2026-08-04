@@ -78,8 +78,8 @@
     }
 
     .chip.is-active {
-      background: rgba(239, 68, 68, .16);
-      border-color: rgba(239, 68, 68, .4);
+      background: rgba(var(--accent-rgb), .16);
+      border-color: rgba(var(--accent-rgb), .4);
       color: #f5f3ee;
     }
 
@@ -271,7 +271,25 @@
   <header class="header" id="top">
     <div class="container header__inner">
       <a class="brand" href="../#top" aria-label="Web Lab Design">
-        <img class="brand__logo" src="../WebLabDesignLogo.jpeg" alt="Web Lab Design" />
+        <svg class="brand__logo" viewBox="0 0 100 100" width="42" height="42" role="img" aria-label="Web Lab Design Logo">
+          <defs>
+            <linearGradient id="wldLogoBg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#1e1433" />
+              <stop offset="1" stop-color="#0a0a0d" />
+            </linearGradient>
+            <linearGradient id="wldLogoMark" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#c4b5fd" />
+              <stop offset="1" stop-color="#7c3aed" />
+            </linearGradient>
+            <radialGradient id="wldLogoSheen" cx="32%" cy="22%" r="70%">
+              <stop offset="0" stop-color="#ffffff" stop-opacity=".38" />
+              <stop offset="55%" stop-color="#ffffff" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="47" fill="url(#wldLogoBg)" stroke="rgba(139,92,246,.55)" stroke-width="2" />
+          <path d="M21 33 L35 69 L50 39 L65 69 L79 33" fill="none" stroke="url(#wldLogoMark)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="50" cy="50" r="47" fill="url(#wldLogoSheen)" />
+        </svg>
         <span class="brand__text">
           <strong>Web Lab Design</strong>
           <small>Frontend. Hosting. Full-Stack.</small>

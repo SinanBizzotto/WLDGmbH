@@ -408,6 +408,30 @@ function initCountUp() {
   render();
 }
 
+// ---------- Ausgewählte Projekte: scroll-linked image showcase ----------
+// Whichever .showcaseItem currently sits in a thin band around the
+// viewport's vertical centre becomes "active" — its matching .showcaseImg
+// crossfades in on the sticky frame beside it. A pure IntersectionObserver
+// band-crossing check, no scroll-position math needed.
+function initShowcase() {
+  const items = qsa('.showcaseItem');
+  const images = qsa('.showcaseImg');
+  if (!items.length || !images.length || !('IntersectionObserver' in window)) return;
+
+  const setActive = (index) => {
+    items.forEach((item) => item.classList.toggle('is-active', item.dataset.index === index));
+    images.forEach((img) => img.classList.toggle('is-active', img.dataset.index === index));
+  };
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) setActive(entry.target.dataset.index);
+    });
+  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+
+  items.forEach((item) => obs.observe(item));
+}
+
 // ---------- Case Studies: filter + details toggle ----------
 function initCaseStudies() {
   const grid = qs('#caseGrid');
@@ -518,22 +542,38 @@ function initHeroTilt() {
   });
 }
 
-// ---------- Cards: cursor-tracking glow ----------
-function initCardGlow() {
+// ---------- Cards: cursor-tracking glow + real 3D pointer-tilt ----------
+// Glow (--glareX/--glareY) applies to any .card/.projectCard. Tilt
+// (--tiltX/--tiltY) only visually does anything on .card, whose transform
+// formula composes it in (see "Grid & Cards" in styles.css) — harmless,
+// inert custom properties on anything else. Per-element (not delegated)
+// so pointerleave can reliably reset the tilt to neutral.
+function initCardEffects() {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
 
-  const selector = '.card, .projectCard';
+  const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  const maxTilt = 6;
+  const cards = qsa('.card, .projectCard');
 
-  document.addEventListener('pointermove', (e) => {
-    const el = e.target.closest?.(selector);
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    el.style.setProperty('--glareX', `${x}%`);
-    el.style.setProperty('--glareY', `${y}%`);
-  }, { passive: true });
+  cards.forEach((card) => {
+    card.addEventListener('pointermove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+      card.style.setProperty('--glareX', `${px * 100}%`);
+      card.style.setProperty('--glareY', `${py * 100}%`);
+      if (!coarsePointer) {
+        card.style.setProperty('--tiltX', `${(0.5 - py) * (maxTilt * 2)}deg`);
+        card.style.setProperty('--tiltY', `${(px - 0.5) * (maxTilt * 2)}deg`);
+      }
+    }, { passive: true });
+
+    card.addEventListener('pointerleave', () => {
+      card.style.setProperty('--tiltX', '0deg');
+      card.style.setProperty('--tiltY', '0deg');
+    });
+  });
 }
 
 // ---------- Boot ----------
@@ -544,11 +584,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initPlanSelectButtons();
   initFinder();
   initEstimator();
+  initShowcase();
   initCaseStudies();
   initContactForm();
   initScrollProgress();
   initScrollReveal();
   initCountUp();
   initHeroTilt();
-  initCardGlow();
+  initCardEffects();
 });

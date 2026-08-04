@@ -69,7 +69,25 @@
     <header class="header" id="top">
         <div class="container header__inner">
             <a class="brand" href="#top" aria-label="Web Lab Design">
-                <span class="brand__logo">WLD</span>
+                <svg class="brand__logo" viewBox="0 0 100 100" width="42" height="42" role="img" aria-label="Web Lab Design Logo">
+                    <defs>
+                        <linearGradient id="wldLogoBg" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#1e1433" />
+                            <stop offset="1" stop-color="#0a0a0d" />
+                        </linearGradient>
+                        <linearGradient id="wldLogoMark" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#c4b5fd" />
+                            <stop offset="1" stop-color="#7c3aed" />
+                        </linearGradient>
+                        <radialGradient id="wldLogoSheen" cx="32%" cy="22%" r="70%">
+                            <stop offset="0" stop-color="#ffffff" stop-opacity=".38" />
+                            <stop offset="55%" stop-color="#ffffff" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="47" fill="url(#wldLogoBg)" stroke="rgba(139,92,246,.55)" stroke-width="2" />
+                    <path d="M21 33 L35 69 L50 39 L65 69 L79 33" fill="none" stroke="url(#wldLogoMark)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="50" cy="50" r="47" fill="url(#wldLogoSheen)" />
+                </svg>
                 <span class="brand__text">
                     <strong>Web Lab Design</strong>
                     <small>Frontend. Hosting. Full-Stack.</small>
@@ -156,6 +174,7 @@
                     </div>
                 </div>
 
+                <div class="hero__visual">
                 <div class="heroMock" data-reveal data-reveal-delay="120" aria-hidden="true">
                     <span class="floatBadge floatBadge--top">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 8-4 4 4 4M15 8l4 4-4 4"/></svg>
@@ -181,7 +200,7 @@
                             </div>
                             <div class="previewImage">
                                 <svg class="networkArt" viewBox="0 0 400 225" fill="none" aria-hidden="true">
-                                    <g class="networkArt__lines" stroke="rgba(239,68,68,.6)" stroke-width="1.4">
+                                    <g class="networkArt__lines" stroke="rgba(139,92,246,.6)" stroke-width="1.4">
                                         <path pathLength="1" d="M60 150 L140 90" />
                                         <path pathLength="1" d="M140 90 L222 128" />
                                         <path pathLength="1" d="M140 90 L182 42" />
@@ -220,6 +239,30 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 19 2c0 2.52-.6 6.7-4 10a22.35 22.35 0 0 1-3 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
                     </span>
                 </div>
+
+                <div class="heroFeature heroFeature--left" data-reveal data-reveal-delay="480">
+                    <div class="heroFeature__inner">
+                        <span class="heroFeature__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+                        </span>
+                        <div>
+                            <strong>Blitzschnell</strong>
+                            <span>Optimiert für maximale Performance</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="heroFeature heroFeature--right" data-reveal data-reveal-delay="600">
+                    <div class="heroFeature__inner">
+                        <span class="heroFeature__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 5 3 8.5 7 10 4-1.5 7-5 7-10V6l-7-3Z"/><path d="m9.5 12 2 2 3.5-4"/></svg>
+                        </span>
+                        <div>
+                            <strong>Sicher & Zuverlässig</strong>
+                            <span>Moderne Technologien, saubere Basis</span>
+                        </div>
+                    </div>
+                </div>
+                </div>
             </div>
             </div>
         </section>
@@ -257,126 +300,103 @@
                     <a class="muted" href="/portfolio/" style="font-weight:800;">Alle Projekte ansehen<span class="btn__arrow">↗</span></a>
                 </div>
 
-                <div class="grid grid--3">
-                    <article class="projectCard" data-reveal>
-                        <div class="projectCard__media">
-                            <img src="projects/Airsoft/screenshot.png" alt="Airsoft Squad Basel 04" loading="lazy" />
-                        </div>
-                        <div class="projectCard__body">
-                            <div class="projectCard__top">
-                                <h3>Airsoft Squad Basel 04</h3>
-                                <a class="projectCard__arrow" href="https://airsoftsquadbasel.ch" target="_blank" rel="noopener" aria-label="Airsoft Squad Basel 04 live ansehen">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                                </a>
-                            </div>
+                <div class="showcase">
+                    <div class="showcase__list">
+                        <article class="showcaseItem is-active" data-index="0">
+                            <span class="showcaseItem__index">01</span>
+                            <h3>Airsoft Squad Basel 04</h3>
                             <p class="muted">Team-Website für ein taktisches Airsoft-Team mit Event-Registrierung, Mitgliederbereich, Bewerbungs-Funnel und Admin-Dashboard.</p>
                             <div class="projectCard__tags">
                                 <span class="chip">React</span>
                                 <span class="chip">Vite</span>
                                 <span class="chip">Supabase</span>
                             </div>
-                        </div>
-                    </article>
+                            <a class="showcaseItem__link" href="https://airsoftsquadbasel.ch" target="_blank" rel="noopener">
+                                Live ansehen <span class="btn__arrow">↗</span>
+                            </a>
+                        </article>
 
-                    <article class="projectCard" data-reveal data-reveal-delay="120">
-                        <div class="projectCard__media">
-                            <img src="projects/budget-app/screenshot.png" alt="Budget Control Center" loading="lazy" />
-                        </div>
-                        <div class="projectCard__body">
-                            <div class="projectCard__top">
-                                <h3>Budget Control Center</h3>
-                                <a class="projectCard__arrow" href="https://weblabdesign.ch/projects/budget-app/dist/index.html" target="_blank" rel="noopener" aria-label="Budget Control Center live ansehen">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                                </a>
-                            </div>
+                        <article class="showcaseItem" data-index="1">
+                            <span class="showcaseItem__index">02</span>
+                            <h3>Budget Control Center</h3>
                             <p class="muted">All-in-One Finanzsystem für Konten, Budgets, Sparziele, Schulden und Transaktionen mit Live-Auswertungen und CSV-Export.</p>
                             <div class="projectCard__tags">
                                 <span class="chip">React</span>
                                 <span class="chip">TypeScript</span>
                                 <span class="chip">Tailwind</span>
                             </div>
-                        </div>
-                    </article>
+                            <a class="showcaseItem__link" href="https://weblabdesign.ch/projects/budget-app/dist/index.html" target="_blank" rel="noopener">
+                                Live ansehen <span class="btn__arrow">↗</span>
+                            </a>
+                        </article>
 
-                    <article class="projectCard" data-reveal data-reveal-delay="240">
-                        <div class="projectCard__media">
-                            <img src="projects/Kochwelt/Vorlage/mockup.jpg" alt="Kochwelt" loading="lazy" />
-                        </div>
-                        <div class="projectCard__body">
-                            <div class="projectCard__top">
-                                <h3>Kochwelt</h3>
-                                <a class="projectCard__arrow" href="https://weblabdesign.ch/projects/Kochwelt/index.html" target="_blank" rel="noopener" aria-label="Kochwelt live ansehen">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                                </a>
-                            </div>
+                        <article class="showcaseItem" data-index="2">
+                            <span class="showcaseItem__index">03</span>
+                            <h3>Kochwelt</h3>
                             <p class="muted">Rezept-Website mit Kochanleitungen, Rezeptvorschlägen und Food-Vergleichsartikeln.</p>
                             <div class="projectCard__tags">
                                 <span class="chip">HTML</span>
                                 <span class="chip">CSS</span>
                                 <span class="chip">JS</span>
                             </div>
-                        </div>
-                    </article>
+                            <a class="showcaseItem__link" href="https://weblabdesign.ch/projects/Kochwelt/index.html" target="_blank" rel="noopener">
+                                Live ansehen <span class="btn__arrow">↗</span>
+                            </a>
+                        </article>
 
-                    <article class="projectCard" data-reveal>
-                        <div class="projectCard__media">
-                            <img src="projects/band-website/img/mockup.jpg" alt="Rock Mountain Band Website" loading="lazy" />
-                        </div>
-                        <div class="projectCard__body">
-                            <div class="projectCard__top">
-                                <h3>Rock Mountain Band</h3>
-                                <a class="projectCard__arrow" href="https://weblabdesign.ch/projects/band-website/index.html" target="_blank" rel="noopener" aria-label="Rock Mountain Band Website live ansehen">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                                </a>
-                            </div>
+                        <article class="showcaseItem" data-index="3">
+                            <span class="showcaseItem__index">04</span>
+                            <h3>Rock Mountain Band</h3>
                             <p class="muted">Konzert-Website mit Show-Ankündigungen, Festival-Listing und Ticket-Call-to-Action.</p>
                             <div class="projectCard__tags">
                                 <span class="chip">HTML</span>
                                 <span class="chip">CSS</span>
                                 <span class="chip">JS</span>
                             </div>
-                        </div>
-                    </article>
+                            <a class="showcaseItem__link" href="https://weblabdesign.ch/projects/band-website/index.html" target="_blank" rel="noopener">
+                                Live ansehen <span class="btn__arrow">↗</span>
+                            </a>
+                        </article>
 
-                    <article class="projectCard" data-reveal data-reveal-delay="120">
-                        <div class="projectCard__media">
-                            <img src="projects/sakura-ramen-responsive/img/1_hero/JPG/hero_bg.jpg" alt="Sakura Ramen" loading="lazy" />
-                        </div>
-                        <div class="projectCard__body">
-                            <div class="projectCard__top">
-                                <h3>Sakura Ramen</h3>
-                                <a class="projectCard__arrow" href="https://weblabdesign.ch/projects/sakura-ramen-responsive/index.html" target="_blank" rel="noopener" aria-label="Sakura Ramen live ansehen">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                                </a>
-                            </div>
+                        <article class="showcaseItem" data-index="4">
+                            <span class="showcaseItem__index">05</span>
+                            <h3>Sakura Ramen</h3>
                             <p class="muted">Responsive Restaurant-Website mit Bestellanleitung, Speisekarte und Standortfinder.</p>
                             <div class="projectCard__tags">
                                 <span class="chip">HTML</span>
                                 <span class="chip">CSS</span>
                                 <span class="chip">JS</span>
                             </div>
-                        </div>
-                    </article>
+                            <a class="showcaseItem__link" href="https://weblabdesign.ch/projects/sakura-ramen-responsive/index.html" target="_blank" rel="noopener">
+                                Live ansehen <span class="btn__arrow">↗</span>
+                            </a>
+                        </article>
 
-                    <article class="projectCard" data-reveal data-reveal-delay="240">
-                        <div class="projectCard__media">
-                            <img src="projects/relaxplore/public/RelaxPlore_Logo.jpg" alt="Relaxplore" loading="lazy" />
-                        </div>
-                        <div class="projectCard__body">
-                            <div class="projectCard__top">
-                                <h3>Relaxplore</h3>
-                                <a class="projectCard__arrow" href="https://relaxplore.com" target="_blank" rel="noopener" aria-label="Relaxplore live ansehen">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                                </a>
-                            </div>
+                        <article class="showcaseItem" data-index="5">
+                            <span class="showcaseItem__index">06</span>
+                            <h3>Relaxplore</h3>
                             <p class="muted">Reise-Web-App mit Kartenexplorer, Reiseplanung, Navigation, Budget, Tagebuch und KI-Reiseassistent – inklusive Konten und Cloud-Sync.</p>
                             <div class="projectCard__tags">
                                 <span class="chip">React</span>
                                 <span class="chip">TypeScript</span>
                                 <span class="chip">Vercel</span>
                             </div>
+                            <a class="showcaseItem__link" href="https://relaxplore.com" target="_blank" rel="noopener">
+                                Live ansehen <span class="btn__arrow">↗</span>
+                            </a>
+                        </article>
+                    </div>
+
+                    <div class="showcase__frame">
+                        <div class="showcase__stack">
+                            <img class="showcaseImg is-active" data-index="0" src="projects/Airsoft/screenshot.png" alt="Airsoft Squad Basel 04" loading="lazy" />
+                            <img class="showcaseImg" data-index="1" src="projects/budget-app/screenshot.png" alt="Budget Control Center" loading="lazy" />
+                            <img class="showcaseImg" data-index="2" src="projects/Kochwelt/Vorlage/mockup.jpg" alt="Kochwelt" loading="lazy" />
+                            <img class="showcaseImg" data-index="3" src="projects/band-website/img/mockup.jpg" alt="Rock Mountain Band Website" loading="lazy" />
+                            <img class="showcaseImg" data-index="4" src="projects/sakura-ramen-responsive/img/1_hero/JPG/hero_bg.jpg" alt="Sakura Ramen" loading="lazy" />
+                            <img class="showcaseImg" data-index="5" src="projects/relaxplore/public/RelaxPlore_Logo.jpg" alt="Relaxplore" loading="lazy" />
                         </div>
-                    </article>
+                    </div>
                 </div>
             </div>
         </section>
@@ -390,8 +410,8 @@
                     <p class="muted">Bewusst schlank statt Framework-Overkill – schnell, wartbar, ohne unnötigen Ballast.</p>
                 </div>
 
-                <div class="stackGrid" data-reveal>
-                    <div>
+                <div class="stackGrid">
+                    <div data-reveal>
                         <div class="stackCol__head">
                             <span class="stackCol__icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -404,7 +424,7 @@
                             <span class="chip">JavaScript</span>
                         </div>
                     </div>
-                    <div>
+                    <div data-reveal data-reveal-delay="90">
                         <div class="stackCol__head">
                             <span class="stackCol__icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
@@ -417,7 +437,7 @@
                             <span class="chip">SQL</span>
                         </div>
                     </div>
-                    <div>
+                    <div data-reveal data-reveal-delay="180">
                         <div class="stackCol__head">
                             <span class="stackCol__icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3Z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
@@ -430,7 +450,7 @@
                             <span class="chip">Responsive Design</span>
                         </div>
                     </div>
-                    <div>
+                    <div data-reveal data-reveal-delay="270">
                         <div class="stackCol__head">
                             <span class="stackCol__icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4-1.8A5 5 0 0 0 6.5 19h11Z"/></svg>
