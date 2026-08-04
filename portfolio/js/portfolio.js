@@ -1,4 +1,4 @@
-// portfolio/js/app.js
+// portfolio/js/portfolio.js
 import { projects } from "./projects.js";
 
 function escapeHtml(str = "") {

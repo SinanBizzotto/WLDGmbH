@@ -29,8 +29,10 @@ function normalizeRelAsset(dirName, maybeRelPath) {
   if (!s) return null;
   // Absolute URL or absolute path: keep as-is
   if (/^(https?:)?\/\//i.test(s) || s.startsWith("/")) return s;
-  // Normalize "./" and ".\\" etc.
-  const cleaned = s.replace(/^\.(\/|\\)/, "");
+  // Normalize "./" and ".\\" etc., and any remaining Windows-style
+  // backslashes (e.g. "img\\photo.jpg" from a Windows-authored project.json)
+  // — a literal backslash in the emitted URL wouldn't resolve in a browser.
+  const cleaned = s.replace(/^\.(\/|\\)/, "").replace(/\\/g, "/");
   // Path relative to project folder
   return `../projects/${dirName}/${cleaned}`;
 }
@@ -39,7 +41,15 @@ for (const dir of folders) {
   const metaPath = path.join(projectsDir, dir, "project.json");
   if (!exists(metaPath)) continue;
 
-  const raw = readJson(metaPath);
+  // One malformed project.json (bad JSON, wrong encoding, ...) must not
+  // abort generation for every other project — skip just this one.
+  let raw;
+  try {
+    raw = readJson(metaPath);
+  } catch (err) {
+    console.warn(`WARN: übersprungen (ungültiges JSON) ${path.relative(root, metaPath)}: ${err.message}`);
+    continue;
+  }
   // Support both { ... } and [ { ... } ] formats
   const meta = Array.isArray(raw) ? (raw[0] ?? {}) : (raw ?? {});
 

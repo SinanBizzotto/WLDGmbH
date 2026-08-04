@@ -1,1 +1,8 @@
+# fitness-app/ is the React/TS *source* for the built PWA in /fitness/ —
+# it's git-tracked (Supabase migrations, .env.example, package.json) but was
+# never meant to be a browsable path; block it explicitly since this bundle
+# is otherwise deployed 1:1 and nothing else excludes it.
+/fitness-app  /  404
+/fitness-app/*  /  404
+
 /fitness/*  /fitness/index.html  200

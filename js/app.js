@@ -29,11 +29,13 @@ function initMobileNav() {
   scrim.setAttribute("aria-hidden", "true");
   document.body.appendChild(scrim);
 
-  const close = () => {
+  const close = ({ restoreFocus = false } = {}) => {
+    const wasOpen = nav.classList.contains("isOpen");
     nav.classList.remove("isOpen");
     toggle.setAttribute("aria-expanded", "false");
     scrim.classList.remove("is-visible");
     document.documentElement.style.overflow = "";
+    if (restoreFocus && wasOpen) toggle.focus();
   };
 
   const toggleNav = (e) => {
@@ -45,9 +47,10 @@ function initMobileNav() {
     toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
     scrim.classList.toggle("is-visible", isOpen);
     document.documentElement.style.overflow = isOpen ? "hidden" : "";
+    if (isOpen) nav.querySelector("a")?.focus();
   };
 
-  scrim.addEventListener("click", close);
+  scrim.addEventListener("click", () => close({ restoreFocus: true }));
 
   toggle.addEventListener("click", toggleNav);
 
@@ -65,9 +68,26 @@ function initMobileNav() {
     close();
   });
 
-  // ESC -> schließen
+  // ESC -> schließen, Fokus zurück zum Toggle-Button
+  // Tab -> im offenen Menü gefangen halten, damit Tastatur-Nutzer nicht in
+  // die verdeckte Seite dahinter springen
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") {
+      close({ restoreFocus: true });
+      return;
+    }
+    if (e.key !== "Tab" || !nav.classList.contains("isOpen")) return;
+    const items = Array.from(nav.querySelectorAll("a"));
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   });
 
   // Beim Resize auf Desktop -> Zustand bereinigen
@@ -388,6 +408,54 @@ function initCountUp() {
   render();
 }
 
+// ---------- Case Studies: filter + details toggle ----------
+function initCaseStudies() {
+  const grid = qs('#caseGrid');
+  const filter = qs('#caseFilter');
+  const toggleAll = qs('#caseToggle');
+  if (!grid) return;
+
+  const cards = qsa('.case', grid);
+
+  const setDetailsVisible = (card, visible) => {
+    const details = qs('.case__details', card);
+    if (details) details.hidden = !visible;
+    card.setAttribute('aria-expanded', String(visible));
+  };
+
+  cards.forEach((card) => {
+    card.setAttribute('role', 'button');
+    setDetailsVisible(card, false);
+
+    card.addEventListener('click', () => {
+      const details = qs('.case__details', card);
+      if (details) setDetailsVisible(card, details.hidden);
+    });
+
+    card.addEventListener('keydown', (e) => {
+      if (e.target !== card || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault();
+      const details = qs('.case__details', card);
+      if (details) setDetailsVisible(card, details.hidden);
+    });
+  });
+
+  filter?.addEventListener('change', () => {
+    const value = filter.value;
+    cards.forEach((card) => {
+      const tags = (card.getAttribute('data-tags') || '').split(/\s+/);
+      card.hidden = !(value === 'all' || tags.includes(value));
+    });
+  });
+
+  toggleAll?.addEventListener('click', () => {
+    const next = toggleAll.getAttribute('aria-pressed') !== 'true';
+    toggleAll.setAttribute('aria-pressed', String(next));
+    toggleAll.textContent = next ? 'Details ausblenden' : 'Details anzeigen';
+    cards.forEach((card) => setDetailsVisible(card, next));
+  });
+}
+
 // ---------- Contact form (Formspree) UX ----------
 function initContactForm() {
   const form = qs('#contactForm');
@@ -476,6 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPlanSelectButtons();
   initFinder();
   initEstimator();
+  initCaseStudies();
   initContactForm();
   initScrollProgress();
   initScrollReveal();
