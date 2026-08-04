@@ -16,6 +16,32 @@ function formatCHF(n) {
   return `${s} CHF`;
 }
 
+// ---------- Ambient cursor-follow spotlight ----------
+function initCursorGlow() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  if (reduceMotion || coarsePointer) return;
+
+  const glow = document.createElement('div');
+  glow.className = 'cursorGlow';
+  glow.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(glow);
+
+  let raf = null;
+  document.addEventListener('pointermove', (e) => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      glow.style.setProperty('--cursorX', `${e.clientX}px`);
+      glow.style.setProperty('--cursorY', `${e.clientY}px`);
+      glow.classList.add('is-active');
+      raf = null;
+    });
+  }, { passive: true });
+
+  document.addEventListener('pointerleave', () => glow.classList.remove('is-active'));
+  window.addEventListener('blur', () => glow.classList.remove('is-active'));
+}
+
 // ---------- Mobile Nav (Hamburger) ----------
 function initMobileNav() {
   const nav = qs(".nav");
@@ -524,7 +550,7 @@ function initHeroTilt() {
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
   if (reduceMotion || coarsePointer) return;
 
-  const maxTilt = 8;
+  const maxTilt = 13;
 
   wrap.addEventListener('pointermove', (e) => {
     const rect = wrap.getBoundingClientRect();
@@ -553,7 +579,7 @@ function initCardEffects() {
   if (reduceMotion) return;
 
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
-  const maxTilt = 6;
+  const maxTilt = 11;
   const cards = qsa('.card, .projectCard');
 
   cards.forEach((card) => {
@@ -579,6 +605,7 @@ function initCardEffects() {
 // ---------- Boot ----------
 document.addEventListener('DOMContentLoaded', () => {
   setYear();
+  initCursorGlow();
   initMobileNav();
   initPricingToggle();
   initPlanSelectButtons();

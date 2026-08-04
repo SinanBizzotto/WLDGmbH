@@ -17,6 +17,7 @@
     --radius: 18px;
     --max: 1180px;
     --ease: cubic-bezier(.16, 1, .3, 1);
+    --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
     --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
     --glow: 0 0 0 1px rgba(var(--accent-rgb), .25), 0 0 24px rgba(var(--accent-rgb), .35);
 }
@@ -80,6 +81,32 @@
     initial-value: 0px;
 }
 
+/* Ambient cursor-follow spotlight — created + positioned by initCursorGlow()
+   in app.js. Sits above everything (pointer-events:none, so it never blocks
+   clicks) and uses mix-blend-mode to wash light over whatever's underneath
+   rather than sitting as an opaque layer, so the whole page feels like it's
+   subtly responding to the cursor, not just individual cards. */
+.cursorGlow {
+    position: fixed;
+    inset: 0;
+    z-index: 95;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+    background: radial-gradient(560px circle at var(--cursorX, 50%) var(--cursorY, 30%), rgba(var(--accent-bright-rgb), .16), transparent 70%);
+    transition: opacity .5s var(--ease);
+}
+
+.cursorGlow.is-active {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+    .cursorGlow {
+        display: none;
+    }
+}
+
 * {
     box-sizing: border-box;
 }
@@ -97,7 +124,7 @@ body {
         var(--bg);
     background-repeat: no-repeat;
     background-position: 12% -10%, 92% 0%, 0 0;
-    animation: bgDrift 34s ease-in-out infinite;
+    animation: bgDrift 18s ease-in-out infinite;
     color: var(--text);
     line-height: 1.55;
     overflow-x: hidden;
@@ -106,7 +133,7 @@ body {
 
 @keyframes bgDrift {
     0%, 100% { background-position: 12% -10%, 92% 0%, 0 0; }
-    50% { background-position: 18% -2%, 85% 8%, 0 0; }
+    50% { background-position: 26% 6%, 74% 18%, 0 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -302,7 +329,7 @@ a {
     opacity: 0;
     transform: perspective(1000px) rotateX(-10deg) translateY(32px) translateZ(-40px);
     transform-origin: center bottom;
-    transition: opacity .8s var(--ease), transform .8s var(--ease);
+    transition: opacity .5s var(--ease), transform .5s var(--ease);
 }
 
 .js-reveal [data-reveal].is-visible {
@@ -570,6 +597,18 @@ svg.brand__logo {
     position: relative;
     overflow: hidden;
     isolation: isolate;
+    animation: btnPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes btnPulse {
+    0%, 100% { box-shadow: 0 0 14px rgba(var(--accent-rgb), .25); }
+    50% { box-shadow: 0 0 24px rgba(var(--accent-rgb), .5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn {
+        animation: none;
+    }
 }
 
 .btn::after {
@@ -593,6 +632,7 @@ svg.brand__logo {
     transform: translateY(-2px);
     filter: brightness(1.06);
     box-shadow: 0 0 26px rgba(var(--accent-rgb), .45);
+    animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -607,6 +647,8 @@ svg.brand__logo {
     -webkit-backdrop-filter: blur(10px);
     color: var(--text);
     border-color: var(--line);
+    box-shadow: none;
+    animation: none;
 }
 
 .btn--ghost:hover {
@@ -817,6 +859,27 @@ svg.brand__logo {
     flex: 0 0 auto;
 }
 
+/* Idle "breathing" glow so icon badges feel alive at rest, not just on
+   hover — shared across every icon-badge context on the site. */
+.statIcon,
+.stackCol__icon,
+.heroFeature__icon {
+    animation: iconPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { box-shadow: inset 0 0 12px rgba(var(--accent-rgb), .12); }
+    50% { box-shadow: inset 0 0 20px rgba(var(--accent-rgb), .32), 0 0 14px rgba(var(--accent-rgb), .28); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .statIcon,
+    .stackCol__icon,
+    .heroFeature__icon {
+        animation: none;
+    }
+}
+
 .statIcon svg {
     width: 17px;
     height: 17px;
@@ -893,7 +956,7 @@ svg.brand__logo {
     position: relative;
     overflow: hidden;
     transform: rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg));
-    transition: transform .4s var(--ease);
+    transition: transform .2s var(--ease-spring);
     will-change: transform;
 }
 
@@ -1085,16 +1148,16 @@ svg.brand__logo {
     place-items: center;
     box-shadow: var(--shadow), 0 0 22px rgba(var(--accent-rgb), .3);
     color: var(--accent);
-    animation: floatBob 4s ease-in-out infinite;
+    animation: floatBob 3s ease-in-out infinite;
 }
 
 .floatBadge--bottom {
-    animation-delay: -2s;
+    animation-delay: -1.5s;
 }
 
 @keyframes floatBob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(-2deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1155,7 +1218,7 @@ svg.brand__logo {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, .5), 0 0 30px rgba(var(--accent-rgb), .18);
-    animation: floatBob 5s ease-in-out infinite;
+    animation: floatBob 3.5s ease-in-out infinite;
 }
 
 .heroFeature--left .heroFeature__inner {
@@ -1289,7 +1352,7 @@ svg.brand__logo {
     border: clamp(6px, 1.4vw, 12px) solid #17141f;
     border-bottom-width: 4px;
     border-radius: 16px 16px 5px 5px;
-    background: #05040a;
+    background: radial-gradient(120% 140% at 22% 18%, rgba(var(--accent-rgb), .22), transparent 60%), #05040a;
     position: relative;
     overflow: hidden;
     box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 40px rgba(var(--accent-rgb), .1);
@@ -1345,7 +1408,7 @@ svg.brand__logo {
     aspect-ratio: 9 / 19.5;
     border: clamp(6px, 1.6vw, 10px) solid #17141f;
     border-radius: 34px;
-    background: #05040a;
+    background: radial-gradient(120% 90% at 50% 12%, rgba(var(--accent-rgb), .22), transparent 60%), #05040a;
     position: relative;
     overflow: hidden;
     box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 30px rgba(var(--accent-rgb), .1);
@@ -1445,40 +1508,40 @@ svg.brand__logo {
         .story__device--laptop .laptop {
             animation: storyLaptopZoom linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 8% contain 32%;
+            animation-range: contain 8% contain 40%;
         }
 
         .story__device--laptop .laptop__content {
             opacity: 0;
             animation: storyContentIn linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 21% contain 34%;
+            animation-range: contain 13% contain 25%;
         }
 
         .story__device--laptop {
             animation: storyDeviceExit linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 44% contain 58%;
+            animation-range: contain 38% contain 50%;
         }
 
         .story__device--phone {
             opacity: 0;
             animation: storyDeviceEnter linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 48% contain 62%;
+            animation-range: contain 41% contain 53%;
         }
 
         .story__device--phone .phone {
             animation: storyPhoneZoom linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 62% contain 86%;
+            animation-range: contain 52% contain 84%;
         }
 
         .story__device--phone .phone__content {
             opacity: 0;
             animation: storyContentIn linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 76% contain 89%;
+            animation-range: contain 60% contain 72%;
         }
     }
 }
@@ -1526,7 +1589,7 @@ svg.brand__logo {
     display: flex;
     width: max-content;
     gap: 48px;
-    animation: marquee 28s linear infinite;
+    animation: marquee 16s linear infinite;
 }
 
 .marquee:hover .marquee__track {
@@ -1631,16 +1694,21 @@ svg.brand__logo {
         translateY(calc(var(--revealY) + var(--liftY)))
         translateZ(calc(var(--revealZ) + var(--elevateZ)))
         rotateX(var(--tiltX)) rotateY(var(--tiltY));
-    transition: border-color .25s var(--ease), transform .4s var(--ease),
-        box-shadow .25s var(--ease), --glareA .35s var(--ease),
-        --tiltX .4s var(--ease), --tiltY .4s var(--ease);
+    /* transform itself isn't transitioned — it's fully derived from the
+       custom properties below, each animated at its own speed instead of
+       one shared .4s for everything (that made the pointer-tilt feel
+       laggy, since it was easing at the same slow pace as the reveal). */
+    transition: border-color .25s var(--ease), box-shadow .25s var(--ease), --glareA .35s var(--ease),
+        --revealY .5s var(--ease), --revealZ .5s var(--ease),
+        --liftY .2s var(--ease-spring),
+        --tiltX .18s var(--ease-spring), --tiltY .18s var(--ease-spring);
 }
 
 .card:hover {
-    border-color: rgba(var(--accent-rgb), .35);
+    border-color: rgba(var(--accent-rgb), .5);
     box-shadow: var(--glow);
-    --glareA: .16;
-    --liftY: -3px;
+    --glareA: .22;
+    --liftY: -7px;
 }
 
 @media (prefers-reduced-motion: reduce) {
