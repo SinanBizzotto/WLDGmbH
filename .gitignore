@@ -15,6 +15,10 @@ node_modules/
 *.tsbuildinfo
 fitness-app/dist/
 
+# Local Wrangler/Miniflare dev state (not used in production — the project
+# uses Supabase, not Cloudflare D1)
+.wrangler/
+
 # Showcase-only sub-projects: only the portfolio card data (project.json +
 # screenshot) is needed here. Full source lives in their own repos/deploys.
 projects/Airsoft/*
