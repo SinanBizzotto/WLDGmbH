@@ -1246,6 +1246,273 @@ svg.brand__logo {
     50% { transform: scaleY(1); opacity: 1; }
 }
 
+/* ---------- Story: scroll into laptop, then phone ----------
+   Base rules below are the fallback: a plain, always-visible, non-scroll-
+   jacked stack (laptop card, then phone card), exactly like the hero's own
+   "copy stays visible at rest" principle. The @supports block further down
+   is what turns it into the pinned scroll-zoom sequence, and only where a
+   real pointing device + no reduced-motion preference + enough width for
+   two side-by-side devices are all true. */
+.story {
+    padding: 70px 0;
+}
+
+.story__stage {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+    text-align: center;
+}
+
+.story__intro h2 {
+    margin: 10px 0 0;
+    font-size: clamp(28px, 4vw, 44px);
+}
+
+.story__device {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* ---- Laptop chrome (CSS-drawn, no image assets) ---- */
+.laptop {
+    width: min(680px, 92vw);
+}
+
+.laptop__screen {
+    aspect-ratio: 16 / 10;
+    border: clamp(6px, 1.4vw, 12px) solid #17141f;
+    border-bottom-width: 4px;
+    border-radius: 16px 16px 5px 5px;
+    background: #05040a;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 40px rgba(var(--accent-rgb), .1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(16px, 3vw, 40px);
+}
+
+.laptop__base {
+    height: 14px;
+    width: 112%;
+    margin: 0 -6%;
+    background: linear-gradient(180deg, #232030, #0d0c12);
+    border-radius: 0 0 10px 10px;
+    position: relative;
+}
+
+.laptop__base::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 5px;
+    background: #05040a;
+    border-radius: 0 0 6px 6px;
+}
+
+.laptop__content {
+    text-align: left;
+    max-width: 46ch;
+}
+
+.laptop__content h3 {
+    margin: 8px 0 12px;
+    font-size: clamp(18px, 2.6vw, 28px);
+}
+
+.laptop__content p {
+    color: var(--muted);
+    margin: 0;
+    font-size: clamp(13px, 1.4vw, 16px);
+}
+
+/* ---- Phone chrome ---- */
+.phone {
+    width: min(260px, 60vw);
+}
+
+.phone__screen {
+    aspect-ratio: 9 / 19.5;
+    border: clamp(6px, 1.6vw, 10px) solid #17141f;
+    border-radius: 34px;
+    background: #05040a;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 30px rgba(var(--accent-rgb), .1);
+    padding: 36px 16px 20px;
+}
+
+.phone__notch {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 16px;
+    background: #05040a;
+    border-radius: 10px;
+    z-index: 2;
+}
+
+.phone__content {
+    text-align: left;
+}
+
+.phone__content h3 {
+    margin: 6px 0 14px;
+    font-size: 15px;
+}
+
+.phone__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.phone__list li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(var(--accent-rgb), .08);
+    border: 1px solid var(--line);
+}
+
+.phone__list li span {
+    font-weight: 800;
+    font-size: 12.5px;
+}
+
+.phone__list li em {
+    font-style: normal;
+    color: var(--muted);
+    font-size: 10.5px;
+    font-family: var(--mono);
+}
+
+/* ---- Cinematic scroll-zoom override ---- */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) and (min-width: 981px) {
+        .story {
+            height: 420vh;
+            padding: 0;
+            position: relative;
+            view-timeline-name: --storyScene;
+            view-timeline-axis: block;
+        }
+
+        .story__stage {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            max-width: none;
+            padding: 0;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        .story__intro,
+        .story__device {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .story__intro {
+            flex-direction: column;
+            gap: 10px;
+            animation: storyIntroOut linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 0% contain 9%;
+        }
+
+        .story__device--laptop .laptop {
+            animation: storyLaptopZoom linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 8% contain 32%;
+        }
+
+        .story__device--laptop .laptop__content {
+            opacity: 0;
+            animation: storyContentIn linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 21% contain 34%;
+        }
+
+        .story__device--laptop {
+            animation: storyDeviceExit linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 44% contain 58%;
+        }
+
+        .story__device--phone {
+            opacity: 0;
+            animation: storyDeviceEnter linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 48% contain 62%;
+        }
+
+        .story__device--phone .phone {
+            animation: storyPhoneZoom linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 62% contain 86%;
+        }
+
+        .story__device--phone .phone__content {
+            opacity: 0;
+            animation: storyContentIn linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 76% contain 89%;
+        }
+    }
+}
+
+@keyframes storyIntroOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(-30px) scale(.9); }
+}
+
+@keyframes storyLaptopZoom {
+    from { transform: scale(1); }
+    to { transform: scale(6.2); }
+}
+
+@keyframes storyPhoneZoom {
+    from { transform: scale(1); }
+    to { transform: scale(4.4); }
+}
+
+@keyframes storyContentIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes storyDeviceExit {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes storyDeviceEnter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 /* ---------- Marquee ---------- */
 .marquee {
     border-top: 1px solid var(--line);

@@ -25,7 +25,7 @@
         content="Web Lab Design entwickelt performante Frontends und komplette Web-Lösungen: Frontend, Hosting & Full-Stack Pakete." />
     <meta name="twitter:image" content="https://weblabdesign.ch/WebLabDesignBanner.jpeg" />
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
     <link rel="icon" type="image/png" href="favicon.png">
 
     <script type="application/ld+json">
@@ -264,6 +264,51 @@
                 </div>
                 </div>
             </div>
+            </div>
+        </section>
+
+        <!-- STORY: scroll into the laptop screen (company), then the phone
+             screen (projects). Falls back to a plain static two-part layout
+             (both always visible, no scroll-jacking) when the browser
+             doesn't support scroll-driven CSS animations, matching the
+             hero's own progressive-enhancement approach above. -->
+        <section class="story" id="story">
+            <div class="story__stage">
+                <div class="story__intro">
+                    <p class="kicker">Wer wir sind</p>
+                    <h2>Scroll dich rein.</h2>
+                </div>
+
+                <div class="story__device story__device--laptop">
+                    <div class="laptop">
+                        <div class="laptop__screen">
+                            <div class="laptop__content">
+                                <p class="kicker">Web Lab Design</p>
+                                <h3>Wir entwickeln digitale Lösungen, die verkaufen.</h3>
+                                <p>Frontend als Kern, Hosting und Backend als Erweiterung – schlank, schnell,
+                                    ohne Agentur-Nebel. Von der ersten Zeile Code bis zum laufenden Betrieb.</p>
+                            </div>
+                        </div>
+                        <div class="laptop__base"></div>
+                    </div>
+                </div>
+
+                <div class="story__device story__device--phone">
+                    <div class="phone">
+                        <div class="phone__screen">
+                            <div class="phone__notch"></div>
+                            <div class="phone__content">
+                                <p class="kicker">Projekte</p>
+                                <h3>Ausgewählte Arbeiten.</h3>
+                                <ul class="phone__list">
+                                    <li><span>Airsoft Squad Basel 04</span><em>React · Supabase</em></li>
+                                    <li><span>Budget Control Center</span><em>React · TypeScript</em></li>
+                                    <li><span>Relaxplore</span><em>React · Vercel</em></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1151,7 +1196,7 @@
         </div>
     </footer>
 
-<script type="module" src="./js/app.js"></script>
+<script type="module" src="./js/app.js?v=2"></script>
 
 </body>
 
