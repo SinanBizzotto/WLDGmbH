@@ -268,70 +268,127 @@
             </div>
         </section>
 
-        <!-- STORY: scroll into the laptop screen (company), then the phone
-             screen (projects). Falls back to a plain static two-part layout
-             (both always visible, no scroll-jacking) when the browser
-             doesn't support scroll-driven CSS animations, matching the
-             hero's own progressive-enhancement approach above. -->
-        <section class="story" id="story">
-            <div class="story__stage">
-                <div class="story__intro">
+        <!-- CINEMATIC SHOWCASE: one continuous virtual-camera scroll journey —
+             brand -> MacBook -> inside the screen -> digital world -> back out
+             -> responsive morph -> iPhone -> inside the screen -> mobile world
+             -> finale. Choreographed by js/cinema.js (GSAP + ScrollTrigger).
+             This markup is ALWAYS plain, linear, readable content; js/cinema.js
+             adds "cinema--active" to <html> only once GSAP has initialized and
+             the user has not requested reduced motion — everything below reads
+             fine, in document order, without it. -->
+        <section class="cinema" id="cinema" aria-label="Web Lab Design: von der Idee zur Experience, auf jedem Bildschirm">
+            <div class="cinema__stage" data-cinema-stage>
+
+                <div class="cinema__bg" aria-hidden="true">
+                    <div class="cinema__grid"></div>
+                    <div class="cinema__orb cinema__orb--a" data-cinema-orb="a"></div>
+                    <div class="cinema__orb cinema__orb--b" data-cinema-orb="b"></div>
+                    <div class="cinema__orb cinema__orb--c" data-cinema-orb="c"></div>
+                    <div class="cinema__particles" data-cinema-particles></div>
+                </div>
+
+                <div class="cinema__intro" data-cinema="intro">
                     <p class="kicker">Wer wir sind</p>
                     <h2>Scroll dich rein.</h2>
                 </div>
 
-                <div class="story__device story__device--laptop">
-                    <div class="laptop">
-                        <div class="laptop__screen">
-                            <div class="laptop__topbar">
-                                <span class="laptop__dot laptop__dot--r"></span>
-                                <span class="laptop__dot laptop__dot--y"></span>
-                                <span class="laptop__dot laptop__dot--g"></span>
-                                <span class="laptop__url">weblabdesign.ch</span>
+                <div class="cinema__macRig" data-cinema="macRig">
+                    <div class="cinema__mac" data-cinema="mac">
+                        <div class="cinema__macTopbar" data-cinema="macChrome">
+                            <span class="cinema__dot cinema__dot--r"></span>
+                            <span class="cinema__dot cinema__dot--y"></span>
+                            <span class="cinema__dot cinema__dot--g"></span>
+                            <span class="cinema__url">weblabdesign.ch</span>
+                        </div>
+                        <!-- Decorative-only placeholder: in the fallback layout this is
+                             literally the visible "screen". In active/cinematic mode
+                             .cinema__portal (a SIBLING, not a child — a transformed
+                             ancestor would break its position:fixed viewport-tracking)
+                             is placed exactly over this rect and carries the real,
+                             single, continuous copy of the content. -->
+                        <div class="cinema__macScreen" aria-hidden="true"></div>
+                        <div class="cinema__macBase" data-cinema="macChrome">
+                            <div class="cinema__trackpad"></div>
+                        </div>
+                        <div class="cinema__macSweep" data-cinema="macSweep" aria-hidden="true"></div>
+                    </div>
+                </div>
+
+                <div class="cinema__portal" data-cinema="portal">
+                    <div class="cinema__world" data-cinema="world">
+                        <nav class="cinema__nav cinema__nav--desktop" data-cinema="navDesktop">
+                            <span class="cinema__navLogo">WLD</span>
+                            <div class="cinema__navLinks">
+                                <a>Leistungen</a><a>Projekte</a><a>Über uns</a><a>Kontakt</a>
+                            </div>
+                            <span class="cinema__navCta">Projekt starten</span>
+                        </nav>
+                        <nav class="cinema__nav cinema__nav--mobile" data-cinema="navMobile">
+                            <span class="cinema__navLogo">WLD</span>
+                            <span class="cinema__navBurger" aria-hidden="true"><i></i><i></i><i></i></span>
+                        </nav>
+
+                        <div class="cinema__content" data-cinema="content">
+                            <div class="cinema__heroBlock" data-cinema="contentIntro">
+                                <p class="kicker">Web Lab Design</p>
+                                <h3>Wir entwickeln digitale Lösungen, die verkaufen.</h3>
+                                <p>Frontend als Kern, Hosting und Backend als Erweiterung – schlank,
+                                    schnell, ohne Agentur-Nebel.</p>
+                            </div>
+
+                            <div class="cinema__beats" data-cinema="beats">
+                                <article class="cinema__beat" data-cinema-beat="design">
+                                    <span class="cinema__beatIndex">01</span>
+                                    <h4>Design</h4>
+                                    <p>Wireframe → UI-System → Seitenstruktur. Klarheit, Conversion,
+                                        Performance.</p>
+                                </article>
+                                <article class="cinema__beat" data-cinema-beat="development">
+                                    <span class="cinema__beatIndex">02</span>
+                                    <h4>Development</h4>
+                                    <p>Komponenten-Architektur, sauberer Code, saubere Übergabe.</p>
+                                </article>
+                                <article class="cinema__beat" data-cinema-beat="performance">
+                                    <span class="cinema__beatIndex">03</span>
+                                    <h4>Performance</h4>
+                                    <p>Messbare Ladezeiten, Performance-Budget, echte Nutzerdaten.</p>
+                                </article>
+                                <article class="cinema__beat" data-cinema-beat="responsive">
+                                    <span class="cinema__beatIndex">04</span>
+                                    <h4>Responsive</h4>
+                                    <p>Ein Design-System, jede Bildschirmgrösse.</p>
+                                </article>
+                            </div>
+
+                            <div class="cinema__mobileList" data-cinema="mobileList">
+                                <p class="kicker">Projekte</p>
+                                <h4>Ausgewählte Arbeiten.</h4>
+                                <ul>
+                                    <li><span>Airsoft Squad Basel 04</span><em>React · Supabase</em></li>
+                                    <li><span>Budget Control Center</span><em>React · TypeScript</em></li>
+                                    <li><span>Relaxplore</span><em>React · Vercel</em></li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="laptop__base">
-                            <div class="laptop__trackpad"></div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="story__reveal story__reveal--laptop">
-                    <div class="story__revealCard">
-                        <p class="kicker">Web Lab Design</p>
-                        <h3>Wir entwickeln digitale Lösungen, die verkaufen.</h3>
-                        <p>Frontend als Kern, Hosting und Backend als Erweiterung – schlank, schnell,
-                            ohne Agentur-Nebel. Von der ersten Zeile Code bis zum laufenden Betrieb.</p>
+                <div class="cinema__phoneRig" data-cinema="phoneRig">
+                    <div class="cinema__phone" data-cinema="phone">
+                        <div class="cinema__phoneNotch"></div>
+                        <div class="cinema__phoneButtons"></div>
+                        <div class="cinema__phoneSweep" data-cinema="phoneSweep" aria-hidden="true"></div>
                     </div>
                 </div>
 
-                <div class="story__device story__device--phone">
-                    <div class="phone">
-                        <div class="phone__screen">
-                            <div class="phone__notch"></div>
-                            <div class="phone__statusbar">
-                                <span>9:41</span>
-                                <span class="phone__statusicons" aria-hidden="true">
-                                    <i></i><i></i><i></i><i></i>
-                                    <b class="phone__battery"></b>
-                                </span>
-                            </div>
-                            <div class="phone__home"></div>
-                        </div>
-                    </div>
+                <div class="cinema__finale" data-cinema="finale">
+                    <p class="kicker">Every Screen</p>
+                    <h2>Designed for every screen.</h2>
+                    <p>Web Lab Design entwickelt digitale Produkte und Experiences – geräteübergreifend
+                        gedacht, von der ersten Zeile Code bis zum laufenden Betrieb.</p>
+                    <a class="btn" href="#kontakt">Projekt starten<span class="btn__arrow">↗</span></a>
                 </div>
 
-                <div class="story__reveal story__reveal--phone">
-                    <div class="story__revealCard">
-                        <p class="kicker">Projekte</p>
-                        <h3>Ausgewählte Arbeiten.</h3>
-                        <ul class="phone__list">
-                            <li><span>Airsoft Squad Basel 04</span><em>React · Supabase</em></li>
-                            <li><span>Budget Control Center</span><em>React · TypeScript</em></li>
-                            <li><span>Relaxplore</span><em>React · Vercel</em></li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -1219,6 +1276,9 @@
         </div>
     </footer>
 
+<script src="./js/vendor/gsap/gsap.min.js?v=1"></script>
+<script src="./js/vendor/gsap/ScrollTrigger.min.js?v=1"></script>
+<script type="module" src="./js/cinema.js?v=1"></script>
 <script type="module" src="./js/app.js?v=2"></script>
 
 </body>

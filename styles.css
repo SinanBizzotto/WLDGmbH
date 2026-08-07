@@ -1316,113 +1316,142 @@ svg.brand__logo {
    is what turns it into the pinned scroll-zoom sequence, and only where a
    real pointing device + no reduced-motion preference + enough width for
    two side-by-side devices are all true. */
-.story {
-    padding: 70px 0;
+/* =====================================================================
+   CINEMATIC SHOWCASE — a single continuous virtual-camera scroll journey:
+   Brand -> MacBook -> inside the screen -> digital world -> back out ->
+   responsive morph -> iPhone -> inside the screen -> mobile world -> out
+   -> finale. Choreographed by js/cinema.js (GSAP + ScrollTrigger, one
+   master timeline, scrub-linked to scroll position).
+
+   Structure is ALWAYS in the DOM as plain, readable, linear content —
+   .cinema--active is added by JS only once GSAP has initialized AND the
+   user has not requested reduced motion. Everything under .cinema--active
+   is the pinned/fixed camera rig; everything else in this file is the
+   accessible, no-JS-required fallback (same markup, normal document flow,
+   nothing duplicated). See js/cinema.js for the timeline itself. */
+
+.cinema {
+    position: relative;
+    padding: 88px 0;
 }
 
-.story__stage {
+.cinema__stage {
     max-width: var(--max);
     margin: 0 auto;
     padding: 0 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 56px;
+    gap: 64px;
     text-align: center;
 }
 
-.story__intro h2 {
+/* ---- Ambient background: grid + light orbs + particles. Present in both
+   fallback and active mode; JS only ever tweens colors/positions, never
+   toggles existence, so there's nothing to "pop in" awkwardly. ---- */
+.cinema__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cinema__grid {
+    position: absolute;
+    inset: -10%;
+    background-image:
+        linear-gradient(rgba(245, 243, 238, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 243, 238, .05) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(60% 60% at 50% 40%, #000 30%, transparent 78%);
+    mask-image: radial-gradient(60% 60% at 50% 40%, #000 30%, transparent 78%);
+    opacity: .5;
+}
+
+/* Color comes from `color` (currentColor), not `background`, specifically
+   so js/cinema.js can drive the whole light system by tweening a single,
+   fully-interpolatable CSS property per orb via GSAP as the camera moves
+   through each scene (deep blue/purple at rest -> electric blue/cyan near
+   the Mac -> magenta/violet mid-transform -> cyan/pink near the iPhone ->
+   blue/violet/gold at the finale). */
+.cinema__orb {
+    position: absolute;
+    width: 56vw;
+    height: 56vw;
+    max-width: 820px;
+    max-height: 820px;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .55;
+    background: radial-gradient(closest-side, currentColor, transparent 72%);
+    will-change: transform, opacity, color;
+}
+
+.cinema__orb--a { top: -12%; left: -12%; color: #4c1d95; }
+.cinema__orb--b { top: 22%; right: -18%; color: #2563eb; }
+.cinema__orb--c { bottom: -16%; left: 24%; color: #d946ef; opacity: .32; }
+
+.cinema__particles {
+    position: absolute;
+    inset: 0;
+}
+
+.cinema__particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(200, 200, 255, .55);
+    box-shadow: 0 0 6px 1px rgba(180, 160, 255, .35);
+    animation: particleDrift linear infinite;
+}
+
+@keyframes particleDrift {
+    0%   { transform: translate3d(0, 6vh, 0); opacity: 0; }
+    10%  { opacity: var(--pOpacity, .5); }
+    90%  { opacity: var(--pOpacity, .5); }
+    100% { transform: translate3d(var(--pDriftX, 2vw), -10vh, 0); opacity: 0; }
+}
+
+/* ---- Scene 1: intro kicker ---- */
+.cinema__intro h2 {
     margin: 10px 0 0;
     font-size: clamp(28px, 4vw, 44px);
 }
 
-.story__device {
+/* ---- MacBook rig ---- */
+.cinema__macRig {
     width: 100%;
     display: flex;
     justify-content: center;
+    transform-style: preserve-3d;
 }
 
-.story__revealCard {
-    max-width: min(560px, 88vw);
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: clamp(20px, 3.4vw, 34px);
-    border-radius: 22px;
-    background: rgba(10, 8, 16, .62);
-    border: 1px solid rgba(255, 255, 255, .1);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(var(--accent-rgb), .06);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-}
-
-.story__revealCard h3 {
-    margin: 8px 0 12px;
-    font-size: clamp(22px, 3.4vw, 32px);
-}
-
-.story__revealCard p {
-    color: var(--muted);
-    margin: 0;
-    font-size: clamp(14px, 1.6vw, 17px);
-}
-
-.story__revealCard .phone__list {
-    margin-top: 4px;
-}
-
-/* ---- Laptop chrome (CSS-drawn, no image assets) ---- */
-.laptop {
-    width: min(680px, 92vw);
-}
-
-.laptop__screen {
-    aspect-ratio: 16 / 10;
-    border: clamp(6px, 1.4vw, 12px) solid #17141f;
-    border-bottom-width: 4px;
-    border-radius: 16px 16px 5px 5px;
-    background: radial-gradient(120% 140% at 22% 18%, rgba(var(--accent-rgb), .22), transparent 60%), #05040a;
+.cinema__mac {
     position: relative;
-    overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 40px rgba(var(--accent-rgb), .1);
-    display: flex;
-    flex-direction: column;
+    width: min(760px, 94vw);
+    transform-style: preserve-3d;
+    will-change: transform, opacity, filter;
 }
 
-.laptop__screen::before {
-    content: "";
-    position: absolute;
-    inset: -25%;
-    background: radial-gradient(closest-side, rgba(var(--accent-rgb), .38), transparent 72%);
-    filter: blur(18px);
-    animation: screenPulse 6s ease-in-out infinite;
-    pointer-events: none;
-}
-
-.laptop__topbar {
+.cinema__macTopbar {
     position: relative;
     z-index: 1;
     display: flex;
     align-items: center;
     gap: 6px;
     padding: clamp(8px, 1.6vw, 14px) clamp(10px, 2vw, 16px);
+    background: linear-gradient(180deg, #1b1720, #121017);
+    border: clamp(6px, 1.4vw, 12px) solid #1b1720;
     border-bottom: 1px solid rgba(255, 255, 255, .07);
-    flex: 0 0 auto;
+    border-radius: 16px 16px 0 0;
 }
 
-.laptop__dot {
-    width: clamp(6px, .9vw, 9px);
-    height: clamp(6px, .9vw, 9px);
-    border-radius: 50%;
-    flex: 0 0 auto;
-}
+.cinema__dot { width: clamp(6px, .9vw, 9px); height: clamp(6px, .9vw, 9px); border-radius: 50%; flex: 0 0 auto; }
+.cinema__dot--r { background: #ff5f57; }
+.cinema__dot--y { background: #febc2e; }
+.cinema__dot--g { background: #28c840; }
 
-.laptop__dot--r { background: #ff5f57; }
-.laptop__dot--y { background: #febc2e; }
-.laptop__dot--g { background: #28c840; }
-
-.laptop__url {
+.cinema__url {
     margin-left: 10px;
     font-family: var(--mono);
     font-size: clamp(9px, 1vw, 11px);
@@ -1433,148 +1462,233 @@ svg.brand__logo {
     border-radius: 999px;
 }
 
-.laptop__base {
-    height: 14px;
-    width: 112%;
-    margin: 0 -6%;
-    background: linear-gradient(180deg, #232030, #0d0c12);
-    border-radius: 0 0 10px 10px;
-    position: relative;
-}
-
-.laptop__base::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
-    width: 70px;
-    height: 5px;
-    background: #05040a;
-    border-radius: 0 0 6px 6px;
-}
-
-.laptop__trackpad {
-    position: absolute;
-    left: 50%;
-    top: 2px;
-    transform: translateX(-50%);
-    width: 90px;
-    height: 6px;
+.cinema__macScreen {
+    aspect-ratio: 16 / 10;
+    margin-top: -1px;
     border-radius: 0 0 5px 5px;
-    border: 1px solid rgba(255, 255, 255, .06);
-    border-top: none;
-}
-
-/* ---- Phone chrome ---- */
-.phone {
-    width: min(260px, 60vw);
-}
-
-.phone__screen {
-    aspect-ratio: 9 / 19.5;
-    border: clamp(6px, 1.6vw, 10px) solid #17141f;
-    border-radius: 34px;
-    background: radial-gradient(120% 90% at 50% 12%, rgba(var(--accent-rgb), .22), transparent 60%), #05040a;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 30px rgba(var(--accent-rgb), .1);
+    background: radial-gradient(120% 140% at 22% 18%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
 }
 
-.phone__screen::before {
+.cinema__macScreen::before {
     content: "";
     position: absolute;
     inset: -25%;
     background: radial-gradient(closest-side, rgba(var(--accent-rgb), .38), transparent 72%);
     filter: blur(18px);
-    animation: screenPulse 6s ease-in-out infinite;
+    animation: cinemaScreenPulse 6s ease-in-out infinite;
     pointer-events: none;
 }
 
-.phone__notch {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 16px;
-    background: #05040a;
-    border-radius: 10px;
-    z-index: 2;
+html.cinema--active .cinema__macScreen {
+    /* .cinema__portal sits fixed exactly over this rect once active — this
+       placeholder just needs to not show through around its edges. */
+    background: #060509;
 }
 
-.phone__statusbar {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 18px 0;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: rgba(245, 243, 238, .6);
+html.cinema--active .cinema__macScreen::before {
+    display: none;
 }
 
-.phone__statusicons {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-}
-
-.phone__statusicons i {
-    display: block;
-    width: 3px;
-    background: currentColor;
-    border-radius: 1px;
-}
-
-.phone__statusicons i:nth-child(1) { height: 4px; }
-.phone__statusicons i:nth-child(2) { height: 6px; }
-.phone__statusicons i:nth-child(3) { height: 8px; }
-.phone__statusicons i:nth-child(4) { height: 10px; }
-
-.phone__battery {
-    width: 16px;
-    height: 9px;
-    margin-left: 4px;
-    border: 1px solid currentColor;
-    border-radius: 2px;
-    position: relative;
-}
-
-.phone__battery::after {
-    content: "";
-    position: absolute;
-    inset: 1.5px;
-    right: 3px;
-    background: currentColor;
-    border-radius: 1px;
-}
-
-.phone__home {
-    position: absolute;
-    left: 50%;
-    bottom: 10px;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 4px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, .35);
-}
-
-@keyframes screenPulse {
+@keyframes cinemaScreenPulse {
     0%, 100% { opacity: .55; transform: scale(1); }
     50% { opacity: .95; transform: scale(1.12); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .laptop__screen::before,
-    .phone__screen::before {
+    .cinema__macScreen::before,
+    .cinema__phone::before {
         animation: none;
     }
 }
 
-.phone__list {
+.cinema__macBase {
+    height: 16px;
+    width: 114%;
+    margin: 0 -7%;
+    background: linear-gradient(180deg, #26212e, #0d0c12);
+    border-radius: 0 0 11px 11px;
+    position: relative;
+    box-shadow: 0 18px 30px rgba(0, 0, 0, .45);
+}
+
+.cinema__trackpad {
+    position: absolute;
+    left: 50%;
+    top: 2px;
+    transform: translateX(-50%);
+    width: 96px;
+    height: 7px;
+    border-radius: 0 0 5px 5px;
+    border: 1px solid rgba(255, 255, 255, .07);
+    border-top: none;
+}
+
+.cinema__macSweep {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .16) 48%, transparent 56%);
+    background-size: 260% 260%;
+    background-position: -40% -40%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0;
+}
+
+/* ---- The portal: a fixed-position window whose width/height/position/
+   radius are driven entirely by GSAP. .cinema__world always fills it at
+   100%/100% — the SAME element is carried from "small, inside the Mac
+   screen" through "fullscreen" through "phone-shaped", so there is never
+   a crossfade or a second copy to keep in sync. In fallback mode it's a
+   plain static block instead (see .cinema--active gate below). ---- */
+.cinema__portal {
+    position: relative;
+    width: min(760px, 94vw);
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+    background: #060509;
+}
+
+.cinema__world {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(120% 140% at 20% 15%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
+}
+
+.cinema__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(8px, 2vw, 20px);
+    padding: clamp(10px, 2vw, 16px) clamp(12px, 2.6vw, 22px);
+    border-bottom: 1px solid rgba(255, 255, 255, .07);
+    flex: 0 0 auto;
+    /* The portal renders this same nav at any width from a phone-narrow
+       fullscreen (390px) up to a wide desktop fullscreen (1600px+) — every
+       size here is viewport-relative (clamp/vw) so it always fits instead
+       of overflowing on narrow viewports. */
+}
+
+.cinema__navLogo {
+    font-family: var(--mono);
+    font-weight: 800;
+    letter-spacing: .06em;
+    font-size: clamp(11px, 1.4vw, 13px);
+    color: var(--text);
+    flex: 0 0 auto;
+}
+
+.cinema__navLinks {
+    display: flex;
+    gap: clamp(8px, 1.8vw, 20px);
+    font-size: clamp(10px, 1.15vw, 12px);
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.cinema__navCta {
+    font-size: clamp(9px, 1vw, 11px);
+    font-weight: 700;
+    padding: clamp(4px, .8vw, 6px) clamp(8px, 1.6vw, 14px);
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.cinema__nav--mobile { display: none; }
+
+.cinema__navBurger {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 18px;
+}
+
+.cinema__navBurger i { display: block; height: 2px; border-radius: 1px; background: var(--text); }
+
+.cinema__content {
+    position: relative;
+    flex: 1 1 auto;
+    padding: clamp(18px, 3vw, 34px);
+    text-align: left;
+    overflow: hidden;
+}
+
+.cinema__heroBlock h3 {
+    margin: 8px 0 10px;
+    font-size: clamp(18px, 2.6vw, 30px);
+}
+
+.cinema__heroBlock p {
+    color: var(--muted);
+    margin: 0;
+    font-size: clamp(12px, 1.3vw, 15px);
+    max-width: 46ch;
+}
+
+.cinema__beats {
+    margin-top: clamp(14px, 2.4vw, 26px);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(10px, 1.6vw, 18px);
+}
+
+.cinema__beat {
+    padding: clamp(12px, 1.8vw, 20px);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .035);
+    border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.cinema__beat[data-cinema-beat="responsive"] { display: none; }
+
+.cinema__beatIndex {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(var(--accent-rgb), .85);
+}
+
+.cinema__beat h4 {
+    margin: 6px 0 6px;
+    font-size: clamp(13px, 1.6vw, 17px);
+}
+
+.cinema__beat p {
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(10.5px, 1.1vw, 12.5px);
+}
+
+.cinema__mobileList {
+    text-align: left;
+    padding: clamp(18px, 4vw, 30px);
+    border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+html.cinema--active .cinema__mobileList {
+    border-top: none;
+    position: absolute;
+    inset: clamp(18px, 3vw, 34px);
+    padding: 0;
+}
+
+.cinema__mobileList h4 {
+    margin: 6px 0 14px;
+    font-size: 16px;
+}
+
+.cinema__mobileList ul {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1583,7 +1697,7 @@ svg.brand__logo {
     gap: 10px;
 }
 
-.phone__list li {
+.cinema__mobileList li {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -1593,156 +1707,181 @@ svg.brand__logo {
     border: 1px solid var(--line);
 }
 
-.phone__list li span {
-    font-weight: 800;
-    font-size: 14px;
+.cinema__mobileList li span { font-weight: 800; font-size: 14px; }
+.cinema__mobileList li em { font-style: normal; color: var(--muted); font-size: 11.5px; font-family: var(--mono); }
+
+/* ---- iPhone rig ---- */
+.cinema__phoneRig {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    transform-style: preserve-3d;
 }
 
-.phone__list li em {
-    font-style: normal;
+.cinema__phone {
+    position: relative;
+    width: min(260px, 60vw);
+    aspect-ratio: 9 / 19.5;
+    border: clamp(6px, 1.6vw, 10px) solid #1b1720;
+    border-radius: 34px;
+    overflow: hidden;
+    background: radial-gradient(120% 90% at 50% 12%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 0 1px rgba(255, 255, 255, .05);
+    transform-style: preserve-3d;
+    will-change: transform, opacity, filter;
+}
+
+.cinema__phone::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background: radial-gradient(closest-side, rgba(var(--accent-rgb), .38), transparent 72%);
+    filter: blur(18px);
+    animation: cinemaScreenPulse 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+html.cinema--active .cinema__phone {
+    /* .cinema__portal sits fixed exactly over this rect once active. */
+    background: #060509;
+}
+
+html.cinema--active .cinema__phone::before {
+    display: none;
+}
+
+.cinema__phoneNotch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 58px;
+    height: 15px;
+    background: #060509;
+    border-radius: 10px;
+    z-index: 2;
+}
+
+.cinema__phoneButtons {
+    position: absolute;
+    left: -3px;
+    top: 22%;
+    width: 3px;
+    height: 46px;
+    background: #26212e;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 78px 0 -2px #26212e, 0 118px 0 -2px #26212e;
+}
+
+.cinema__phoneSweep {
+    position: absolute;
+    inset: 0;
+    border-radius: 30px;
+    background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .18) 48%, transparent 56%);
+    background-size: 260% 260%;
+    background-position: -40% -40%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0;
+}
+
+/* ---- Finale ---- */
+.cinema__finale h2 {
+    margin: 10px 0 12px;
+    font-size: clamp(30px, 5vw, 52px);
+}
+
+.cinema__finale p {
     color: var(--muted);
-    font-size: 11.5px;
-    font-family: var(--mono);
+    max-width: 52ch;
+    margin: 0 auto 22px;
 }
 
-/* ---- Cinematic scroll-zoom override ----
-   Runs on any viewport width (incl. mobile) once the browser supports
-   scroll-driven view-timelines; @supports + reduced-motion gate it safely,
-   the static stacked layout above is the fallback. The device chrome
-   (.laptop/.phone) zooms for the "diving into the screen" effect, but the
-   readable copy lives in a separate .story__reveal sibling that is NEVER
-   transform-scaled — it fades in at its own natural size, so it can't be
-   clipped by the zoom the way text riding inside the scaled device was. */
-@supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-        .story {
-            height: 420vh;
-            padding: 0;
-            position: relative;
-            view-timeline-name: --storyScene;
-            view-timeline-axis: block;
-        }
-
-        .story__stage {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            max-width: none;
-            padding: 0 24px;
-            gap: 0;
-            overflow: hidden;
-        }
-
-        @supports (height: 100svh) {
-            .story { height: 420svh; }
-            .story__stage { height: 100svh; }
-        }
-
-        .story__intro,
-        .story__device,
-        .story__reveal {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .story__intro {
-            flex-direction: column;
-            gap: 10px;
-            animation: storyIntroOut linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 0% contain 8%;
-        }
-
-        .story__device--laptop .laptop {
-            animation: storyLaptopZoom linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 6% contain 26%;
-        }
-
-        .story__device--laptop {
-            opacity: 0;
-            animation: storyLaptopDeviceInOut linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 2% contain 54%;
-        }
-
-        .story__reveal--laptop {
-            opacity: 0;
-            animation: storyRevealLaptop linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 18% contain 54%;
-        }
-
-        .story__device--phone .phone {
-            animation: storyPhoneZoom linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 50% contain 70%;
-        }
-
-        .story__device--phone {
-            opacity: 0;
-            animation: storyPhoneDeviceInOut linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 46% contain 94%;
-        }
-
-        .story__reveal--phone {
-            opacity: 0;
-            animation: storyRevealPhone linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 62% contain 94%;
-        }
+@media (prefers-reduced-motion: reduce) {
+    .cinema__particle,
+    .cinema__macSweep,
+    .cinema__phoneSweep {
+        animation: none !important;
     }
 }
 
-@keyframes storyIntroOut {
-    from { opacity: 1; transform: translateY(0) scale(1); }
-    to { opacity: 0; transform: translateY(-30px) scale(.9); }
+/* =====================================================================
+   ACTIVE MODE — added to <html> by js/cinema.js only once GSAP + ScrollTrigger
+   have initialized and prefers-reduced-motion is "no-preference". Turns the
+   stacked fallback into the pinned camera rig; JS owns all motion from here
+   (widths/heights/transforms/colors are set inline via GSAP), CSS only sets
+   up the positioning contexts and static chrome. ===================== */
+html.cinema--active .cinema {
+    padding: 0;
+    /* Scroll distance comes from GSAP ScrollTrigger's own pin-spacer
+       (pin: '.cinema__stage', pinSpacing: true) — no fixed height needed
+       here, it grows to fit the spacer automatically. */
 }
 
-@keyframes storyLaptopZoom {
-    from { transform: scale(1); }
-    to { transform: scale(3.4); }
+html.cinema--active .cinema__stage {
+    position: relative;
+    height: 100vh;
+    max-width: none;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+    perspective: 1600px;
+    perspective-origin: 50% 50%;
+    /* GSAP's ScrollTrigger flips this to position:fixed itself while
+       pinned; "relative" here just gives its absolutely-positioned
+       children (below) a containing block before/after that. */
 }
 
-@keyframes storyPhoneZoom {
-    from { transform: scale(1); }
-    to { transform: scale(3); }
+@supports (height: 100svh) {
+    html.cinema--active .cinema__stage { height: 100svh; }
 }
 
-@keyframes storyLaptopDeviceInOut {
-    0%   { opacity: 0; }
-    15%  { opacity: 1; }
-    81%  { opacity: 1; }
-    100% { opacity: 0; }
+html.cinema--active .cinema__intro,
+html.cinema--active .cinema__macRig,
+html.cinema--active .cinema__phoneRig,
+html.cinema--active .cinema__finale {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    pointer-events: none;
 }
 
-@keyframes storyPhoneDeviceInOut {
-    0%   { opacity: 0; }
-    25%  { opacity: 1; }
-    79%  { opacity: 1; }
-    100% { opacity: 0; }
+html.cinema--active .cinema__finale a {
+    pointer-events: auto;
 }
 
-/* Fade in, hold fully readable for a long stretch, fade out — the
-   percentages are keyed to the animation-range window, not the whole
-   story timeline, so tune the range above and the hold below together. */
-@keyframes storyRevealLaptop {
-    0%   { opacity: 0; transform: translateY(16px); }
-    33%  { opacity: 1; transform: translateY(0); }
-    72%  { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-16px); }
+html.cinema--active .cinema__portal {
+    position: fixed;
+    z-index: 5;
+    margin: 0;
+    will-change: transform, width, height, top, left;
+    /* concrete top/left/width/height/border-radius set inline by GSAP */
 }
 
-@keyframes storyRevealPhone {
-    0%   { opacity: 0; transform: translateY(16px); }
-    28%  { opacity: 1; transform: translateY(0); }
-    75%  { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-16px); }
+html.cinema--active .cinema__beats {
+    grid-template-columns: 1fr;
+    position: absolute;
+    inset: clamp(18px, 3vw, 34px);
+    top: auto;
 }
+
+html.cinema--active .cinema__beat {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+}
+
+html.cinema--active .cinema__beat[data-cinema-beat="responsive"] {
+    display: block;
+}
+
+/* .cinema__nav--mobile stays display:none until js/cinema.js explicitly
+   sets display:flex right before it starts fading it in — display can't
+   be tweened, so JS owns the toggle and GSAP owns only the opacity. */
 
 /* ---------- Marquee ---------- */
 .marquee {
