@@ -6,13 +6,13 @@
     --text: #f5f3ee;
     --muted: #9c988f;
     --line: rgba(245, 243, 238, .12);
-    --accent: #8b5cf6;
-    --accent-rgb: 139, 92, 246;
+    --accent: #2997ff;
+    --accent-rgb: 41, 151, 255;
     --accent-ink: #ffffff;
-    --accent2: #6d28d9;
-    --accent2-rgb: 109, 40, 217;
-    --accent-bright: #a78bfa;
-    --accent-bright-rgb: 167, 139, 250;
+    --accent2: #0071e3;
+    --accent2-rgb: 0, 113, 227;
+    --accent-bright: #64b5ff;
+    --accent-bright-rgb: 100, 181, 255;
     --shadow: 0 24px 60px rgba(0, 0, 0, .45);
     --radius: 18px;
     --max: 1180px;
@@ -1372,9 +1372,8 @@ svg.brand__logo {
 /* Color comes from `color` (currentColor), not `background`, specifically
    so js/cinema.js can drive the whole light system by tweening a single,
    fully-interpolatable CSS property per orb via GSAP as the camera moves
-   through each scene (deep blue/purple at rest -> electric blue/cyan near
-   the Mac -> magenta/violet mid-transform -> cyan/pink near the iPhone ->
-   blue/violet/gold at the finale). */
+   through each scene — restrained blue/cyan/slate throughout, never
+   leaving that family, for a calmer, single-accent feel. */
 .cinema__orb {
     position: absolute;
     width: 56vw;
@@ -1388,9 +1387,9 @@ svg.brand__logo {
     will-change: transform, opacity, color;
 }
 
-.cinema__orb--a { top: -12%; left: -12%; color: #4c1d95; }
+.cinema__orb--a { top: -12%; left: -12%; color: #1e3a5f; }
 .cinema__orb--b { top: 22%; right: -18%; color: #2563eb; }
-.cinema__orb--c { bottom: -16%; left: 24%; color: #d946ef; opacity: .32; }
+.cinema__orb--c { bottom: -16%; left: 24%; color: #38bdf8; opacity: .28; }
 
 .cinema__particles {
     position: absolute;
@@ -1400,8 +1399,8 @@ svg.brand__logo {
 .cinema__particle {
     position: absolute;
     border-radius: 50%;
-    background: rgba(200, 200, 255, .55);
-    box-shadow: 0 0 6px 1px rgba(180, 160, 255, .35);
+    background: rgba(200, 224, 255, .55);
+    box-shadow: 0 0 6px 1px rgba(140, 190, 255, .35);
     animation: particleDrift linear infinite;
 }
 

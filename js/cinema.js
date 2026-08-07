@@ -197,9 +197,9 @@ function activateCinema(section) {
     if (contentIntro) gsap.set(contentIntro, { opacity: 0, y: 14 });
     if (beats.length) gsap.set(beats, { opacity: 0, x: 60, display: 'block' });
     if (mobileList) gsap.set(mobileList, { opacity: 0, y: 14 });
-    if (orbA) gsap.set(orbA, { color: '#4c1d95' });
+    if (orbA) gsap.set(orbA, { color: '#1e3a5f' });
     if (orbB) gsap.set(orbB, { color: '#2563eb' });
-    if (orbC) gsap.set(orbC, { color: '#d946ef', opacity: .32 });
+    if (orbC) gsap.set(orbC, { color: '#38bdf8', opacity: .28 });
     if (siteHeader) gsap.set(siteHeader, { opacity: 1, pointerEvents: 'auto' });
 
     const scrollDistance = () => Math.max(window.innerHeight * 7.2, 5200);
@@ -293,7 +293,7 @@ function activateCinema(section) {
       [portal, { top: fullT.top, left: fullT.left, width: fullT.width, height: fullT.height, borderRadius: 0 }],
       [macRig, { opacity: 0 }],
       [orbA, { color: '#2563eb' }],
-      [orbB, { color: '#7c3aed' }],
+      [orbB, { color: '#0ea5e9' }],
       [orbC, { color: '#06b6d4', opacity: .4 }],
     ]);
 
@@ -357,7 +357,7 @@ function activateCinema(section) {
       [mac, { rotationY: -14, rotationX: 5, rotationZ: 0, z: -110, scale: .97 }],
       [portal, { rotationY: -14, rotationX: 5, rotationZ: 0, z: -110 }],
       [macSweep, { opacity: .7, backgroundPosition: '140% 140%' }],
-      [orbB, { color: '#d946ef' }],
+      [orbB, { color: '#38bdf8' }],
     ]);
     tl.to(macSweep, { opacity: 0, duration: 1 }, '<+=3');
 
@@ -413,7 +413,7 @@ function activateCinema(section) {
       [phone, { rotationY: 8, rotationX: -2, z: -30 }],
       [portal, { rotationY: 8, rotationX: -2, z: -30 }],
       [phoneSweep, { opacity: .75, backgroundPosition: '140% 140%' }],
-      [orbC, { color: '#f472b6', opacity: .5 }],
+      [orbC, { color: '#7dd3fc', opacity: .4 }],
     ]);
     tl.to(phoneSweep, { opacity: 0, duration: 1 }, '<+=3');
 
@@ -471,8 +471,8 @@ function activateCinema(section) {
     phase('finale', 6, [
       [finale, { opacity: 1 }],
       [orbA, { color: '#2563eb' }],
-      [orbB, { color: '#7c3aed' }],
-      [orbC, { color: '#f59e0b', opacity: .4 }],
+      [orbB, { color: '#3b82f6' }],
+      [orbC, { color: '#94a3b8', opacity: .32 }],
     ]);
 
     ScrollTrigger.refresh();
