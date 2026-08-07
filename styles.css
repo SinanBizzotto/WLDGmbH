@@ -1342,6 +1342,36 @@ svg.brand__logo {
     justify-content: center;
 }
 
+.story__revealCard {
+    max-width: min(560px, 88vw);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: clamp(20px, 3.4vw, 34px);
+    border-radius: 22px;
+    background: rgba(10, 8, 16, .62);
+    border: 1px solid rgba(255, 255, 255, .1);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(var(--accent-rgb), .06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.story__revealCard h3 {
+    margin: 8px 0 12px;
+    font-size: clamp(22px, 3.4vw, 32px);
+}
+
+.story__revealCard p {
+    color: var(--muted);
+    margin: 0;
+    font-size: clamp(14px, 1.6vw, 17px);
+}
+
+.story__revealCard .phone__list {
+    margin-top: 4px;
+}
+
 /* ---- Laptop chrome (CSS-drawn, no image assets) ---- */
 .laptop {
     width: min(680px, 92vw);
@@ -1357,9 +1387,50 @@ svg.brand__logo {
     overflow: hidden;
     box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 40px rgba(var(--accent-rgb), .1);
     display: flex;
+    flex-direction: column;
+}
+
+.laptop__screen::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background: radial-gradient(closest-side, rgba(var(--accent-rgb), .38), transparent 72%);
+    filter: blur(18px);
+    animation: screenPulse 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.laptop__topbar {
+    position: relative;
+    z-index: 1;
+    display: flex;
     align-items: center;
-    justify-content: center;
-    padding: clamp(16px, 3vw, 40px);
+    gap: 6px;
+    padding: clamp(8px, 1.6vw, 14px) clamp(10px, 2vw, 16px);
+    border-bottom: 1px solid rgba(255, 255, 255, .07);
+    flex: 0 0 auto;
+}
+
+.laptop__dot {
+    width: clamp(6px, .9vw, 9px);
+    height: clamp(6px, .9vw, 9px);
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.laptop__dot--r { background: #ff5f57; }
+.laptop__dot--y { background: #febc2e; }
+.laptop__dot--g { background: #28c840; }
+
+.laptop__url {
+    margin-left: 10px;
+    font-family: var(--mono);
+    font-size: clamp(9px, 1vw, 11px);
+    color: var(--muted);
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .08);
+    padding: 3px 12px;
+    border-radius: 999px;
 }
 
 .laptop__base {
@@ -1383,20 +1454,16 @@ svg.brand__logo {
     border-radius: 0 0 6px 6px;
 }
 
-.laptop__content {
-    text-align: left;
-    max-width: 46ch;
-}
-
-.laptop__content h3 {
-    margin: 8px 0 12px;
-    font-size: clamp(18px, 2.6vw, 28px);
-}
-
-.laptop__content p {
-    color: var(--muted);
-    margin: 0;
-    font-size: clamp(13px, 1.4vw, 16px);
+.laptop__trackpad {
+    position: absolute;
+    left: 50%;
+    top: 2px;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 6px;
+    border-radius: 0 0 5px 5px;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-top: none;
 }
 
 /* ---- Phone chrome ---- */
@@ -1412,7 +1479,16 @@ svg.brand__logo {
     position: relative;
     overflow: hidden;
     box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 30px rgba(var(--accent-rgb), .1);
-    padding: 36px 16px 20px;
+}
+
+.phone__screen::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background: radial-gradient(closest-side, rgba(var(--accent-rgb), .38), transparent 72%);
+    filter: blur(18px);
+    animation: screenPulse 6s ease-in-out infinite;
+    pointer-events: none;
 }
 
 .phone__notch {
@@ -1427,13 +1503,75 @@ svg.brand__logo {
     z-index: 2;
 }
 
-.phone__content {
-    text-align: left;
+.phone__statusbar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(245, 243, 238, .6);
 }
 
-.phone__content h3 {
-    margin: 6px 0 14px;
-    font-size: 15px;
+.phone__statusicons {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.phone__statusicons i {
+    display: block;
+    width: 3px;
+    background: currentColor;
+    border-radius: 1px;
+}
+
+.phone__statusicons i:nth-child(1) { height: 4px; }
+.phone__statusicons i:nth-child(2) { height: 6px; }
+.phone__statusicons i:nth-child(3) { height: 8px; }
+.phone__statusicons i:nth-child(4) { height: 10px; }
+
+.phone__battery {
+    width: 16px;
+    height: 9px;
+    margin-left: 4px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+}
+
+.phone__battery::after {
+    content: "";
+    position: absolute;
+    inset: 1.5px;
+    right: 3px;
+    background: currentColor;
+    border-radius: 1px;
+}
+
+.phone__home {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, .35);
+}
+
+@keyframes screenPulse {
+    0%, 100% { opacity: .55; transform: scale(1); }
+    50% { opacity: .95; transform: scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .laptop__screen::before,
+    .phone__screen::before {
+        animation: none;
+    }
 }
 
 .phone__list {
@@ -1449,7 +1587,7 @@ svg.brand__logo {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding: 8px 10px;
+    padding: 10px 12px;
     border-radius: 10px;
     background: rgba(var(--accent-rgb), .08);
     border: 1px solid var(--line);
@@ -1457,19 +1595,26 @@ svg.brand__logo {
 
 .phone__list li span {
     font-weight: 800;
-    font-size: 12.5px;
+    font-size: 14px;
 }
 
 .phone__list li em {
     font-style: normal;
     color: var(--muted);
-    font-size: 10.5px;
+    font-size: 11.5px;
     font-family: var(--mono);
 }
 
-/* ---- Cinematic scroll-zoom override ---- */
+/* ---- Cinematic scroll-zoom override ----
+   Runs on any viewport width (incl. mobile) once the browser supports
+   scroll-driven view-timelines; @supports + reduced-motion gate it safely,
+   the static stacked layout above is the fallback. The device chrome
+   (.laptop/.phone) zooms for the "diving into the screen" effect, but the
+   readable copy lives in a separate .story__reveal sibling that is NEVER
+   transform-scaled — it fades in at its own natural size, so it can't be
+   clipped by the zoom the way text riding inside the scaled device was. */
 @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) and (min-width: 981px) {
+    @media (prefers-reduced-motion: no-preference) {
         .story {
             height: 420vh;
             padding: 0;
@@ -1483,13 +1628,19 @@ svg.brand__logo {
             top: 0;
             height: 100vh;
             max-width: none;
-            padding: 0;
+            padding: 0 24px;
             gap: 0;
             overflow: hidden;
         }
 
+        @supports (height: 100svh) {
+            .story { height: 420svh; }
+            .story__stage { height: 100svh; }
+        }
+
         .story__intro,
-        .story__device {
+        .story__device,
+        .story__reveal {
             position: absolute;
             inset: 0;
             display: flex;
@@ -1502,46 +1653,47 @@ svg.brand__logo {
             gap: 10px;
             animation: storyIntroOut linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 0% contain 9%;
+            animation-range: contain 0% contain 8%;
         }
 
         .story__device--laptop .laptop {
             animation: storyLaptopZoom linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 8% contain 40%;
-        }
-
-        .story__device--laptop .laptop__content {
-            opacity: 0;
-            animation: storyContentIn linear both;
-            animation-timeline: --storyScene;
-            animation-range: contain 13% contain 25%;
+            animation-range: contain 6% contain 26%;
         }
 
         .story__device--laptop {
-            animation: storyDeviceExit linear both;
+            opacity: 0;
+            animation: storyLaptopDeviceInOut linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 38% contain 50%;
+            animation-range: contain 2% contain 54%;
         }
 
-        .story__device--phone {
+        .story__reveal--laptop {
             opacity: 0;
-            animation: storyDeviceEnter linear both;
+            animation: storyRevealLaptop linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 41% contain 53%;
+            animation-range: contain 18% contain 54%;
         }
 
         .story__device--phone .phone {
             animation: storyPhoneZoom linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 52% contain 84%;
+            animation-range: contain 50% contain 70%;
         }
 
-        .story__device--phone .phone__content {
+        .story__device--phone {
             opacity: 0;
-            animation: storyContentIn linear both;
+            animation: storyPhoneDeviceInOut linear both;
             animation-timeline: --storyScene;
-            animation-range: contain 60% contain 72%;
+            animation-range: contain 46% contain 94%;
+        }
+
+        .story__reveal--phone {
+            opacity: 0;
+            animation: storyRevealPhone linear both;
+            animation-timeline: --storyScene;
+            animation-range: contain 62% contain 94%;
         }
     }
 }
@@ -1553,27 +1705,43 @@ svg.brand__logo {
 
 @keyframes storyLaptopZoom {
     from { transform: scale(1); }
-    to { transform: scale(6.2); }
+    to { transform: scale(3.4); }
 }
 
 @keyframes storyPhoneZoom {
     from { transform: scale(1); }
-    to { transform: scale(4.4); }
+    to { transform: scale(3); }
 }
 
-@keyframes storyContentIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes storyLaptopDeviceInOut {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    81%  { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-@keyframes storyDeviceExit {
-    from { opacity: 1; }
-    to { opacity: 0; }
+@keyframes storyPhoneDeviceInOut {
+    0%   { opacity: 0; }
+    25%  { opacity: 1; }
+    79%  { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-@keyframes storyDeviceEnter {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* Fade in, hold fully readable for a long stretch, fade out — the
+   percentages are keyed to the animation-range window, not the whole
+   story timeline, so tune the range above and the hold below together. */
+@keyframes storyRevealLaptop {
+    0%   { opacity: 0; transform: translateY(16px); }
+    33%  { opacity: 1; transform: translateY(0); }
+    72%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-16px); }
+}
+
+@keyframes storyRevealPhone {
+    0%   { opacity: 0; transform: translateY(16px); }
+    28%  { opacity: 1; transform: translateY(0); }
+    75%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-16px); }
 }
 
 /* ---------- Marquee ---------- */
