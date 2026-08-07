@@ -78,9 +78,13 @@ function activateCinema(section) {
   const finale = q('[data-cinema="finale"]');
   const navDesktop = q('[data-cinema="navDesktop"]');
   const navMobile = q('[data-cinema="navMobile"]');
-  const contentIntro = q('[data-cinema="contentIntro"]');
-  const beats = qa('[data-cinema-beat]');
-  const mobileList = q('[data-cinema="mobileList"]');
+  const landing = q('[data-cinema="landing"]');
+  const pillars = q('[data-cinema="pillars"]');
+  const pillarItems = qa('[data-cinema-pillar]');
+  const showcase = q('[data-cinema="showcase"]');
+  const projects = qa('[data-cinema-project]');
+  const exitScreen = q('[data-cinema="exit"]');
+  const app = q('[data-cinema="app"]');
   const orbA = section.querySelector('[data-cinema-orb="a"]');
   const orbB = section.querySelector('[data-cinema-orb="b"]');
   const orbC = section.querySelector('[data-cinema-orb="c"]');
@@ -194,15 +198,22 @@ function activateCinema(section) {
     gsap.set(phoneSweep, { opacity: 0, backgroundPosition: '-40% -40%' });
     if (navMobile) gsap.set(navMobile, { display: 'flex', opacity: 0 });
     if (navDesktop) gsap.set(navDesktop, { opacity: 1, z: 0 });
-    if (contentIntro) gsap.set(contentIntro, { opacity: 0, y: 14 });
-    if (beats.length) gsap.set(beats, { opacity: 0, x: 60, display: 'block' });
-    if (mobileList) gsap.set(mobileList, { opacity: 0, y: 14 });
+    if (landing) gsap.set(landing, { opacity: 0, y: 14 });
+    if (pillars) gsap.set(pillars, { opacity: 0, y: 14 });
+    if (pillarItems.length) gsap.set(pillarItems, { z: 0 });
+    if (projects.length) gsap.set(projects, { opacity: 0, x: 60, y: 0, scale: 1 });
+    if (exitScreen) gsap.set(exitScreen, { opacity: 0, y: 14 });
+    if (app) gsap.set(app, { opacity: 0, y: 14 });
     if (orbA) gsap.set(orbA, { color: '#1e3a5f' });
     if (orbB) gsap.set(orbB, { color: '#2563eb' });
     if (orbC) gsap.set(orbC, { color: '#38bdf8', opacity: .28 });
     if (siteHeader) gsap.set(siteHeader, { opacity: 1, pointerEvents: 'auto' });
 
-    const scrollDistance = () => Math.max(window.innerHeight * 7.2, 5200);
+    // 8.4x (was 7.2x): the Mac/iPhone screens now carry substantially more
+    // real content (landing -> pillars -> 3-project showcase -> exit, and a
+    // full mobile app) than the earlier placeholder beats/list, so each
+    // state needs more scroll distance to stay readable and unhurried.
+    const scrollDistance = () => Math.max(window.innerHeight * 8.4, 6000);
 
     timeline = gsap.timeline({
       defaults: { ease: 'power2.inOut' },
@@ -298,34 +309,71 @@ function activateCinema(section) {
     ]);
 
     // ---------------------------------------------------------------
-    // 5) Interface content gains depth as we settle inside it.
+    // 5) Landing: the screen resolves into a real WLD landing page —
+    //    logo, headline, CTA. This is the "first screen state" from a
+    //    readable distance, not the flat digital-world content yet.
     // ---------------------------------------------------------------
     phase('depthIn', 4, [
       [navDesktop, { z: 40 }],
-      [contentIntro, { opacity: 1, y: 0, z: 10 }],
+      [landing, { opacity: 1, y: 0, z: 10 }],
     ]);
+    tl.to(landing, { opacity: 1, duration: 2 });
+    tl.to(landing, { opacity: 0, y: -10, duration: 1.2 });
 
     // ---------------------------------------------------------------
-    // 6) Digital world: the camera passes DESIGN -> DEVELOPMENT ->
-    //    PERFORMANCE -> RESPONSIVE, one capability at a time.
+    // 6) Pillars: the flat UI's own components (Design/Development/
+    //    Performance), each nudged onto its own depth plane — this is
+    //    the flat website visibly starting to become spatial, not a
+    //    hard cut into an abstract 3D room.
+    // ---------------------------------------------------------------
+    tl.to(pillars, { opacity: 1, y: 0, duration: 1.2 });
+    if (pillarItems[0]) tl.to(pillarItems[0], { z: 60, duration: 1.4 }, '<');
+    if (pillarItems[1]) tl.to(pillarItems[1], { z: -50, duration: 1.4 }, '<');
+    if (pillarItems[2]) tl.to(pillarItems[2], { z: 90, duration: 1.4 }, '<');
+    tl.to(pillars, { opacity: 1, duration: 1.6 });
+    tl.to(pillars, { opacity: 0, y: -10, duration: 1.2 });
+    if (pillarItems.length) tl.to(pillarItems, { z: 0, duration: 1.2 }, '<');
+
+    // ---------------------------------------------------------------
+    // 7) Showcase: real WLD work, one story — website -> web app ->
+    //    mobile product. Each card's own accent colors the ambient
+    //    light while it's on screen, so the whole room tints with it.
     // ---------------------------------------------------------------
     tl.addLabel('digitalWorld');
-    tl.to(contentIntro, { opacity: 0, y: -10, duration: 1 }, 'digitalWorld');
-    // The last beat's exit doubles as "the world flattening back into a
-    // flat screen" (nav depth resets in the same motion) — no separate
-    // static, empty hold in between; the portal is already shrinking again
-    // by the time content is empty, so it never reads as a dead frame.
-    beats.forEach((beat, i) => {
-      const isLast = i === beats.length - 1;
-      tl.to(beat, { opacity: 1, x: 0, duration: 1.1 })
-        .to(beat, { opacity: 1, duration: 1.8 });
+    const projectLight = {
+      airsoft: ['#5b3a24', '#e8935a'],
+      budget: ['#0e5a63', '#22d3ee'],
+      relaxplore: ['#1d4ed8', '#38bdf8'],
+    };
+    // The last project's exit doubles as "the world flattening back into
+    // a flat screen" (nav depth resets in the same motion) — no separate
+    // static, empty hold; the portal is already shrinking again by the
+    // time content is empty, so it never reads as a dead frame.
+    projects.forEach((project, i) => {
+      const isLast = i === projects.length - 1;
+      const key = project.getAttribute('data-cinema-project');
+      const light = projectLight[key];
+      tl.to(project, { opacity: 1, x: 0, duration: 1.1 });
+      if (light && orbA) tl.to(orbA, { color: light[0], duration: 1.4 }, '<');
+      if (light && orbB) tl.to(orbB, { color: light[1], duration: 1.4 }, '<');
+      tl.to(project, { opacity: 1, duration: 1.8 });
       if (isLast) {
-        tl.to(beat, { opacity: 0, x: -60, duration: 1.4 });
+        tl.to(project, { opacity: 0, scale: .96, duration: 1.4 });
         if (navDesktop) tl.to(navDesktop, { z: 0, duration: 1.4 }, '<');
       } else {
-        tl.to(beat, { opacity: 0, x: -60, duration: 1.0 });
+        tl.to(project, { opacity: 0, scale: .96, duration: 1.0 });
       }
     });
+
+    // ---------------------------------------------------------------
+    // 7b) Exit screen: the interface has visibly evolved since we came
+    //     in — this is what leads straight into the responsive morph.
+    // ---------------------------------------------------------------
+    tl.to(exitScreen, { opacity: 1, y: 0, duration: 1.2 });
+    if (orbA) tl.to(orbA, { color: '#1e3a8a', duration: 1.2 }, '<');
+    if (orbB) tl.to(orbB, { color: '#2997ff', duration: 1.2 }, '<');
+    tl.to(exitScreen, { opacity: 1, duration: 1.6 });
+    tl.to(exitScreen, { opacity: 0, y: -10, duration: 1.2 });
 
     // ---------------------------------------------------------------
     // 8) Portal contracts back toward the Mac screen rect — NOT a
@@ -433,15 +481,18 @@ function activateCinema(section) {
     if (siteHeader) tl.to(siteHeader, { opacity: 0, pointerEvents: 'none', duration: 7 }, 'iphoneZoom');
 
     // ---------------------------------------------------------------
-    // 17) Mobile world: the curated project list takes over — a
-    //     different content composition for a different screen, same
-    //     brand, same portal, no crossfade against a duplicate.
+    // 17) Mobile world: a real Relaxplore app composition takes over —
+    //     genuinely re-composed for mobile, not the desktop UI shrunk
+    //     down. Same portal, same brand, no crossfade against a
+    //     duplicate. Relaxplore's own blue/orange tints the ambient light.
     // ---------------------------------------------------------------
     phase('mobileWorld', 5, [
-      [mobileList, { opacity: 1, y: 0 }],
+      [app, { opacity: 1, y: 0 }],
+      [orbA, { color: '#1d4ed8' }],
+      [orbB, { color: '#fb923c', opacity: .3 }],
     ]);
     tl.to({}, { duration: 3 }); // hold — fully readable, no motion, on purpose
-    tl.to(mobileList, { opacity: 0, y: -10, duration: 2 });
+    tl.to(app, { opacity: 0, y: -10, duration: 2 });
 
     // ---------------------------------------------------------------
     // 18) iPhone exit: portal contracts back into the phone shape, the

@@ -329,45 +329,106 @@
                         </nav>
 
                         <div class="cinema__content" data-cinema="content">
-                            <div class="cinema__heroBlock" data-cinema="contentIntro">
+                            <!-- 1) Landing: what you'd see the moment the screen resolves. -->
+                            <div class="cinema__landing" data-cinema="landing">
                                 <p class="kicker">Web Lab Design</p>
-                                <h3>Wir entwickeln digitale Lösungen, die verkaufen.</h3>
+                                <h3>We build digital<br>experiences.</h3>
                                 <p>Frontend als Kern, Hosting und Backend als Erweiterung – schlank,
                                     schnell, ohne Agentur-Nebel.</p>
+                                <span class="cinema__cta">Explore work<i>↗</i></span>
                             </div>
 
-                            <div class="cinema__beats" data-cinema="beats">
-                                <article class="cinema__beat" data-cinema-beat="design">
-                                    <span class="cinema__beatIndex">01</span>
-                                    <h4>Design</h4>
-                                    <p>Wireframe → UI-System → Seitenstruktur. Klarheit, Conversion,
-                                        Performance.</p>
+                            <!-- 2) Pillars: the screen's flat UI about to gain spatial depth. -->
+                            <div class="cinema__pillars" data-cinema="pillars">
+                                <p class="kicker">Digital experiences, built to perform.</p>
+                                <div class="cinema__pillarRow">
+                                    <span class="cinema__pillar" data-cinema-pillar="design"><b>01</b>Design</span>
+                                    <span class="cinema__pillar" data-cinema-pillar="development"><b>02</b>Development</span>
+                                    <span class="cinema__pillar" data-cinema-pillar="performance"><b>03</b>Performance</span>
+                                </div>
+                            </div>
+
+                            <!-- 3) Showcase: real WLD work, one story — website -> web app -> mobile product. -->
+                            <div class="cinema__showcase" data-cinema="showcase">
+                                <article class="cinema__project" data-cinema-project="airsoft">
+                                    <div class="cinema__projectMedia">
+                                        <span class="cinema__liveBadge"><i></i>LIVE</span>
+                                        <svg class="cinema__projectGraphic" viewBox="0 0 200 120" aria-hidden="true">
+                                            <path d="M0 90 L40 60 L80 78 L120 40 L160 55 L200 20 V120 H0 Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="cinema__projectInfo">
+                                        <h4>Airsoft Squad Basel 04</h4>
+                                        <p>Team-Website · Event-Registrierung · Mitgliederbereich</p>
+                                        <div class="cinema__tags"><span>React</span><span>Vite</span><span>Supabase</span></div>
+                                    </div>
                                 </article>
-                                <article class="cinema__beat" data-cinema-beat="development">
-                                    <span class="cinema__beatIndex">02</span>
-                                    <h4>Development</h4>
-                                    <p>Komponenten-Architektur, sauberer Code, saubere Übergabe.</p>
+
+                                <article class="cinema__project" data-cinema-project="budget">
+                                    <div class="cinema__projectInfo cinema__projectInfo--top">
+                                        <h4>Budget Control Center</h4>
+                                        <div class="cinema__tags"><span>React</span><span>TypeScript</span><span>Tailwind</span></div>
+                                    </div>
+                                    <div class="cinema__dash">
+                                        <div class="cinema__dashStat">
+                                            <span class="cinema__dashLabel">Total Balance</span>
+                                            <strong>CHF 12'840</strong>
+                                        </div>
+                                        <div class="cinema__dashBar">
+                                            <span class="cinema__dashLabel">Monthly budget<b>68%</b></span>
+                                            <div class="cinema__dashTrack"><i style="width:68%"></i></div>
+                                        </div>
+                                        <div class="cinema__dashStat cinema__dashStat--sm">
+                                            <span class="cinema__dashLabel">Savings</span>
+                                            <strong>CHF 4'200</strong>
+                                        </div>
+                                    </div>
                                 </article>
-                                <article class="cinema__beat" data-cinema-beat="performance">
-                                    <span class="cinema__beatIndex">03</span>
-                                    <h4>Performance</h4>
-                                    <p>Messbare Ladezeiten, Performance-Budget, echte Nutzerdaten.</p>
-                                </article>
-                                <article class="cinema__beat" data-cinema-beat="responsive">
-                                    <span class="cinema__beatIndex">04</span>
-                                    <h4>Responsive</h4>
-                                    <p>Ein Design-System, jede Bildschirmgrösse.</p>
+
+                                <article class="cinema__project" data-cinema-project="relaxplore">
+                                    <div class="cinema__projectInfo cinema__projectInfo--top">
+                                        <h4>Relaxplore</h4>
+                                        <p>Explore your next journey.</p>
+                                    </div>
+                                    <div class="cinema__tripMap" aria-hidden="true"></div>
+                                    <div class="cinema__tripCard">
+                                        <span class="cinema__dashLabel">Upcoming trip</span>
+                                        <strong>London</strong>
+                                        <span>27 Jul – 03 Aug · CHF 1'240</span>
+                                    </div>
+                                    <div class="cinema__tags"><span>React</span><span>TypeScript</span><span>Vercel</span></div>
                                 </article>
                             </div>
 
-                            <div class="cinema__mobileList" data-cinema="mobileList">
-                                <p class="kicker">Projekte</p>
-                                <h4>Ausgewählte Arbeiten.</h4>
-                                <ul>
-                                    <li><span>Airsoft Squad Basel 04</span><em>React · Supabase</em></li>
-                                    <li><span>Budget Control Center</span><em>React · TypeScript</em></li>
-                                    <li><span>Relaxplore</span><em>React · Vercel</em></li>
-                                </ul>
+                            <!-- 4) Exit: bridges straight into the responsive morph. -->
+                            <div class="cinema__exit" data-cinema="exit">
+                                <h3>Built for every screen.</h3>
+                                <div class="cinema__breakpoints">
+                                    <span>Desktop</span><span>Tablet</span><span>Mobile</span>
+                                </div>
+                            </div>
+
+                            <!-- 5) Mobile app: a real Relaxplore composition, not a shrunken
+                                 desktop — this is what fills the iPhone once fullscreen. -->
+                            <div class="cinema__app" data-cinema="app">
+                                <div class="cinema__appTop">
+                                    <span class="cinema__appLogo">Relaxplore</span>
+                                    <span class="cinema__appAvatar" aria-hidden="true"></span>
+                                </div>
+                                <h4>Where next?</h4>
+                                <div class="cinema__appSearch"><i></i>Search destinations</div>
+                                <div class="cinema__appFeatured">
+                                    <div class="cinema__appFeaturedImg" aria-hidden="true"></div>
+                                    <span>London</span><em>7 days</em>
+                                </div>
+                                <div class="cinema__appTrip">
+                                    <span class="cinema__dashLabel">Upcoming trip</span>
+                                    <strong>London</strong>
+                                    <span>27 Jul – 03 Aug · CHF 1'240</span>
+                                </div>
+                                <nav class="cinema__appTabs" aria-hidden="true">
+                                    <span class="is-active">Explore</span><span>Trips</span><span>Saved</span><span>Profile</span>
+                                </nav>
                             </div>
                         </div>
                     </div>

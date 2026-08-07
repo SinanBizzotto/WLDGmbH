@@ -1443,6 +1443,7 @@ svg.brand__logo {
     border: clamp(6px, 1.4vw, 12px) solid #1b1720;
     border-bottom: 1px solid rgba(255, 255, 255, .07);
     border-radius: 16px 16px 0 0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09);
 }
 
 .cinema__dot { width: clamp(6px, .9vw, 9px); height: clamp(6px, .9vw, 9px); border-radius: 50%; flex: 0 0 auto; }
@@ -1506,10 +1507,10 @@ html.cinema--active .cinema__macScreen::before {
     height: 16px;
     width: 114%;
     margin: 0 -7%;
-    background: linear-gradient(180deg, #26212e, #0d0c12);
+    background: linear-gradient(180deg, #302a3a, #0d0c12);
     border-radius: 0 0 11px 11px;
     position: relative;
-    box-shadow: 0 18px 30px rgba(0, 0, 0, .45);
+    box-shadow: 0 18px 30px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 
 .cinema__trackpad {
@@ -1559,6 +1560,19 @@ html.cinema--active .cinema__macScreen::before {
     display: flex;
     flex-direction: column;
     background: radial-gradient(120% 140% at 20% 15%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
+}
+
+/* A permanent, very soft glass highlight — physically present at all
+   times (unlike .cinema__macSweep/.cinema__phoneSweep, which are the
+   transient light-sweep triggered on rotation), kept faint enough that
+   it never competes with the real content sitting under it. */
+.cinema__world::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255, 255, 255, .05) 0%, transparent 22%, transparent 78%, rgba(255, 255, 255, .025) 100%);
+    pointer-events: none;
+    z-index: 5;
 }
 
 .cinema__nav {
@@ -1624,90 +1638,277 @@ html.cinema--active .cinema__macScreen::before {
     overflow: hidden;
 }
 
-.cinema__heroBlock h3 {
+/* ---- 1) Landing ---- */
+.cinema__landing h3 {
     margin: 8px 0 10px;
-    font-size: clamp(18px, 2.6vw, 30px);
+    font-size: clamp(22px, 3.2vw, 36px);
+    line-height: 1.08;
 }
 
-.cinema__heroBlock p {
+.cinema__landing p {
     color: var(--muted);
-    margin: 0;
+    margin: 0 0 clamp(10px, 1.6vw, 16px);
     font-size: clamp(12px, 1.3vw, 15px);
-    max-width: 46ch;
+    max-width: 42ch;
 }
 
-.cinema__beats {
-    margin-top: clamp(14px, 2.4vw, 26px);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(10px, 1.6vw, 18px);
+.cinema__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: clamp(11px, 1.15vw, 13px);
+    font-weight: 700;
+    padding: clamp(7px, 1.1vw, 10px) clamp(14px, 2vw, 20px);
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
 }
 
-.cinema__beat {
-    padding: clamp(12px, 1.8vw, 20px);
-    border-radius: 14px;
+.cinema__cta i { font-style: normal; }
+
+/* ---- 2) Pillars: flat UI right before it gains spatial depth ---- */
+.cinema__pillars .kicker {
+    font-size: clamp(16px, 2.2vw, 24px);
+    font-weight: 800;
+    letter-spacing: 0;
+    color: var(--text);
+    font-family: inherit;
+    text-transform: none;
+}
+
+.cinema__pillarRow {
+    display: flex;
+    gap: clamp(8px, 1.6vw, 16px);
+    margin-top: clamp(14px, 2.2vw, 22px);
+}
+
+.cinema__pillar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: clamp(8px, 1.3vw, 12px) clamp(12px, 1.8vw, 18px);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid rgba(255, 255, 255, .09);
+    font-size: clamp(10.5px, 1.15vw, 13px);
+    color: var(--muted);
+}
+
+.cinema__pillar b {
+    font-family: var(--mono);
+    color: rgba(var(--accent-rgb), .9);
+    font-size: .9em;
+}
+
+/* ---- 3) Showcase: real project cards ---- */
+.cinema__showcase {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(14px, 2.2vw, 22px);
+    margin-top: clamp(6px, 1vw, 10px);
+}
+
+.cinema__project {
+    padding: clamp(14px, 2vw, 22px);
+    border-radius: 16px;
     background: rgba(255, 255, 255, .035);
     border: 1px solid rgba(255, 255, 255, .08);
 }
 
-.cinema__beat[data-cinema-beat="responsive"] { display: none; }
+.cinema__project[data-cinema-project="airsoft"] { --pA: 232, 147, 90; --pA2: 194, 112, 58; }
+.cinema__project[data-cinema-project="budget"] { --pA: 34, 211, 238; --pA2: 52, 211, 153; }
+.cinema__project[data-cinema-project="relaxplore"] { --pA: 56, 189, 248; --pA2: 251, 146, 60; }
 
-.cinema__beatIndex {
+.cinema__projectMedia {
+    position: relative;
+    aspect-ratio: 16 / 7;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(var(--pA), .28), rgba(var(--pA2), .12));
+    margin-bottom: clamp(10px, 1.6vw, 16px);
+}
+
+.cinema__projectGraphic {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.cinema__projectGraphic path {
+    fill: rgba(var(--pA), .5);
+}
+
+.cinema__liveBadge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-family: var(--mono);
-    font-size: 10px;
-    color: rgba(var(--accent-rgb), .85);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(10, 10, 13, .55);
+    border: 1px solid rgba(255, 255, 255, .12);
+    color: var(--text);
 }
 
-.cinema__beat h4 {
-    margin: 6px 0 6px;
-    font-size: clamp(13px, 1.6vw, 17px);
+.cinema__liveBadge i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 6px 1px rgba(52, 211, 153, .7);
 }
 
-.cinema__beat p {
-    margin: 0;
+.cinema__projectInfo h4 {
+    margin: 0 0 4px;
+    font-size: clamp(14px, 1.7vw, 19px);
+}
+
+.cinema__projectInfo p {
+    margin: 0 0 8px;
     color: var(--muted);
     font-size: clamp(10.5px, 1.1vw, 12.5px);
 }
 
-.cinema__mobileList {
-    text-align: left;
-    padding: clamp(18px, 4vw, 30px);
-    border-top: 1px solid rgba(255, 255, 255, .07);
+.cinema__projectInfo--top { margin-bottom: clamp(10px, 1.6vw, 16px); }
+
+.cinema__tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.cinema__tags span {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(var(--pA, var(--accent-rgb)), .12);
+    border: 1px solid rgba(var(--pA, var(--accent-rgb)), .3);
+    color: var(--text);
 }
 
-html.cinema--active .cinema__mobileList {
-    border-top: none;
+/* Budget dashboard */
+.cinema__dash { display: flex; flex-direction: column; gap: clamp(10px, 1.6vw, 16px); }
+.cinema__dashStat { display: flex; flex-direction: column; gap: 2px; }
+.cinema__dashStat strong { font-size: clamp(18px, 2.4vw, 26px); }
+.cinema__dashStat--sm strong { font-size: clamp(14px, 1.8vw, 18px); }
+.cinema__dashLabel {
+    font-size: clamp(9.5px, 1vw, 11px);
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+}
+.cinema__dashLabel b { color: rgba(var(--pA), .95); font-family: var(--mono); }
+.cinema__dashBar { display: flex; flex-direction: column; gap: 6px; }
+.cinema__dashTrack { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.cinema__dashTrack i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, rgb(var(--pA)), rgb(var(--pA2))); }
+
+/* Relaxplore trip */
+.cinema__tripMap {
+    aspect-ratio: 16 / 7;
+    border-radius: 12px;
+    margin-bottom: clamp(10px, 1.6vw, 16px);
+    background:
+        radial-gradient(closest-side, rgba(var(--pA), .35), transparent 70%) 30% 40% / 55% 90% no-repeat,
+        linear-gradient(135deg, rgba(var(--pA2), .18), rgba(255, 255, 255, .03));
+    position: relative;
+}
+.cinema__tripMap::after {
+    content: "";
     position: absolute;
-    inset: clamp(18px, 3vw, 34px);
-    padding: 0;
+    left: 30%;
+    top: 38%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50% 50% 50% 0;
+    background: rgb(var(--pA2));
+    transform: translate(-50%, -100%) rotate(-45deg);
+    box-shadow: 0 0 8px 1px rgba(var(--pA2), .6);
+}
+.cinema__tripCard { display: flex; flex-direction: column; gap: 2px; margin-bottom: clamp(10px, 1.6vw, 16px); }
+.cinema__tripCard strong { font-size: clamp(15px, 1.9vw, 19px); }
+.cinema__tripCard span:last-child { color: var(--muted); font-size: clamp(10.5px, 1.1vw, 12.5px); }
+
+/* ---- 4) Exit ---- */
+.cinema__exit h3 {
+    margin: 0 0 clamp(12px, 2vw, 20px);
+    font-size: clamp(20px, 2.8vw, 32px);
+}
+.cinema__breakpoints {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 1.6vw, 18px);
+    padding-top: clamp(10px, 1.6vw, 16px);
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.cinema__breakpoints span {
+    font-family: var(--mono);
+    font-size: clamp(9.5px, 1vw, 11px);
+    letter-spacing: .06em;
+    color: var(--muted);
 }
 
-.cinema__mobileList h4 {
-    margin: 6px 0 14px;
-    font-size: 16px;
-}
-
-.cinema__mobileList ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+/* ---- 5) Mobile app (Relaxplore) ---- */
+/* Capped to a believable phone width and centered, regardless of the
+   portal's actual pixel width — on desktop the "inside the iPhone"
+   fullscreen state is still the real (wide) viewport, and without this
+   the app's aspect-ratio blocks would stretch edge to edge and blow out
+   vertically, breaking the mobile-app illusion the whole point of this
+   screen is to sell. */
+.cinema__app {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    max-width: 420px;
+    margin: 0 auto;
+    width: 100%;
 }
-
-.cinema__mobileList li {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(var(--accent-rgb), .08);
-    border: 1px solid var(--line);
+.cinema__appTop { display: flex; align-items: center; justify-content: space-between; margin-bottom: clamp(14px, 4vw, 22px); }
+.cinema__appLogo { font-weight: 800; font-size: clamp(13px, 3.6vw, 15px); }
+.cinema__appAvatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #fb923c);
+    flex: 0 0 auto;
 }
-
-.cinema__mobileList li span { font-weight: 800; font-size: 14px; }
-.cinema__mobileList li em { font-style: normal; color: var(--muted); font-size: 11.5px; font-family: var(--mono); }
+.cinema__app h4 { margin: 0 0 clamp(12px, 3.4vw, 18px); font-size: clamp(20px, 5.4vw, 24px); }
+.cinema__appSearch {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 14px; border-radius: 12px;
+    background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .09);
+    color: var(--muted); font-size: clamp(11.5px, 3vw, 13px);
+    margin-bottom: clamp(14px, 4vw, 20px);
+}
+.cinema__appSearch i { width: 13px; height: 13px; border-radius: 50%; border: 1.6px solid var(--muted); flex: 0 0 auto; }
+.cinema__appFeatured {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: clamp(14px, 4vw, 20px);
+    background: linear-gradient(160deg, rgba(56, 189, 248, .3), rgba(251, 146, 60, .15));
+    display: flex; align-items: flex-end; padding: 12px;
+    gap: 8px;
+}
+.cinema__appFeaturedImg { position: absolute; inset: 0; background: radial-gradient(closest-side, rgba(56, 189, 248, .35), transparent 70%) 70% 30% / 60% 100% no-repeat; }
+.cinema__appFeatured span { position: relative; font-weight: 800; font-size: 15px; }
+.cinema__appFeatured em { position: relative; font-style: normal; color: var(--muted); font-size: 11px; align-self: center; }
+.cinema__appTrip {
+    padding: 12px 14px; border-radius: 12px;
+    background: rgba(var(--accent-rgb), .08); border: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 2px;
+    margin-bottom: auto;
+}
+.cinema__appTrip strong { font-size: 15px; }
+.cinema__appTrip span:last-child { color: var(--muted); font-size: 11px; }
+.cinema__appTabs {
+    display: flex; justify-content: space-between;
+    padding-top: 14px; margin-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    font-size: 9.5px; color: var(--muted);
+}
+.cinema__appTabs .is-active { color: var(--text); font-weight: 700; }
 
 /* ---- iPhone rig ---- */
 .cinema__phoneRig {
@@ -1725,7 +1926,11 @@ html.cinema--active .cinema__mobileList {
     border-radius: 34px;
     overflow: hidden;
     background: radial-gradient(120% 90% at 50% 12%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 0 1px rgba(255, 255, 255, .05);
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, .6),
+        inset 0 0 0 1px rgba(255, 255, 255, .07),
+        inset 0 1px 0 rgba(255, 255, 255, .14),
+        inset 0 -1px 0 rgba(0, 0, 0, .3);
     transform-style: preserve-3d;
     will-change: transform, opacity, filter;
 }
@@ -1861,21 +2066,35 @@ html.cinema--active .cinema__portal {
     /* concrete top/left/width/height/border-radius set inline by GSAP */
 }
 
-html.cinema--active .cinema__beats {
-    grid-template-columns: 1fr;
+html.cinema--active .cinema__landing,
+html.cinema--active .cinema__pillars,
+html.cinema--active .cinema__showcase,
+html.cinema--active .cinema__exit,
+html.cinema--active .cinema__app {
     position: absolute;
     inset: clamp(18px, 3vw, 34px);
-    top: auto;
 }
 
-html.cinema--active .cinema__beat {
+/* .cinema__app additionally needs to stay phone-width even when the
+   portal itself is desktop-wide (the "inside the iPhone" fullscreen
+   state is still the viewer's real, possibly-wide, viewport) — left+
+   right+width all set at once (as the shared rule above does via
+   `inset`) is over-constrained, so this overrides specifically the
+   horizontal properties to center a capped-width box instead. Comes
+   after the shared rule on purpose: same specificity, so this wins on
+   just the properties it redeclares (left/right/transform/width),
+   while top/bottom still come from the rule above. */
+html.cinema--active .cinema__app {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(420px, calc(100% - 2 * clamp(18px, 3vw, 34px)));
+}
+
+html.cinema--active .cinema__project {
     position: absolute;
     inset: 0;
     opacity: 0;
-}
-
-html.cinema--active .cinema__beat[data-cinema-beat="responsive"] {
-    display: block;
 }
 
 /* .cinema__nav--mobile stays display:none until js/cinema.js explicitly
