@@ -25,14 +25,36 @@
 // block for position:fixed descendants, which would silently break its
 // viewport tracking.
 
+// GSAP/ScrollTrigger are loaded via plain <script> tags right before this
+// module, so by spec they're guaranteed to have run by the time a deferred
+// module executes — but a script-optimization layer sitting in front of the
+// site (Cloudflare's Rocket Loader and similar) can rewrite/reorder plain
+// <script> tags and break that guarantee silently. Poll briefly instead of
+// checking once, so a few hundred ms of unlucky load order doesn't
+// permanently strand the page on the static fallback.
+function whenGsapReady(callback, attemptsLeft = 60) {
+  if (typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined') {
+    callback();
+    return;
+  }
+  if (attemptsLeft <= 0) {
+    console.warn('cinema: GSAP/ScrollTrigger never became available — leaving static fallback in place');
+    return;
+  }
+  setTimeout(() => whenGsapReady(callback, attemptsLeft - 1), 50);
+}
+
 function initCinema() {
   const section = document.getElementById('cinema');
   if (!section) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
-  if (typeof window.gsap === 'undefined' || typeof window.ScrollTrigger === 'undefined') return;
 
+  whenGsapReady(() => activateCinema(section));
+}
+
+function activateCinema(section) {
   const gsap = window.gsap;
   const ScrollTrigger = window.ScrollTrigger;
   gsap.registerPlugin(ScrollTrigger);
