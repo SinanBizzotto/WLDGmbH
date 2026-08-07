@@ -345,6 +345,39 @@ function initScrollProgress() {
   update();
 }
 
+// ---------- Theme-aware header ----------
+// The site is mostly dark, but a couple of sections (Projects, CTA) run
+// the light theme — see .section--light in styles.css. Toggles
+// .header--light whenever one of those sections sits directly behind the
+// sticky header, so the logo/nav/CTA invert instead of a dark header
+// floating unreadably over a light section.
+function initHeaderTheme() {
+  const header = qs('.header');
+  const lightSections = qsa('.section--light');
+  if (!header || !lightSections.length) return;
+
+  let ticking = false;
+  const update = () => {
+    const lineY = header.offsetHeight / 2;
+    const isLight = lightSections.some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top <= lineY && r.bottom >= lineY;
+    });
+    header.classList.toggle('header--light', isLight);
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+
+  update();
+}
+
 // ---------- Reveal-on-scroll ----------
 // Content is visible by default (see styles.css); only once we know
 // IntersectionObserver works do we opt into the hide-then-reveal animation,
@@ -615,6 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCaseStudies();
   initContactForm();
   initScrollProgress();
+  initHeaderTheme();
   initScrollReveal();
   initCountUp();
   initHeroTilt();

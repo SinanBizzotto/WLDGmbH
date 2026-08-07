@@ -204,9 +204,12 @@ function activateCinema(section) {
     if (projects.length) gsap.set(projects, { opacity: 0, x: 60, y: 0, scale: 1 });
     if (exitScreen) gsap.set(exitScreen, { opacity: 0, y: 14 });
     if (app) gsap.set(app, { opacity: 0, y: 14 });
-    if (orbA) gsap.set(orbA, { color: '#1e3a5f' });
-    if (orbB) gsap.set(orbB, { color: '#2563eb' });
-    if (orbC) gsap.set(orbC, { color: '#38bdf8', opacity: .28 });
+    // Monochrome brightness journey: dark graphite at the start, slowly
+    // brightening toward near-white by the iPhone/finale — never a hue.
+    // Real color stays reserved for the project content itself.
+    if (orbA) gsap.set(orbA, { color: '#2a2a2a' });
+    if (orbB) gsap.set(orbB, { color: '#3a3a3a' });
+    if (orbC) gsap.set(orbC, { color: '#6a6a6a', opacity: .22 });
     if (siteHeader) gsap.set(siteHeader, { opacity: 1, pointerEvents: 'auto' });
 
     // 8.4x (was 7.2x): the Mac/iPhone screens now carry substantially more
@@ -253,8 +256,8 @@ function activateCinema(section) {
       [macRig, { opacity: 1 }],
       [mac, { z: -90, scale: 1, opacity: 1, filter: 'blur(0px)', rotationX: 6, rotationY: -12, rotationZ: 1 }],
       [portal, { opacity: 1, rotationX: 6, rotationY: -12, rotationZ: 1, z: -90 }],
-      [orbA, { color: '#1d4ed8' }],
-      [orbB, { color: '#06b6d4' }],
+      [orbA, { color: '#333333' }],
+      [orbB, { color: '#454545' }],
     ]);
 
     // ---------------------------------------------------------------
@@ -303,9 +306,9 @@ function activateCinema(section) {
     phase('portalFullscreen', 5, [
       [portal, { top: fullT.top, left: fullT.left, width: fullT.width, height: fullT.height, borderRadius: 0 }],
       [macRig, { opacity: 0 }],
-      [orbA, { color: '#2563eb' }],
-      [orbB, { color: '#0ea5e9' }],
-      [orbC, { color: '#06b6d4', opacity: .4 }],
+      [orbA, { color: '#3d3d3d' }],
+      [orbB, { color: '#525252' }],
+      [orbC, { color: '#787878', opacity: .35 }],
     ]);
 
     // ---------------------------------------------------------------
@@ -336,26 +339,22 @@ function activateCinema(section) {
 
     // ---------------------------------------------------------------
     // 7) Showcase: real WLD work, one story — website -> web app ->
-    //    mobile product. Each card's own accent colors the ambient
-    //    light while it's on screen, so the whole room tints with it.
+    //    mobile product. The room itself stays monochrome and keeps
+    //    brightening on its own arc; only the project cards' own
+    //    content (see .cinema__project's --pA/--pA2) carries real
+    //    color, which is the whole point — color reads as valuable
+    //    specifically because the room around it doesn't have any.
     // ---------------------------------------------------------------
     tl.addLabel('digitalWorld');
-    const projectLight = {
-      airsoft: ['#5b3a24', '#e8935a'],
-      budget: ['#0e5a63', '#22d3ee'],
-      relaxplore: ['#1d4ed8', '#38bdf8'],
-    };
+    tl.to(orbA, { color: '#474747', duration: 1.4 });
+    if (orbB) tl.to(orbB, { color: '#5e5e5e', duration: 1.4 }, '<');
     // The last project's exit doubles as "the world flattening back into
     // a flat screen" (nav depth resets in the same motion) — no separate
     // static, empty hold; the portal is already shrinking again by the
     // time content is empty, so it never reads as a dead frame.
     projects.forEach((project, i) => {
       const isLast = i === projects.length - 1;
-      const key = project.getAttribute('data-cinema-project');
-      const light = projectLight[key];
       tl.to(project, { opacity: 1, x: 0, duration: 1.1 });
-      if (light && orbA) tl.to(orbA, { color: light[0], duration: 1.4 }, '<');
-      if (light && orbB) tl.to(orbB, { color: light[1], duration: 1.4 }, '<');
       tl.to(project, { opacity: 1, duration: 1.8 });
       if (isLast) {
         tl.to(project, { opacity: 0, scale: .96, duration: 1.4 });
@@ -370,8 +369,8 @@ function activateCinema(section) {
     //     in — this is what leads straight into the responsive morph.
     // ---------------------------------------------------------------
     tl.to(exitScreen, { opacity: 1, y: 0, duration: 1.2 });
-    if (orbA) tl.to(orbA, { color: '#1e3a8a', duration: 1.2 }, '<');
-    if (orbB) tl.to(orbB, { color: '#2997ff', duration: 1.2 }, '<');
+    if (orbA) tl.to(orbA, { color: '#585858', duration: 1.2 }, '<');
+    if (orbB) tl.to(orbB, { color: '#707070', duration: 1.2 }, '<');
     tl.to(exitScreen, { opacity: 1, duration: 1.6 });
     tl.to(exitScreen, { opacity: 0, y: -10, duration: 1.2 });
 
@@ -405,7 +404,7 @@ function activateCinema(section) {
       [mac, { rotationY: -14, rotationX: 5, rotationZ: 0, z: -110, scale: .97 }],
       [portal, { rotationY: -14, rotationX: 5, rotationZ: 0, z: -110 }],
       [macSweep, { opacity: .7, backgroundPosition: '140% 140%' }],
-      [orbB, { color: '#38bdf8' }],
+      [orbB, { color: '#7a7a7a' }],
     ]);
     tl.to(macSweep, { opacity: 0, duration: 1 }, '<+=3');
 
@@ -461,7 +460,7 @@ function activateCinema(section) {
       [phone, { rotationY: 8, rotationX: -2, z: -30 }],
       [portal, { rotationY: 8, rotationX: -2, z: -30 }],
       [phoneSweep, { opacity: .75, backgroundPosition: '140% 140%' }],
-      [orbC, { color: '#7dd3fc', opacity: .4 }],
+      [orbC, { color: '#9a9a9a', opacity: .4 }],
     ]);
     tl.to(phoneSweep, { opacity: 0, duration: 1 }, '<+=3');
 
@@ -475,8 +474,8 @@ function activateCinema(section) {
         borderRadius: 0, rotationX: 0, rotationY: 0, z: -10,
       }],
       [phoneRig, { opacity: 0 }],
-      [orbA, { color: '#0891b2' }],
-      [orbB, { color: '#2563eb' }],
+      [orbA, { color: '#6a6a6a' }],
+      [orbB, { color: '#8c8c8c' }],
     ]);
     if (siteHeader) tl.to(siteHeader, { opacity: 0, pointerEvents: 'none', duration: 7 }, 'iphoneZoom');
 
@@ -484,12 +483,13 @@ function activateCinema(section) {
     // 17) Mobile world: a real Relaxplore app composition takes over —
     //     genuinely re-composed for mobile, not the desktop UI shrunk
     //     down. Same portal, same brand, no crossfade against a
-    //     duplicate. Relaxplore's own blue/orange tints the ambient light.
+    //     duplicate. The room keeps brightening toward the finale;
+    //     Relaxplore's own blue/orange stays inside the app's content.
     // ---------------------------------------------------------------
     phase('mobileWorld', 5, [
       [app, { opacity: 1, y: 0 }],
-      [orbA, { color: '#1d4ed8' }],
-      [orbB, { color: '#fb923c', opacity: .3 }],
+      [orbA, { color: '#7a7a7a' }],
+      [orbB, { color: '#a8a8a8', opacity: .3 }],
     ]);
     tl.to({}, { duration: 3 }); // hold — fully readable, no motion, on purpose
     tl.to(app, { opacity: 0, y: -10, duration: 2 });
@@ -521,9 +521,9 @@ function activateCinema(section) {
     // ---------------------------------------------------------------
     phase('finale', 6, [
       [finale, { opacity: 1 }],
-      [orbA, { color: '#2563eb' }],
-      [orbB, { color: '#3b82f6' }],
-      [orbC, { color: '#94a3b8', opacity: .32 }],
+      [orbA, { color: '#8a8a8a' }],
+      [orbB, { color: '#b0b0b0' }],
+      [orbC, { color: '#e0e0e0', opacity: .3 }],
     ]);
 
     ScrollTrigger.refresh();

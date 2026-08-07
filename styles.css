@@ -1,25 +1,47 @@
 :root {
-    --bg: #0a0a0d;
-    --bg-soft: #111114;
-    --surface: rgba(245, 243, 238, .04);
-    --surface-strong: rgba(245, 243, 238, .08);
-    --text: #f5f3ee;
-    --muted: #9c988f;
-    --line: rgba(245, 243, 238, .12);
-    --accent: #2997ff;
-    --accent-rgb: 41, 151, 255;
-    --accent-ink: #ffffff;
-    --accent2: #0071e3;
-    --accent2-rgb: 0, 113, 227;
-    --accent-bright: #64b5ff;
-    --accent-bright-rgb: 100, 181, 255;
-    --shadow: 0 24px 60px rgba(0, 0, 0, .45);
+    --bg: #070707;
+    --bg-soft: #121212;
+    --surface: rgba(245, 245, 243, .04);
+    --surface-strong: rgba(245, 245, 243, .08);
+    --text: #f5f5f3;
+    --muted: #9a9a96;
+    --line: rgba(245, 245, 243, .12);
+    /* "Accent" is now the monochrome highlight, not a hue — near-white
+       for primary emphasis (buttons, active states), mid-grey for the
+       dimmer end of gradients/glows. Every rgba(var(--accent-rgb), X)
+       tint across the site (borders, hover glows, focus rings) becomes
+       a neutral white/grey light instead of a colored one from this
+       one change. */
+    --accent: #f0f0ee;
+    --accent-rgb: 240, 240, 238;
+    --accent-ink: #0a0a0a;
+    --accent2: #9a9a96;
+    --accent2-rgb: 154, 154, 150;
+    --accent-bright: #ffffff;
+    --accent-bright-rgb: 255, 255, 255;
+    --shadow: 0 24px 60px rgba(0, 0, 0, .5);
     --radius: 18px;
     --max: 1180px;
     --ease: cubic-bezier(.16, 1, .3, 1);
     --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
     --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
-    --glow: 0 0 0 1px rgba(var(--accent-rgb), .25), 0 0 24px rgba(var(--accent-rgb), .35);
+    --glow: 0 0 0 1px rgba(var(--accent-rgb), .18), 0 0 24px rgba(var(--accent-rgb), .2);
+    --field-bg: rgba(0, 0, 0, .2);
+
+    /* Light-theme tokens — scoped to .section--light (Projects, CTA) and
+       consumed by .header when it's scrolled over one of those sections.
+       .section--light re-points the CORE tokens (--bg/--text/--muted/
+       --surface/--line/--accent*) at these values, so every existing
+       component that already reads var(--text) etc. (cards, buttons,
+       form fields, chips) automatically renders correctly in the light
+       theme with no per-component rewrite. */
+    --bg-l: #f7f7f5;
+    --surface-l: rgba(10, 10, 10, .035);
+    --surface-l-strong: rgba(10, 10, 10, .07);
+    --text-l: #0a0a0a;
+    --muted-l: #5c5c58;
+    --line-l: rgba(10, 10, 10, .1);
+    --field-bg-l: rgba(10, 10, 10, .045);
 }
 
 @property --glareX {
@@ -408,6 +430,25 @@ a {
     background: rgba(10, 10, 13, .78);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--line);
+    transition: background .4s var(--ease), border-color .4s var(--ease);
+}
+
+/* Toggled by js/app.js (initHeaderTheme) via IntersectionObserver
+   whenever a .section--light region sits directly under the sticky
+   header — same token-redefinition trick as .section--light, so the
+   logo, nav links and CTA button all invert without individual rules. */
+.header--light {
+    background: rgba(247, 247, 245, .82);
+    border-bottom-color: rgba(10, 10, 10, .1);
+    --text: var(--text-l);
+    --muted: var(--muted-l);
+    --line: var(--line-l);
+    --surface: var(--surface-l);
+    --accent: #0a0a0a;
+    --accent-rgb: 10, 10, 10;
+    --accent-ink: #ffffff;
+    --accent2: #2a2a2a;
+    --accent2-rgb: 42, 42, 42;
 }
 
 .header__inner {
@@ -585,10 +626,12 @@ svg.brand__logo {
     padding: 13px 20px;
     border-radius: 999px;
     border: 1px solid transparent;
-    /* accent2, not accent: the deeper shade keeps white button text at a
-       safe WCAG AA contrast ratio (~7:1) while --accent stays for lighter
-       decorative use (glows, gradients, borders). */
-    background: var(--accent2);
+    /* Primary button, dark context: near-white background, black text
+       (--accent-ink) — the monochrome equivalent of "white bg/black
+       text" from the design brief. Needs --accent (the bright token),
+       not --accent2 (mid-grey) — that pairing would put black text on
+       a mid-grey background, well under WCAG AA contrast. */
+    background: var(--accent);
     color: var(--accent-ink);
     font-weight: 800;
     cursor: pointer;
@@ -1372,8 +1415,10 @@ svg.brand__logo {
 /* Color comes from `color` (currentColor), not `background`, specifically
    so js/cinema.js can drive the whole light system by tweening a single,
    fully-interpolatable CSS property per orb via GSAP as the camera moves
-   through each scene — restrained blue/cyan/slate throughout, never
-   leaving that family, for a calmer, single-accent feel. */
+   through each scene — a single monochrome brightness journey (dark
+   graphite at the start, brightening toward near-white by the iPhone/
+   finale) rather than any hue. Real color is reserved for the actual
+   project content on screen (see .cinema__project), never the room. */
 .cinema__orb {
     position: absolute;
     width: 56vw;
@@ -1382,14 +1427,14 @@ svg.brand__logo {
     max-height: 820px;
     border-radius: 50%;
     filter: blur(70px);
-    opacity: .55;
+    opacity: .5;
     background: radial-gradient(closest-side, currentColor, transparent 72%);
     will-change: transform, opacity, color;
 }
 
-.cinema__orb--a { top: -12%; left: -12%; color: #1e3a5f; }
-.cinema__orb--b { top: 22%; right: -18%; color: #2563eb; }
-.cinema__orb--c { bottom: -16%; left: 24%; color: #38bdf8; opacity: .28; }
+.cinema__orb--a { top: -12%; left: -12%; color: #2a2a2a; }
+.cinema__orb--b { top: 22%; right: -18%; color: #3a3a3a; }
+.cinema__orb--c { bottom: -16%; left: 24%; color: #6a6a6a; opacity: .22; }
 
 .cinema__particles {
     position: absolute;
@@ -1399,8 +1444,8 @@ svg.brand__logo {
 .cinema__particle {
     position: absolute;
     border-radius: 50%;
-    background: rgba(200, 224, 255, .55);
-    box-shadow: 0 0 6px 1px rgba(140, 190, 255, .35);
+    background: rgba(235, 235, 235, .5);
+    box-shadow: 0 0 6px 1px rgba(210, 210, 210, .3);
     animation: particleDrift linear infinite;
 }
 
@@ -1439,8 +1484,8 @@ svg.brand__logo {
     align-items: center;
     gap: 6px;
     padding: clamp(8px, 1.6vw, 14px) clamp(10px, 2vw, 16px);
-    background: linear-gradient(180deg, #1b1720, #121017);
-    border: clamp(6px, 1.4vw, 12px) solid #1b1720;
+    background: linear-gradient(180deg, #1c1c1c, #131313);
+    border: clamp(6px, 1.4vw, 12px) solid #1c1c1c;
     border-bottom: 1px solid rgba(255, 255, 255, .07);
     border-radius: 16px 16px 0 0;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09);
@@ -1468,7 +1513,7 @@ svg.brand__logo {
     border-radius: 0 0 5px 5px;
     position: relative;
     overflow: hidden;
-    background: radial-gradient(120% 140% at 22% 18%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
+    background: radial-gradient(120% 140% at 22% 18%, rgba(var(--accent-rgb), .22), transparent 60%), #070707;
 }
 
 .cinema__macScreen::before {
@@ -1484,7 +1529,7 @@ svg.brand__logo {
 html.cinema--active .cinema__macScreen {
     /* .cinema__portal sits fixed exactly over this rect once active — this
        placeholder just needs to not show through around its edges. */
-    background: #060509;
+    background: #070707;
 }
 
 html.cinema--active .cinema__macScreen::before {
@@ -1507,7 +1552,7 @@ html.cinema--active .cinema__macScreen::before {
     height: 16px;
     width: 114%;
     margin: 0 -7%;
-    background: linear-gradient(180deg, #302a3a, #0d0c12);
+    background: linear-gradient(180deg, #323232, #0e0e0e);
     border-radius: 0 0 11px 11px;
     position: relative;
     box-shadow: 0 18px 30px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .12);
@@ -1551,7 +1596,7 @@ html.cinema--active .cinema__macScreen::before {
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, .08);
     box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
-    background: #060509;
+    background: #070707;
 }
 
 .cinema__world {
@@ -1559,7 +1604,7 @@ html.cinema--active .cinema__macScreen::before {
     inset: 0;
     display: flex;
     flex-direction: column;
-    background: radial-gradient(120% 140% at 20% 15%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
+    background: radial-gradient(120% 140% at 20% 15%, rgba(var(--accent-rgb), .22), transparent 60%), #070707;
 }
 
 /* A permanent, very soft glass highlight — physically present at all
@@ -1614,7 +1659,7 @@ html.cinema--active .cinema__macScreen::before {
     padding: clamp(4px, .8vw, 6px) clamp(8px, 1.6vw, 14px);
     border-radius: 999px;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
+    color: var(--accent-ink);
     flex: 0 0 auto;
     white-space: nowrap;
 }
@@ -1661,7 +1706,7 @@ html.cinema--active .cinema__macScreen::before {
     padding: clamp(7px, 1.1vw, 10px) clamp(14px, 2vw, 20px);
     border-radius: 999px;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
+    color: var(--accent-ink);
 }
 
 .cinema__cta i { font-style: normal; }
@@ -1761,8 +1806,8 @@ html.cinema--active .cinema__macScreen::before {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #34d399;
-    box-shadow: 0 0 6px 1px rgba(52, 211, 153, .7);
+    background: #f0f0f0;
+    box-shadow: 0 0 6px 1px rgba(240, 240, 240, .7);
 }
 
 .cinema__projectInfo h4 {
@@ -1869,7 +1914,7 @@ html.cinema--active .cinema__macScreen::before {
 .cinema__appLogo { font-weight: 800; font-size: clamp(13px, 3.6vw, 15px); }
 .cinema__appAvatar {
     width: 26px; height: 26px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #fb923c);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
     flex: 0 0 auto;
 }
 .cinema__app h4 { margin: 0 0 clamp(12px, 3.4vw, 18px); font-size: clamp(20px, 5.4vw, 24px); }
@@ -1922,10 +1967,10 @@ html.cinema--active .cinema__macScreen::before {
     position: relative;
     width: min(260px, 60vw);
     aspect-ratio: 9 / 19.5;
-    border: clamp(6px, 1.6vw, 10px) solid #1b1720;
+    border: clamp(6px, 1.6vw, 10px) solid #1c1c1c;
     border-radius: 34px;
     overflow: hidden;
-    background: radial-gradient(120% 90% at 50% 12%, rgba(var(--accent-rgb), .22), transparent 60%), #060509;
+    background: radial-gradient(120% 90% at 50% 12%, rgba(var(--accent-rgb), .22), transparent 60%), #070707;
     box-shadow:
         0 30px 80px rgba(0, 0, 0, .6),
         inset 0 0 0 1px rgba(255, 255, 255, .07),
@@ -1947,7 +1992,7 @@ html.cinema--active .cinema__macScreen::before {
 
 html.cinema--active .cinema__phone {
     /* .cinema__portal sits fixed exactly over this rect once active. */
-    background: #060509;
+    background: #070707;
 }
 
 html.cinema--active .cinema__phone::before {
@@ -1961,7 +2006,7 @@ html.cinema--active .cinema__phone::before {
     transform: translateX(-50%);
     width: 58px;
     height: 15px;
-    background: #060509;
+    background: #070707;
     border-radius: 10px;
     z-index: 2;
 }
@@ -1972,9 +2017,9 @@ html.cinema--active .cinema__phone::before {
     top: 22%;
     width: 3px;
     height: 46px;
-    background: #26212e;
+    background: #282828;
     border-radius: 2px 0 0 2px;
-    box-shadow: 0 78px 0 -2px #26212e, 0 118px 0 -2px #26212e;
+    box-shadow: 0 78px 0 -2px #282828, 0 118px 0 -2px #282828;
 }
 
 .cinema__phoneSweep {
@@ -2154,6 +2199,34 @@ html.cinema--active .cinema__project {
     background: var(--bg-soft);
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
+}
+
+/* Light-theme scope (Projects, CTA) — re-points the core tokens that
+   every existing component already reads (--bg/--text/--muted/
+   --surface/--line/--field-bg/--accent*), so cards, chips, buttons and
+   form fields all render correctly here with no per-component
+   overrides. This is the intentional "brightens toward the end" beat
+   in the page's black -> white -> black arc; the footer goes back to
+   --bg (dark) right after. */
+.section--light {
+    --bg: var(--bg-l);
+    --bg-soft: var(--bg-l);
+    --surface: var(--surface-l);
+    --surface-strong: var(--surface-l-strong);
+    --text: var(--text-l);
+    --muted: var(--muted-l);
+    --line: var(--line-l);
+    --field-bg: var(--field-bg-l);
+    --accent: #0a0a0a;
+    --accent-rgb: 10, 10, 10;
+    --accent-ink: #ffffff;
+    --accent2: #2a2a2a;
+    --accent2-rgb: 42, 42, 42;
+    --accent-bright: #000000;
+    --accent-bright-rgb: 0, 0, 0;
+    --shadow: 0 24px 50px rgba(10, 10, 10, .12);
+    background: var(--bg);
+    color: var(--text);
 }
 
 .section--cta {
@@ -3081,7 +3154,7 @@ html.cinema--active .cinema__project {
     padding: 12px 12px;
     border-radius: 12px;
     border: 1px solid var(--line);
-    background: rgba(0, 0, 0, .2);
+    background: var(--field-bg);
     color: var(--text);
     outline: none;
     font-family: inherit;
@@ -3096,7 +3169,8 @@ html.cinema--active .cinema__project {
 
 .form input::placeholder,
 .form textarea::placeholder {
-    color: rgba(156, 152, 143, .8);
+    color: var(--muted);
+    opacity: .8;
 }
 
 .form__row {
